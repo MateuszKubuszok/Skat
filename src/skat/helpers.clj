@@ -11,5 +11,5 @@
       (let [[h & t] appended]
         (recur (conj result h) t)))))
 
-(defn property-matches? [n v c]
+(defn property-matches? "Whether card's property as given" [n v c]
   (identical? (n c) v))
