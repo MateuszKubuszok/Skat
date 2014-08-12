@@ -1,6 +1,5 @@
 (ns skat.model
-  (require ['skat.helpers/append :as append
-            'skat.helpers/list-from :as 'list-from]))
+  (:require [skat.helpers :as helpers]))
 
 ;;; Colors
 
@@ -23,6 +22,8 @@
 ;;; Cards
 
 (defrecord Card [color value])
+(defn property-matches? "Whether card's property as given" [n v c]
+  (identical? (n c) v))
 (defn compare-by-color-normal "Order by color in normal game"
   [c1 c2]
   (letfn [(W? [c]
@@ -64,15 +65,15 @@
 (def deck "Complete deck of cards"
   (letfn [(cards-of-color [c]
             (let [cards-of-value #(Card. c %)]
-              (list-from cards-of-value values)))
+              (helpers/list-from cards-of-value values)))
           (cards-grouped-by-color []
-            (list-from cards-of-color colors))]
+            (helpers/list-from cards-of-color colors))]
     (flatten (cards-grouped-by-color))))
 
 ;;; Configuration
 
 (def types "Games' types"
-  (append colors '( :grand :null )))
+  (helpers/append colors '( :grand :null )))
 (def types-ordinals "Types ordinals"
   { :grand 6 :kreuz 5 :grun 4 :herz 3 :schell 2 :null 1 })
 (defrecord Configuration [type with-skat ouvert])
