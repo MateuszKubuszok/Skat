@@ -24,7 +24,7 @@
 (defrecord Card [color value])
 (defn property-matches? "Whether card's property as given" [n v c]
   (identical? (n c) v))
-(defn compare-by-color-normal "Order by color in normal game"
+(defn compare-by-color-normal "Order cards by color in normal game"
   [c1 c2]
   (letfn [(W? [c]
             (property-matches? :value :W c))
@@ -35,7 +35,7 @@
     (let [o1 (W-exceptonal-ordinal c1)
           o2 (W-exceptonal-ordinal c2)]
       (compare o1 o2))))
-(defn compare-by-color-null "Order by color in null game"
+(defn compare-by-color-null "Order cards by color in null game"
   [c1 c2]
   (letfn [(ordinal [c]
             ((:color c) color-ordinal))]
@@ -46,11 +46,11 @@
   (let [o1 ((:value c1) fun)
         o2 ((:value c2) fun)]
     (compare o1 o2)))
-(def compare-by-value-normal "Order by value in normal game"
+(def compare-by-value-normal "Order cards by value in normal game"
   (partial compare-by-value value-ordinal-normal))
-(def compare-by-value-null "Order by value in null game"
+(def compare-by-value-null "Order cards by value in null game"
   (partial compare-by-value value-ordinal-null))
-(defn compare-for-sort "Compose comparator for values and colors"
+(defn compare-for-sort "Compose comparator of cards for values and colors"
   [compare-by-value compare-by-color]
   (fn [c1 c2]
     (if (identical? (:color c1) (:color c2))
@@ -62,7 +62,7 @@
   (partial filter-cards :color))
 (def filter-value "Filter cards by value"
   (partial filter-cards :value))
-(def deck "Complete deck of cards"
+(def deck "Complete deck of cards (unsorted)"
   (letfn [(cards-of-color [c]
             (let [cards-of-value #(Card. c %)]
               (helpers/list-from cards-of-value values)))
@@ -72,8 +72,8 @@
 
 ;;; Configuration
 
-(def types "Games' types"
+(def types "Possible games' types"
   (helpers/append colors '( :grand :null )))
-(def types-ordinals "Types ordinals"
+(def types-ordinals "Types' ordinals"
   { :grand 6 :kreuz 5 :grun 4 :herz 3 :schell 2 :null 1 })
 (defrecord Configuration [type with-skat ouvert])
