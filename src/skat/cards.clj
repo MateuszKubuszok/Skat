@@ -1,4 +1,4 @@
-(ns skat.model
+(ns skat.cards
   (:require [skat.helpers :as helpers]))
 
 ;;; Colors
@@ -83,45 +83,3 @@
         rear (take 10 (drop 20 shuffled-cards))
         skat (take 2 (drop 30 shuffled-cards))]
     { :front front :middle middle :rear rear :skat skat }))
-
-;;; Configuration
-
-(def types "Possible games' types"
-  (helpers/append colors '( :grand :null )))
-(def types-ordinals "Types' ordinals"
-  { :grand 6 :kreuz 5 :grun 4 :herz 3 :schell 2 :null 1 })
-(defrecord Configuration [type with-skat ouvert])
-
-;;; Responses
-
-(defn allowed-responses-null "Filters allowed responses in null games"
-  [c cards]
-  (let [matching-color (filter-color (:color c) cards)]
-    (if (empty? matching-color) cards matching-color)))
-(defn allowed-responses-grand "Filters allowed responses in grand games"
-  [c cards]
-  (if (property-matches? :figure :W c)
-    (filter-figure :W cards)
-    (allowed-responses-null c cards)))
-(defn allowed-responses-color [color c cards]
-  (let [trump (helpers/append
-                (filter-color color cards)
-                (filter-figure :W cards))]
-    (if (empty? trump)
-      (allowed-responses-null c cards)
-      trump)))
-(def allowed-responses-kreuz "Filters allowed responses in kreuz games"
-  (partial allowed-responses-color :kreuz))
-(def allowed-responses-grun "Filters allowed responses in grun games"
-  (partial allowed-responses-color :grun))
-(def allowed-responses-herz "Filters allowed responses in herz games"
-  (partial allowed-responses-color :herz))
-(def allowed-responses-schell "Filters allowed responses in schell games"
-  (partial allowed-responses-color :schell))
-(def allowed-responses "Allowed responses for each game"
-  { :grand allowed-responses-grand
-    :kreuz allowed-responses-kreuz
-    :grun allowed-responses-grun
-    :herz allowed-responses-herz
-    :schell allowed-responses-schell
-    :null allowed-responses-null })
