@@ -16,6 +16,13 @@
   { :7 0 :8 1 :9 3 :Q 4 :K 5 :10 6 :A 7 :W 8 })
 (def figure-ordinal-null "Figures' ordnals in null games"
   { :7 0 :8 1 :9 3 :10 7 :W 4 :Q 5 :K 6 :A 8 })
+(def figure-ordinals "Figures ordinals for each game"
+  { :grand figure-ordinal-normal
+    :kreuz figure-ordinal-normal
+    :grun figure-ordinal-normal
+    :herz figure-ordinal-normal
+    :schell figure-ordinal-normal
+    :null figure-ordinal-null })
 (def figure-values "Values for each card figure"
   { :7 0 :8 0 :9 0 :W 2 :Q 3 :K 4 :10 10 :A 11 })
 
@@ -69,6 +76,13 @@
           (cards-grouped-by-color []
             (helpers/list-from cards-of-color colors))]
     (flatten (cards-grouped-by-color))))
+(defn deal-cards "Returns dealt cards" []
+  (let [shuffled-cards (shuffle deck)
+        front (take 10 shuffled-cards)
+        middle (take 10 (drop 10 shuffled-cards))
+        rear (take 10 (drop 20 shuffled-cards))
+        skat (take 2 (drop 30 shuffled-cards))]
+    { :front front :middle middle :rear rear :skat skat }))
 
 ;;; Configuration
 
@@ -78,12 +92,36 @@
   { :grand 6 :kreuz 5 :grun 4 :herz 3 :schell 2 :null 1 })
 (defrecord Configuration [type with-skat ouvert])
 
-;;; Game
+;;; Responses
 
-(defn deal-cards [] "Returns dealt cards"
-  (let [shuffled-cards (shuffle deck)
-        front (take 10 shuffled-cards)
-        middle (take 10 (drop 10 shuffled-cards))
-        rear (take 10 (drop 20 shuffled-cards))
-        skat (take 2 (drop 30 shuffled-cards))]
-    { :front front :middle middle :rear rear :skat skat }))
+(defn allowed-responses-null "Filters allowed responses in null games"
+  [c cards]
+  (let [matching-color (filter-color (:color c) cards)]
+    (if (empty? matching-color) cards matching-color)))
+(defn allowed-responses-grand "Filters allowed responses in grand games"
+  [c cards]
+  (if (property-matches? :figure :W c)
+    (filter-figure :W cards)
+    (allowed-responses-null c cards)))
+(defn allowed-responses-color [color c cards]
+  (let [trump (helpers/append
+                (filter-color color cards)
+                (filter-figure :W cards))]
+    (if (empty? trump)
+      (allowed-responses-null c cards)
+      trump)))
+(def allowed-responses-kreuz "Filters allowed responses in kreuz games"
+  (partial allowed-responses-color :kreuz))
+(def allowed-responses-grun "Filters allowed responses in grun games"
+  (partial allowed-responses-color :grun))
+(def allowed-responses-herz "Filters allowed responses in herz games"
+  (partial allowed-responses-color :herz))
+(def allowed-responses-schell "Filters allowed responses in schell games"
+  (partial allowed-responses-color :schell))
+(def allowed-responses "Allowed responses for each game"
+  { :grand allowed-responses-grand
+    :kreuz allowed-responses-kreuz
+    :grun allowed-responses-grun
+    :herz allowed-responses-herz
+    :schell allowed-responses-schell
+    :null allowed-responses-null })
