@@ -77,3 +77,13 @@
 (def types-ordinals "Types' ordinals"
   { :grand 6 :kreuz 5 :grun 4 :herz 3 :schell 2 :null 1 })
 (defrecord Configuration [type with-skat ouvert])
+
+;;; Game
+
+(defn deal-cards [] "Returns dealt cards"
+  (let [shuffled-cards (shuffle deck)
+        front (take 10 shuffled-cards)
+        middle (take 10 (drop 10 shuffled-cards))
+        rear (take 10 (drop 20 shuffled-cards))
+        skat (take 2 (drop 30 shuffled-cards))]
+    { :front front :middle middle :rear rear :skat skat }))
