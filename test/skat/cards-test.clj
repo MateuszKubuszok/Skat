@@ -1,4 +1,4 @@
-(ns skat.cards-test
+(ns skat.cards_test
   (:require [clojure.test :refer :all]
             [skat.cards :refer :all]))
 
@@ -49,4 +49,3 @@
       (is (neg? (compare-for-sort-null c3 c2)))
       (is (pos? (compare-for-sort-null c2 c3))))))
 
-(compare-by-color-normal-test)

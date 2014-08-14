@@ -1,4 +1,4 @@
-(ns skat.helpers-test
+(ns skat.helpers_test
   (:require [clojure.test :refer :all]
             [skat.helpers :refer :all]))
 
