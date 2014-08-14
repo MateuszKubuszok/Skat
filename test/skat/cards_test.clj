@@ -6,6 +6,9 @@
 (def c2 (skat.cards.Card. :kreuz :K))
 (def c3 (skat.cards.Card. :schell :W))
 (def c4 (skat.cards.Card. :schell :K))
+(def cards (list c1 c2 c3 c4))
+
+(defn same-elements? [coll1 coll2] (= (set coll1) (set coll2)))
 
 (deftest property-matches?-test
   (testing "checks Cards's property"
@@ -49,3 +52,48 @@
       (is (neg? (compare-for-sort-null c3 c2)))
       (is (pos? (compare-for-sort-null c2 c3))))))
 
+(deftest filter-cards-test
+  (testing "filters by property"
+    (is (same-elements?
+          (filter-cards :color :kreuz cards)
+          (list c1 c2)))
+    (is (same-elements?
+          (filter-cards :figure :W cards)
+          (list c1 c3)))))
+
+(deftest filter-color-test
+  (testing "filters by color"
+    (is (same-elements?
+          (filter-color :kreuz cards)
+          (list c1 c2)))))
+
+(deftest filter-figure-test
+  (testing "filters by figure"
+    (is (same-elements?
+          (filter-figure :W cards)
+          (list c1 c3)))))
+
+(deftest deck-test
+  (testing "deck contains one piece of each card"
+    (let [deck-set (set deck)]
+      (is (== 32 (count deck-set)))
+      (is (== 8 (count (filter #(= (:color %) :kreuz) deck-set))))
+      (is (== 8 (count (filter #(= (:color %) :grun) deck-set))))
+      (is (== 8 (count (filter #(= (:color %) :herz) deck-set))))
+      (is (== 8 (count (filter #(= (:color %) :schell) deck-set))))
+      (is (== 4 (count (filter #(= (:figure %) :7) deck-set))))
+      (is (== 4 (count (filter #(= (:figure %) :8) deck-set))))
+      (is (== 4 (count (filter #(= (:figure %) :9) deck-set))))
+      (is (== 4 (count (filter #(= (:figure %) :10) deck-set))))
+      (is (== 4 (count (filter #(= (:figure %) :W) deck-set))))
+      (is (== 4 (count (filter #(= (:figure %) :Q) deck-set))))
+      (is (== 4 (count (filter #(= (:figure %) :K) deck-set))))
+      (is (== 4 (count (filter #(= (:figure %) :A) deck-set)))))))
+
+(deftest deal-cards-test
+  (testing "deal cards correctly"
+    (let [deal (deal-cards)]
+      (is (== 10 (count (:front deal))))
+      (is (== 10 (count (:middle deal))))
+      (is (== 10 (count (:rear deal))))
+      (is (== 2 (count (:skat deal)))))))
