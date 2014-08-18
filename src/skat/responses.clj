@@ -8,13 +8,10 @@
   (let [filtered (filter fun coll)]
     (if (empty? filtered) coll filtered)))
 (defn allow-trumph-then-color-then-everything [trumph? c coll]
-  (let [trumphs (filter trumph? coll)]
-    (if (trumph? c)
-      trumphs
-      (letfn [(not-trumph? [c2]
-                (and (not (trumph? c2))
-                     (cards/property-matches? :color (:color c) c2)))]
-        (filter-if-not-empty not-trumph? coll)))))
+  (letfn [(not-trumph? [c2]
+            (and (not (trumph? c2))
+                 (cards/property-matches? :color (:color c) c2)))]
+    (filter-if-not-empty (if (trumph? c) trumph? not-trumph?) coll)))
 
 (defn W? [c]
   (cards/property-matches? :figure :W c))
