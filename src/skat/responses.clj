@@ -2,24 +2,36 @@
   (:require [skat.helpers :as helpers]
             [skat.cards :as cards]))
 
+;;; General patterns
+
+(defn filter-if-not-empty [fun coll]
+  (let [filtered (filter fun coll)]
+    (if (empty? filtered) coll filtered)))
+(defn allow-trumph-then-color-then-everything [trumph? c coll]
+  (let [trumphs (filter trumph? coll)]
+    (if (trumph? c)
+      trumphs
+      (letfn [(not-trumph? [c2]
+                (and (not (trumph? c2))
+                     (cards/property-matches? :color (:color c) c2)))]
+        (filter-if-not-empty not-trumph? coll)))))
+
+(defn W? [c]
+  (cards/property-matches? :figure :W c))
+(defn color? [color c]
+  (cards/property-matches? :color color c))
+
 ;;; Responses
 
-(defn allowed-for-null "Filters allowed responses in null games"
-  [c cards]
-  (let [matching-color (cards/filter-color (:color c) cards)]
-    (if (empty? matching-color) cards matching-color)))
-(defn allowed-for-grand "Filters allowed responses in grand games"
-  [c cards]
-  (if (cards/property-matches? :figure :W c)
-    (cards/filter-figure :W cards)
-    (allowed-for-null c cards)))
+(defn allowed-for-null "Filters allowed responses in null games" [c cards]
+  (letfn [(trumph? [c] false)]
+    (allow-trumph-then-color-then-everything trumph? c cards)))
+(defn allowed-for-grand "Filters allowed responses in grand games" [c cards]
+  (letfn [(trumph? [c] (W? c))]
+    (allow-trumph-then-color-then-everything trumph? c cards)))
 (defn allowed-for-color [color c cards]
-  (let [trump (helpers/append
-                (cards/filter-color color cards)
-                (cards/filter-figure :W cards))]
-    (if (empty? trump)
-      (allowed-for-null c cards)
-      trump)))
+  (letfn [(trumph? [c] (or (W? c) (color? color c)))]
+     (allow-trumph-then-color-then-everything trumph? c cards)))
 (def allowed-for-kreuz "Filters allowed responses in kreuz games"
   (partial allowed-for-color :kreuz))
 (def allowed-for-grun "Filters allowed responses in grun games"
