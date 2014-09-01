@@ -39,7 +39,8 @@
 
 (defn update-cards-owned [cards-owned played-now]
   (letfn [(used-now? [player card] (= (played-now player) card))
-          (remove-card [player] (remove (partial used-now? player) (cards-owned player)))]
+          (remove-card [player] (set
+            (remove (partial used-now? player) (cards-owned player))))]
     (update-cards cards-owned remove-card)))
 
 (defn update-knowledge [knowledge turn played-now]
