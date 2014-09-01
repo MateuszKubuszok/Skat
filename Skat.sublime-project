@@ -1,0 +1,39 @@
+{
+  "folders": [
+    {
+      "path":                    ".",
+      "name":                    "Configuration",
+      "file_exclude_patterns":   [ ".lein-deps-sum", ".lein-failures" ],
+      "folder_exclude_patterns": [ "classes", "lib", "src", "test" ]
+    },
+    {
+      "path": "src/skat",
+      "name": "Sources",
+    },
+    {
+      "path": "test/skat",
+      "name": "Tests"
+    },
+  ],
+  "settings": {
+    "ensure_newline_at_eof_on_save":     true,
+    "rulers":                            [ 80 ],
+    "tab_size":                          2,
+    "translate_tabs_to_spaces":          true,
+    "trim_trailing_white_space_on_save": true
+  },
+  "build_systems": [
+    {
+      "name":    "Build Program",
+      "selector":  "source.clojure",
+      "shell_cmd":   "lein uberjar",
+      "working_dir": "${project_path}"
+    },
+    {
+      "name":    "Run Tests",
+      "selector":  "source.clojure",
+      "shell_cmd":   "lein test",
+      "working_dir": "${project_path}"
+    }
+  ]
+}
