@@ -32,8 +32,32 @@
          knowledge { :p1 p-knowledge }
          played-now { :p1 c1, :p2 c2 }]
      (testing "updates played and owned cards"
-         (is (=
-           (update-knowledge knowledge played-now)
-           { :p1 (skat.game.PlayerKnowledge. :p1
-                                             { :p1 #{ c1 }, :p2 #{ c2 } }
-                                             { :p1 #{}, :p2 #{} }) })))))
+       (is (=
+         (update-knowledge knowledge played-now)
+         { :p1 (skat.game.PlayerKnowledge. :p1
+                                           { :p1 #{ c1 }, :p2 #{ c2 } }
+                                           { :p1 #{}, :p2 #{} }) })))))
+
+ (deftest next-turn-order-test
+   (let [p1-start { :p1 :p1, :p2 :p2, :p3 :p3 }
+         p2-start { :p1 :p2, :p2 :p3, :p3 :p1 }
+         p3-start { :p1 :p3, :p2 :p1, :p3 :p2 }]
+     (testing "winner rotates correctly"
+       (is (= (next-turn-order p1-start :p1) p1-start))
+       (is (= (next-turn-order p1-start :p2) p2-start))
+       (is (= (next-turn-order p1-start :p3) p3-start))
+       (is (= (next-turn-order p2-start :p1) p1-start))
+       (is (= (next-turn-order p2-start :p2) p2-start))
+       (is (= (next-turn-order p2-start :p3) p3-start))
+       (is (= (next-turn-order p3-start :p1) p1-start))
+       (is (= (next-turn-order p3-start :p2) p2-start))
+       (is (= (next-turn-order p3-start :p3) p3-start)))))
+ 
+ (deftest next-turn-test
+   (testing "next turn rotates correctly"
+     (is (=
+       (next-turn (skat.game.Turn. {} {} { :p1 :p1, :p2 :p2, :p3 :p3 }) :p2)
+       (skat.game.Turn. {} {} { :p1 :p2, :p2 :p3, :p3 :p1 })))))
+ 
+ 
+ 

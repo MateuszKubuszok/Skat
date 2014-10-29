@@ -53,21 +53,21 @@
 
 ;;; Turn update
 
-(defn next-turn-order [order winner]
-  (let [{:keys [p1 p2 p3]} order]
-    (if (= p1 winner) order
-      (if (= p2 winner) { :p1 p2 :p2 p3 :p3 p1 }
-        (if (= p3 winner) { :p1 p3 :p2 p1 :p3 p2 })))))
-(defn next-turn [turn winner]
-  (let [{:keys [order]} turn]
-    (assoc turn :order (next-turn-order order winner))))
-(defn play-turn [config {:keys [turn knowledge]}]
-  (let [{:keys [players order]} turn
-        {:keys [p1 p2 p3]} order
-        c1 ((:play-1st-card-fun p1) config (knowledge p1))
+(defn next-turn-order [{:keys [p1 p2 p3] :as order} winner]
+  (cond
+    (= winner p1) order
+    (= winner p2) { :p1 p2, :p2 p3, :p3 p1 }
+    (= winner p3) { :p1 p3, :p2 p1, :p3 p2 }
+    :else nil))
+(defn next-turn [{:keys [order] :as turn} winner]
+   (assoc turn :order (next-turn-order order winner)))
+(defn play-turn [config
+                 { { {:keys [p1 p2 p3]} :players :as turn} :turn 
+                   knowledge :knowledge }]
+  (let [c1 ((:play-1st-card-fun p1) config (knowledge p1))
         c2 ((:play-2nd-card-fun p2) config (knowledge p2) c1)
         c3 ((:play-3rd-card-fun p3) config (knowledge p3) c1 c2)
         played-now { :p1 c1 :p2 c2 :p3 c3 }
         winner ((:who-won? config) c1 c2 c3)]
     { :turn (next-turn turn winner)
-      :knowledge (update-knowledge knowledge turn played-now)}))
+      :knowledge (update-knowledge knowledge played-now)}))
