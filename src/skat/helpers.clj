@@ -10,3 +10,9 @@
       result
       (let [[h & t] appended]
         (recur (conj result h) t)))))
+
+(defn update-all [m fun & args]
+  (letfn [(update-one [result [key value]]
+            (assoc result key (apply fun value args)))]
+    (reduce update-one {} m)))
+ 

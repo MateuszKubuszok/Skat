@@ -16,3 +16,10 @@
     (is (=
           (append [1 2] [3 4])
           [1 2 3 4]))))
+
+(deftest update-all-test
+  (testing "updates all map values"
+    (is (=
+          (update-all { :a 1, :b 2, :c 3 } inc)
+          { :a 2, :b 3, :c 4 }))))
+ 

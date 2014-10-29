@@ -1,4 +1,5 @@
-(ns skat.game)
+(ns skat.game
+  (:require [skat.helpers :as helpers]))
 
 ;;; Configuration
 
@@ -43,10 +44,12 @@
             (remove (partial used-now? player) (cards-owned player))))]
     (update-cards cards-owned remove-card)))
 
-(defn update-knowledge [knowledge turn played-now]
-  (-> knowledge
-    (update-in [1 :cards-played] update-cards-played played-now)
-    (update-in [1 :cards-owned] update-cards-owned played-now)))
+(defn update-knowledge [knowledge played-now]
+  (helpers/update-all
+    knowledge
+    (fn [player-knowledge] (-> player-knowledge
+      (update-in [:cards-played] update-cards-played played-now)
+      (update-in [:cards-owned] update-cards-owned played-now)))))
 
 ;;; Turn update
 
