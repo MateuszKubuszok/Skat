@@ -11,8 +11,11 @@
       (let [[h & t] appended]
         (recur (conj result h) t)))))
 
-(defn update-all [m fun & args]
+(defn update-all "Updates values of a map" [m fun & args]
   (letfn [(update-one [result [key value]]
             (assoc result key (apply fun value args)))]
     (reduce update-one {} m)))
  
+(defn replace-by-key "Replaces all map value basing on its keys" [m fun & args]
+  (let [ks (keys m)]
+    (zipmap ks (map #(apply fun % args) ks))))

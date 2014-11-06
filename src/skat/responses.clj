@@ -4,18 +4,20 @@
 
 ;;; General patterns
 
-(defn filter-if-not-empty [fun coll]
+(defn filter-if-not-empty "Filters collection if it won't make it empty"
+  [fun coll]
   (let [filtered (filter fun coll)]
     (if (empty? filtered) coll filtered)))
-(defn allow-trumph-then-color-then-everything [trumph? c coll]
+(defn allow-trumph-then-color-then-everything "Filters only allowed cards"
+  [trumph? c coll]
   (letfn [(matching-non-trumph? [c2]
             (and (not (trumph? c2))
                  (cards/property-matches? :color (:color c) c2)))]
     (filter-if-not-empty (if (trumph? c) trumph? matching-non-trumph?) coll)))
 
-(defn W? [c]
+(defn W? "Whether card is a valet" [c]
   (cards/property-matches? :figure :W c))
-(defn color? [color c]
+(defn color? "Whether card is of given color" [color c]
   (cards/property-matches? :color color c))
 
 ;;; Responses

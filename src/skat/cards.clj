@@ -29,8 +29,9 @@
 ;;; Cards
 
 (defrecord Card [color figure])
-(defn property-matches? "Whether card's property as given" [n v c]
-  (identical? (n c) v))
+(defn property-matches? "Whether card's property as given" [p v c]
+  {:pre [(contains? #{:color :figure} p)]}
+  (identical? (p c) v))
 (defn compare-by-color-normal "Order cards by color in normal game"
   [c1 c2]
   (letfn [(W? [c]
@@ -62,7 +63,7 @@
   (fn [c1 c2]
     (if (identical? (:color c1) (:color c2))
       (compare-by-figure c1 c2)
-      (compare-by-color c1 c2))))
+      (compare-by-color  c1 c2))))
 (defn filter-cards [property-name property-figure cards]
   (filter (partial property-matches? property-name property-figure) cards))
 (def filter-color "Filter cards by color"
@@ -78,8 +79,8 @@
     (flatten (cards-grouped-by-color))))
 (defn deal-cards "Returns dealt cards" []
   (let [shuffled-cards (shuffle deck)
-        front (take 10 shuffled-cards)
+        front  (take 10 shuffled-cards)
         middle (take 10 (drop 10 shuffled-cards))
-        rear (take 10 (drop 20 shuffled-cards))
-        skat (take 2 (drop 30 shuffled-cards))]
-    { :front front :middle middle :rear rear :skat skat }))
+        rear   (take 10 (drop 20 shuffled-cards))
+        skat   (take 2  (drop 30 shuffled-cards))]
+    { :front front, :middle middle, :rear rear, :skat skat }))
