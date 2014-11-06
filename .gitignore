@@ -1,12 +1,16 @@
+/.metadata
 /checkouts
 /classes
 /lib
 /native
 /target
+/.classpath
 /.lein-failures
 /.lein-deps-sum
 /.lein-repl-history
 /.nrepl-port
+/.project
+/lein.sh
 /pom.xml
 /Skat.sublime-workspace
 *jar
