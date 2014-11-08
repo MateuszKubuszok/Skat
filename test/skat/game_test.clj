@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [clojure.pprint :refer :all]
             [clojure.tools.trace :refer :all]
+            [skat.helpers :as helpers]
   	        [skat.cards :refer :all]
             [skat.game :refer :all]))
 
@@ -36,22 +37,20 @@
         (update-cards-owned players-cards played-now)
         { pl1 #{c2}, pl2 #{c1}, pl3 #{c3} })))))
 
-;(deftest update-knowledge-test
-;  (let [p-knowledge (skat.game.PlayerKnowledge. pl1
-;                                                { pl1 #{}, pl2 #{} }
-;                                                { pl1 #{ c1 }, pl2 #{} })
-;        knowledge { pl1 p-knowledge }
-;        played-now { pl1 c1, pl2 c2 }]
-;    (testing "updates played and owned cards"
-;      (is (=
-;        (update-knowledge knowledge played-now)
-;        { pl1 (skat.game.PlayerKnowledge. pl1
-;                                          { pl1 #{ c1 }, pl2 #{ c2 } }
-;                                          { pl1 #{}, pl2 #{} }) })))))
+(deftest update-knowledge-test
+  (let [p-knowledge (skat.game.PlayerKnowledge. pl1 played-cards players-cards)
+        knowledge { pl1 p-knowledge }
+        played-now { pl1 c1, pl2 c3, pl3 c2 }]
+    (testing "updates played and owned cards"
+      (is (=
+        (update-knowledge knowledge played-now)
+        { pl1 (skat.game.PlayerKnowledge. pl1
+                                          { pl1 [c1], pl2 [c3], pl3 [c2] }
+                                          { pl1 #{c2}, pl2 #{c1}, pl3 #{c3} }) })))))
 
 (deftest figure-situation-test
   (letfn [(mock-knowledge [pl]
-            (skat.game.PlayerKnowledge. pl [] (players-cards pl)))]
+            (skat.game.PlayerKnowledge. pl played-cards players-cards))]
     (let [p1-knowledge (mock-knowledge pl1)
           p2-knowledge (mock-knowledge pl2)
           p3-knowledge (mock-knowledge pl3)]  
@@ -107,15 +106,16 @@
 
 (deftest play-turn-test
   (letfn [(mock-knowledge [pl]
-            (skat.game.PlayerKnowledge. pl
-                                        { pl1 [], pl2 [], pl3 [] }
-                                        (players-cards pl)))]
+            (skat.game.PlayerKnowledge. pl played-cards players-cards))]
     (let [p1-knowledge (mock-knowledge pl1)
           p2-knowledge (mock-knowledge pl2)
           p3-knowledge (mock-knowledge pl3)
           knowledge { pl1 p1-knowledge, pl2 p2-knowledge, pl3 p3-knowledge }
           turn (skat.game.Turn. order)
           deal (skat.game.Deal. knowledge turn #{})
-          next-deal (skat.game.Deal. knowledge (next-turn turn pl1) #{})]
+          next-deal (skat.game.Deal.
+                      (update-knowledge knowledge { pl1 c1, pl2 c3, pl3 c3 })
+                      (next-turn turn pl1)
+                      #{})]
       (testing "calculates next turn"
         (is (= (play-turn conf-grand deal) next-deal))))))

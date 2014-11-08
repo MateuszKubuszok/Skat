@@ -57,25 +57,20 @@
   (helpers/update-all
     knowledge
     (fn [player-knowledge]
-      ;{:pre [(sets/subset? #{:cards-played :cards-owned} (keys player-knowledge))]}
       (-> player-knowledge
-        (helpers/pass-value (:cards-played player-knowledge))
         (update-in [:cards-played] update-cards-played played-now)
-        helpers/log-value
-        (helpers/pass-value (:cards-owned player-knowledge))
-        (update-in [:cards-owned] update-cards-owned played-now)
-        (helpers/pass-value "done")
-        ))))
+        (update-in [:cards-owned] update-cards-owned played-now)))))
 
 ;;; Situation update
 
 (defn figure-situation [{:keys [:type] :as config}
-                        {:keys [:cards-played :cards-owned] :as knowledge}
+                        {:keys [:self :cards-played :cards-owned] :as knowledge}
                         order
                         & c1]
-  (let [cards-allowed (set (if c1
-                             ((responses/allowed-for type) c1 cards-owned)
-                             cards-owned))]
+  (let [players-cards (cards-owned self)
+        cards-allowed (set (if c1
+                             ((responses/allowed-for type) c1 players-cards)
+                             players-cards))]
     (PlayerSituation. config knowledge order cards-allowed)))
 
 ;;; Turn update
@@ -102,11 +97,5 @@
         played-now { p1 c1, p2 c2, p3 c3 } 
         winner (order ((:who-won? config) c1 c2 c3))]
     (-> deal
-      identity
-      ;(update-in [:knowledge] helpers/log-value)
-      ;helpers/log-value
-      ;(update-in [:knowledge] update-knowledge played-now)
-      ;helpers/log-value
-      ;(update-in [:turn]      next-turn winner)
-      ;helpers/log-value
-       )))
+      (update-in [:knowledge] update-knowledge played-now)
+      (update-in [:turn]      next-turn winner))))

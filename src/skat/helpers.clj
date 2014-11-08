@@ -18,9 +18,9 @@
             (assoc result key (apply fun value args)))]
     (reduce update-one {} m)))
  
-(defn replace-by-key "Replaces all map value basing on its keys" [m fun & args]
+(defn replace-by-key "Replaces all map value basing on its keys" [m fun]
   (let [ks (keys m)]
-    (zipmap ks (map #(apply fun % args) ks))))
+    (zipmap ks (map fun ks))))
 
 (defn log-value [v] "Log value" (do (pprint v) (identity v)))
 
