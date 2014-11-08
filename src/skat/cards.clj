@@ -1,5 +1,6 @@
 (ns skat.cards
-  (:require [skat.helpers :as helpers]))
+  (:require [clojure.set :as sets]
+            [skat.helpers :as helpers]))
 ;(require '[clojure.pprint :refer :all])
 ;(require '[clojure.tools.trace :refer :all])
 
@@ -31,30 +32,36 @@
 ;;; Cards
 
 (defrecord Card [color figure])
+(def card-properties #{:color :figure})
+(defn card? "Whether map is a Card" [c]
+  (and
+    (sets/subset? card-properties (-> c keys set))
+    (-> c :color colors)
+    (-> c :figure figures)))
 (defn property-matches? "Whether card's property as given" [p v c]
-  {:pre [(contains? #{:color :figure} p)]}
+  {:pre [(contains? card-properties p) (card? c)]}
   (identical? (p c) v))
 (defn compare-by-color-normal "Order cards by color in normal game"
   [c1 c2]
-  (letfn [(W? [c]
-            (property-matches? :figure :W c))
+  (letfn [(W? [c] (property-matches? :figure :W c))
           (W-exceptonal-ordinal [c]
             (if (W? c)
-              (inc (:kreuz color-ordinal))
-              ((:color c) color-ordinal)))]
+              (-> color-ordinal :kreuz inc)
+              (-> c :color color-ordinal)))]
     (let [o1 (W-exceptonal-ordinal c1)
           o2 (W-exceptonal-ordinal c2)]
       (compare o1 o2))))
 (defn compare-by-color-null "Order cards by color in null game"
   [c1 c2]
-  (letfn [(ordinal [c]
-            ((:color c) color-ordinal))]
+  {:pre [(card? c1) (card? c2)]}
+  (letfn [(ordinal [c] (-> c :color color-ordinal))]
     (let [o1 (ordinal c1)
           o2 (ordinal c2)]
       (compare o1 o2))))
 (defn compare-by-figure [fun c1 c2]
-  (let [o1 ((:figure c1) fun)
-        o2 ((:figure c2) fun)]
+  {:pre [(card? c1) (card? c2)]}
+  (let [o1 (-> c1 :figure fun)
+        o2 (-> c2 :figure fun)]
     (compare o1 o2)))
 (def compare-by-figure-normal "Order cards by figure in normal game"
   (partial compare-by-figure figure-ordinal-normal))
@@ -80,9 +87,10 @@
             (helpers/list-from cards-of-color colors))]
     (flatten (cards-grouped-by-color))))
 (defn deal-cards "Returns dealt cards" []
-  (let [shuffled-cards (shuffle deck)
-        front  (take 10 shuffled-cards)
-        middle (take 10 (drop 10 shuffled-cards))
-        rear   (take 10 (drop 20 shuffled-cards))
-        skat   (take 2  (drop 30 shuffled-cards))]
-    { :front front, :middle middle, :rear rear, :skat skat }))
+  (letfn [(drop-take [seq d t] (take t (drop d seq)))]
+    (let [shuffled-cards (shuffle deck)
+          front  (-> shuffled-cards (drop-take 0  10))
+          middle (-> shuffled-cards (drop-take 10 10))
+          rear   (-> shuffled-cards (drop-take 20 10))
+          skat   (-> shuffled-cards (drop-take 30 2))]
+      { :front front, :middle middle, :rear rear, :skat skat })))

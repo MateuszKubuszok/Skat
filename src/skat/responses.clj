@@ -12,7 +12,9 @@
     (if (empty? filtered) coll filtered)))
 (defn allow-trumph-then-color-then-everything "Filters only allowed cards"
   [trumph? c coll]
+  {:pre [(cards/card? c)]}
   (letfn [(matching-non-trumph? [c2]
+            {:pre [(cards/card? c2)]}
             (and (not (trumph? c2))
                  (cards/property-matches? :color (:color c) c2)))]
     (filter-if-not-empty (if (trumph? c) trumph? matching-non-trumph?) coll)))

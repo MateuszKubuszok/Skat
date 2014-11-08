@@ -2,7 +2,6 @@
   (:require [clojure.test :refer :all]
             [clojure.pprint :refer :all]
             [clojure.tools.trace :refer :all]
-            [skat.helpers :as helpers]
   	        [skat.cards :refer :all]
             [skat.game :refer :all]))
 
@@ -57,13 +56,13 @@
       (testing "allowed cards are properly calculated"
         (is (=
           (:cards-allowed (figure-situation conf-grand p1-knowledge order c3))
-          #{c1 c2}))
+          #{c1}))
         (is (=
           (:cards-allowed (figure-situation conf-grand p2-knowledge order c2))
           #{c1 c3}))
         (is (=
           (:cards-allowed (figure-situation conf-grand p3-knowledge order c1))
-          #{c2 c3}))
+          #{c3}))
         (is (=
           (:cards-allowed (figure-situation conf-kreuz p1-knowledge order c3))
           #{c1 c2}))
@@ -78,10 +77,10 @@
           #{c1 c2}))
         (is (=
           (:cards-allowed (figure-situation conf-null p2-knowledge order c2))
-          #{c1 c3}))
+          #{c1}))
         (is (=
           (:cards-allowed (figure-situation conf-null p3-knowledge order c1))
-          #{c2 c3}))))))
+          #{c2}))))))
 
 (deftest next-turn-order-test
   (let [p1-start { :p1 pl1, :p2 pl2, :p3 pl3 }

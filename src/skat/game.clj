@@ -1,9 +1,10 @@
 (ns skat.game
   (:require [clojure.set :as sets]
             [skat.helpers :as helpers]
+            [skat.cards :as cards]
             [skat.responses :as responses]))
 ;(require '[clojure.pprint :refer :all])
-;(require '[clojure.tools.trace :refer :all])
+(require '[clojure.tools.trace :refer :all])
 
 ;;; Configuration
 
@@ -66,7 +67,8 @@
 (defn figure-situation [{:keys [:type] :as config}
                         {:keys [:self :cards-played :cards-owned] :as knowledge}
                         order
-                        & c1]
+                        & [c1]]
+  {:pre [(if c1 (cards/card? c1) true)]}
   (let [players-cards (cards-owned self)
         cards-allowed (set (if c1
                              ((responses/allowed-for type) c1 players-cards)
