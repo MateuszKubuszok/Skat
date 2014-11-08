@@ -3,7 +3,8 @@
   :url "https://bitbucket.org/MateuszKubuszok/skat"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.6.0"]]
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [org.clojure/tools.trace "0.7.8"]]
   :plugins [[no-man-is-an-island/lein-eclipse "2.0.0"]]
   :profiles {:uberjar {:aot :all}}
   :main skat.core

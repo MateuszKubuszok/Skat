@@ -1,5 +1,7 @@
 (ns skat.cards_test
   (:require [clojure.test :refer :all]
+            [clojure.pprint :refer :all]
+            [clojure.tools.trace :refer :all]
             [skat.cards :refer :all]))
 
 (def c1 (skat.cards.Card. :kreuz :W))

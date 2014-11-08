@@ -1,6 +1,8 @@
 (ns skat.responses
   (:require [skat.helpers :as helpers]
             [skat.cards :as cards]))
+;(require '[clojure.pprint :refer :all])
+;(require '[clojure.tools.trace :refer :all])
 
 ;;; General patterns
 
