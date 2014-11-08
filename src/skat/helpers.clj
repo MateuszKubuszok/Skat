@@ -1,6 +1,4 @@
 (ns skat.helpers)
-(require '[clojure.pprint :refer :all])
-;(require '[clojure.tools.trace :refer :all])
 
 (defn list-from "List of mapped values" [fun coll]
   (reduce conj '() (map fun coll)))
@@ -21,7 +19,3 @@
 (defn replace-by-key "Replaces all map value basing on its keys" [m fun]
   (let [ks (keys m)]
     (zipmap ks (map fun ks))))
-
-(defn log-value [v] "Log value" (do (pprint v) (identity v)))
-
-(defn pass-value [v m] "Pass value" (do (pprint m) (identity v)))

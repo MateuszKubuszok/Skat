@@ -1,10 +1,10 @@
 (ns skat.game
   (:require [clojure.set :as sets]
+            ;[clojure.tools.trace :refer :all]
+            [skat.log :as log]
             [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.responses :as responses]))
-;(require '[clojure.pprint :refer :all])
-(require '[clojure.tools.trace :refer :all])
 
 ;;; Configuration
 
