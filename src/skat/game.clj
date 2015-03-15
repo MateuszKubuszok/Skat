@@ -1,7 +1,7 @@
 (ns skat.game
   (:require [clojure.set :as sets]
             ;[clojure.tools.trace :refer :all]
-            [skat.log :as log]
+            ;[skat.log :as log]
             [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.responses :as responses]))
@@ -20,6 +20,7 @@
   #{ :front :middle :rear })
 (def player-in-next-deal "Player's position in next deal"
   { :front :rear, :middle :front, :rear :middle })
+
 (defrecord Deal [knowledge turn skat])
 
 ;;; Knowledge
@@ -93,13 +94,13 @@
      knowledge :knowledge
      :as deal}]
   (let [p1-situation (figure-situation config (knowledge p1) order)
-        c1 ((:play-1st-card-fun p1) p1-situation)
+        c1           ((:play-1st-card-fun p1) p1-situation)
         p2-situation (figure-situation config (knowledge p2) order c1)
-        c2 ((:play-2nd-card-fun p2) p2-situation c1)
+        c2           ((:play-2nd-card-fun p2) p2-situation c1)
         p3-situation (figure-situation config (knowledge p3) order c1)
-        c3 ((:play-3rd-card-fun p3) p3-situation c1 c2)
-        played-now { p1 c1, p2 c2, p3 c3 }
-        winner (order ((:who-won? config) c1 c2 c3))]
+        c3           ((:play-3rd-card-fun p3) p3-situation c1 c2)
+        played-now   { p1 c1, p2 c2, p3 c3 }
+        winner       (order ((:who-won? config) c1 c2 c3))]
     (-> deal
       (update-in [:knowledge] update-knowledge played-now)
       (update-in [:turn]      next-turn winner))))

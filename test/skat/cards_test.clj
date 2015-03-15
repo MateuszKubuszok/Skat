@@ -113,15 +113,15 @@
 
 (deftest trumph-color?-test
   (testing "4 card are trumph"
-    (let [trumphs-kreuz (filter (partial trumph-color? :kreuz) deck)
-          trumphs-grun  (filter (partial trumph-color? :grun) deck)
-          trumphs-herz  (filter (partial trumph-color? :herz) deck)
-          trumphs-shell (filter (partial trumph-color? :shell) deck)]
+    (let [trumphs-kreuz  (filter (partial trumph-color? :kreuz) deck)
+          trumphs-grun   (filter (partial trumph-color? :grun) deck)
+          trumphs-herz   (filter (partial trumph-color? :herz) deck)
+          trumphs-schell (filter (partial trumph-color? :schell) deck)]
       (is (every? #(or (= :W (:figure %)) (= :kreuz (:color %))) trumphs-kreuz))
       (is (== 11 (count trumphs-kreuz)))
       (is (every? #(or (= :W (:figure %)) (= :grun (:color %))) trumphs-grun))
       (is (== 11 (count trumphs-grun)))
       (is (every? #(or (= :W (:figure %)) (= :herz (:color %))) trumphs-herz))
       (is (== 11 (count trumphs-grun)))
-      (is (every? #(or (= :W (:figure %)) (= :shell (:color %))) trumphs-shell))
+      (is (every? #(or (= :W (:figure %)) (= :schell (:color %))) trumphs-schell))
       (is (== 11 (count trumphs-grun))))))

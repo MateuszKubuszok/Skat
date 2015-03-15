@@ -49,7 +49,7 @@
   (letfn [(W? [c] (property-matches? :figure :W c))
           (W-exceptonal-ordinal [c]
             (if (W? c)
-              (-> color-ordinal :kreuz inc)
+              (-> c :color color-ordinal (+ (:kreuz color-ordinal)))
               (-> c :color color-ordinal)))]
     (let [o1 (W-exceptonal-ordinal c1)
           o2 (W-exceptonal-ordinal c2)]
@@ -112,5 +112,5 @@
 (defn trumph-grand? "Is trumph in grand game" [card]
   (property-matches? :figure :W card))
 (defn trumph-color? "Is trumph in color game" [color card]
-  (or (property-matches? :figure :W card)
-      (property-matches? :color color card)))
+  (or (property-matches? :figure :W    card)
+      (property-matches? :color  color card)))
