@@ -1,5 +1,8 @@
 (ns skat.helpers)
 
+(defn coll-contains? "Whether collection contains element" [coll m]
+  (contains? (set coll) m))
+
 (defn list-from "List of mapped values" [fun coll]
   (reduce conj '() (map fun coll)))
 
@@ -15,7 +18,7 @@
   (letfn [(update-one [result [key value]]
             (assoc result key (apply fun value args)))]
     (reduce update-one {} m)))
- 
+
 (defn replace-by-key "Replaces all map value basing on its keys" [m fun]
   (let [ks (keys m)]
     (zipmap ks (map fun ks))))

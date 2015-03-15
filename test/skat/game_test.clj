@@ -1,8 +1,8 @@
 (ns skat.game_test
   (:require [clojure.test :refer :all]
-            [clojure.pprint :refer :all]
-            [clojure.tools.trace :refer :all]
-            [skat.log :as log]
+            ;[clojure.pprint :refer :all]
+            ;[clojure.tools.trace :refer :all]
+            ;[skat.log :as log]
             [skat.cards :refer :all]
             [skat.game :refer :all]))
 
@@ -27,15 +27,15 @@
   (let [played-now { pl1 c3, pl2 c2, pl3 c1 }]
     (testing "adds cards played at given turn"
       (is (map-equal
-        (update-cards-played played-cards played-now)
-        { pl1 [c3], pl2 [c2], pl3 [c1] })))))
+           (update-cards-played played-cards played-now)
+           { pl1 [c3], pl2 [c2], pl3 [c1] })))))
 
 (deftest update-cards-owned-test
   (let [played-now { pl1 c1, pl2 c3, pl3 c2 }]
     (testing "removed cards played at given turn"
       (is (map-equal
-        (update-cards-owned players-cards played-now)
-        { pl1 #{c2}, pl2 #{c1}, pl3 #{c3} })))))
+           (update-cards-owned players-cards played-now)
+           { pl1 #{c2}, pl2 #{c1}, pl3 #{c3} })))))
 
 (deftest update-knowledge-test
   (let [p-knowledge (skat.game.PlayerKnowledge. pl1 played-cards players-cards)
@@ -43,8 +43,8 @@
         played-now { pl1 c1, pl2 c3, pl3 c2 }]
     (testing "updates played and owned cards"
       (is (=
-        (update-knowledge knowledge played-now)
-        { pl1 (skat.game.PlayerKnowledge. pl1
+           (update-knowledge knowledge played-now)
+           { pl1 (skat.game.PlayerKnowledge. pl1
                                           { pl1 [c1], pl2 [c3], pl3 [c2] }
                                           { pl1 #{c2}, pl2 #{c1}, pl3 #{c3} }) })))))
 
@@ -55,33 +55,33 @@
           p2-knowledge (mock-knowledge pl2)
           p3-knowledge (mock-knowledge pl3)]
       (testing "allowed cards are properly calculated"
-        (is (=
-          (:cards-allowed (figure-situation conf-grand p1-knowledge order c3))
-          #{c1}))
-        (is (=
-          (:cards-allowed (figure-situation conf-grand p2-knowledge order c2))
-          #{c1 c3}))
-        (is (=
-          (:cards-allowed (figure-situation conf-grand p3-knowledge order c1))
-          #{c3}))
-        (is (=
-          (:cards-allowed (figure-situation conf-kreuz p1-knowledge order c3))
-          #{c1 c2}))
-        (is (=
-          (:cards-allowed (figure-situation conf-kreuz p2-knowledge order c2))
-          #{c1 c3}))
-        (is (=
-          (:cards-allowed (figure-situation conf-kreuz p3-knowledge order c1))
-          #{c2 c3}))
-        (is (=
-          (:cards-allowed (figure-situation conf-null p1-knowledge order c3))
-          #{c1 c2}))
-        (is (=
-          (:cards-allowed (figure-situation conf-null p2-knowledge order c2))
-          #{c1}))
-        (is (=
-          (:cards-allowed (figure-situation conf-null p3-knowledge order c1))
-          #{c2}))))))
+        (is (= (:cards-allowed
+                (figure-situation conf-grand p1-knowledge order c3))
+             #{c1}))
+        (is (= (:cards-allowed
+                (figure-situation conf-grand p2-knowledge order c2))
+             #{c1 c3}))
+        (is (= (:cards-allowed
+                (figure-situation conf-grand p3-knowledge order c1))
+            #{c3}))
+        (is (= (:cards-allowed
+                (figure-situation conf-kreuz p1-knowledge order c3))
+             #{c1 c2}))
+        (is (= (:cards-allowed
+                (figure-situation conf-kreuz p2-knowledge order c2))
+             #{c1 c3}))
+        (is (= (:cards-allowed
+                (figure-situation conf-kreuz p3-knowledge order c1))
+             #{c2 c3}))
+        (is (= (:cards-allowed
+                (figure-situation conf-null p1-knowledge order c3))
+             #{c1 c2}))
+        (is (= (:cards-allowed
+                (figure-situation conf-null p2-knowledge order c2))
+             #{c1}))
+        (is (= (:cards-allowed
+                (figure-situation conf-null p3-knowledge order c1))
+             #{c2}))))))
 
 (deftest next-turn-order-test
   (let [p1-start { :p1 pl1, :p2 pl2, :p3 pl3 }
@@ -101,8 +101,8 @@
 (deftest next-turn-test
   (testing "next turn rotates correctly"
     (is (=
-      (next-turn (skat.game.Turn. { :p1 pl1, :p2 pl2, :p3 pl3 }) pl2)
-      (skat.game.Turn. { :p1 pl2, :p2 pl3, :p3 pl1 })))))
+         (next-turn (skat.game.Turn. { :p1 pl1, :p2 pl2, :p3 pl3 }) pl2)
+         (skat.game.Turn. { :p1 pl2, :p2 pl3, :p3 pl1 })))))
 
 (deftest play-turn-test
   (letfn [(mock-knowledge [pl]

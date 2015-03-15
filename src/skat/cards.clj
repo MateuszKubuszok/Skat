@@ -19,27 +19,31 @@
 (def figure-ordinal-null "Figures' ordnals in null games"
   { :7 0, :8 1, :9 3, :10 7, :W 4, :Q 5, :K 6, :A 8 })
 (def figure-ordinals "Figures ordinals for each game"
-  { :grand figure-ordinal-normal,
-    :kreuz figure-ordinal-normal,
-    :grun figure-ordinal-normal,
-    :herz figure-ordinal-normal,
+  { :grand  figure-ordinal-normal,
+    :kreuz  figure-ordinal-normal,
+    :grun   figure-ordinal-normal,
+    :herz   figure-ordinal-normal,
     :schell figure-ordinal-normal,
-    :null figure-ordinal-null })
+    :null   figure-ordinal-null })
 (def figure-values "Values for each card figure"
   { :7 0, :8 0, :9 0, :W 2, :Q 3, :K 4, :10 10, :A 11 })
 
 ;;; Cards
 
 (defrecord Card [color figure])
+
 (def card-properties #{:color :figure})
+
 (defn card? "Whether map is a Card" [c]
   (and
-    (sets/subset? card-properties (-> c keys set))
-    (-> c :color colors)
-    (-> c :figure figures)))
+   (sets/subset? card-properties (-> c keys set))
+   (-> c :color colors)
+   (-> c :figure figures)))
+
 (defn property-matches? "Whether card's property as given" [p v c]
   {:pre [(contains? card-properties p) (card? c)]}
   (identical? (p c) v))
+
 (defn compare-by-color-normal "Order cards by color in normal game"
   [c1 c2]
   (letfn [(W? [c] (property-matches? :figure :W c))
@@ -72,12 +76,18 @@
     (if (identical? (:color c1) (:color c2))
       (compare-by-figure c1 c2)
       (compare-by-color  c1 c2))))
+(def compare-for-sort-normal "Normal game comparator for card sorting"
+  (compare-for-sort compare-by-color-normal compare-by-figure-normal))
+(def compare-for-sort-null "Null game comparator for card sorting"
+  (compare-for-sort compare-by-color-null compare-by-figure-null))
+
 (defn filter-cards [property-name property-figure cards]
   (filter (partial property-matches? property-name property-figure) cards))
 (def filter-color "Filter cards by color"
   (partial filter-cards :color))
 (def filter-figure "Filter cards by figure"
   (partial filter-cards :figure))
+
 (def deck "Complete deck of cards (unsorted)"
   (letfn [(cards-of-color [c]
             (let [cards-of-figure #(Card. c %)]
@@ -85,6 +95,7 @@
           (cards-grouped-by-color []
             (helpers/list-from cards-of-color colors))]
     (flatten (cards-grouped-by-color))))
+
 (defn deal-cards "Returns dealt cards" []
   (letfn [(drop-take [seq d t] (take t (drop d seq)))]
     (let [shuffled-cards (shuffle deck)
@@ -93,3 +104,13 @@
           rear   (-> shuffled-cards (drop-take 20 10))
           skat   (-> shuffled-cards (drop-take 30 2))]
       { :front front, :middle middle, :rear rear, :skat skat })))
+
+;;; Trumphs
+
+(defn trumph-null? "Is trumph in null game" [_]
+  false)
+(defn trumph-grand? "Is trumph in grand game" [card]
+  (property-matches? :figure :W card))
+(defn trumph-color? "Is trumph in color game" [color card]
+  (or (property-matches? :figure :W card)
+      (property-matches? :color color card)))

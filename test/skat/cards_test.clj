@@ -1,8 +1,8 @@
 (ns skat.cards_test
   (:require [clojure.test :refer :all]
-            [clojure.pprint :refer :all]
-            [clojure.tools.trace :refer :all]
-            [skat.log :as log]
+            ;[clojure.pprint :refer :all]
+            ;[clojure.tools.trace :refer :all]
+            ;[skat.log :as log]
             [skat.cards :refer :all]))
 
 (def c1 (skat.cards.Card. :kreuz :W))
@@ -58,23 +58,23 @@
 (deftest filter-cards-test
   (testing "filters by property"
     (is (same-elements?
-          (filter-cards :color :kreuz cards)
-          (list c1 c2)))
+         (filter-cards :color :kreuz cards)
+         (list c1 c2)))
     (is (same-elements?
-          (filter-cards :figure :W cards)
-          (list c1 c3)))))
+         (filter-cards :figure :W cards)
+         (list c1 c3)))))
 
 (deftest filter-color-test
   (testing "filters by color"
     (is (same-elements?
-          (filter-color :kreuz cards)
-          (list c1 c2)))))
+         (filter-color :kreuz cards)
+         (list c1 c2)))))
 
 (deftest filter-figure-test
   (testing "filters by figure"
     (is (same-elements?
-          (filter-figure :W cards)
-          (list c1 c3)))))
+         (filter-figure :W cards)
+         (list c1 c3)))))
 
 (deftest deck-test
   (testing "deck contains one piece of each card"
@@ -100,3 +100,28 @@
       (is (== 10 (count (:middle deal))))
       (is (== 10 (count (:rear deal))))
       (is (== 2 (count (:skat deal)))))))
+
+(deftest trumph-null?-test
+  (testing "no card is trumph"
+    (not (some trumph-null? deck))))
+
+(deftest trumph-grand?-test
+  (testing "4 card are trumph"
+    (let [trumphs-grand (filter trumph-grand? deck)]
+      (is (== 4 (count trumphs-grand)))
+      (is (every? #(= :W (:figure %)) trumphs-grand)))))
+
+(deftest trumph-color?-test
+  (testing "4 card are trumph"
+    (let [trumphs-kreuz (filter (partial trumph-color? :kreuz) deck)
+          trumphs-grun  (filter (partial trumph-color? :grun) deck)
+          trumphs-herz  (filter (partial trumph-color? :herz) deck)
+          trumphs-shell (filter (partial trumph-color? :shell) deck)]
+      (is (every? #(or (= :W (:figure %)) (= :kreuz (:color %))) trumphs-kreuz))
+      (is (== 11 (count trumphs-kreuz)))
+      (is (every? #(or (= :W (:figure %)) (= :grun (:color %))) trumphs-grun))
+      (is (== 11 (count trumphs-grun)))
+      (is (every? #(or (= :W (:figure %)) (= :herz (:color %))) trumphs-herz))
+      (is (== 11 (count trumphs-grun)))
+      (is (every? #(or (= :W (:figure %)) (= :shell (:color %))) trumphs-shell))
+      (is (== 11 (count trumphs-grun))))))

@@ -83,8 +83,10 @@
     (= winner p1) order
     (= winner p2) { :p1 p2, :p2 p3, :p3 p1 }
     (= winner p3) { :p1 p3, :p2 p1, :p3 p2 }))
+
 (defn next-turn "Updates turn" [{:keys [order] :as turn} winner]
   (assoc turn :order (next-turn-order order winner)))
+
 (defn play-turn "Plays turn"
   [config
    { { { :keys [p1 p2 p3] :as order } :order :as turn } :turn

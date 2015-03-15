@@ -1,8 +1,8 @@
 (ns skat.responses_test
   (:require [clojure.test :refer :all]
-            [clojure.pprint :refer :all]
-            [clojure.tools.trace :refer :all]
-            [skat.log :as log]
+            ;[clojure.pprint :refer :all]
+            ;[clojure.tools.trace :refer :all]
+            ;[skat.log :as log]
             [skat.responses :refer :all]))
 
 (def c1 (skat.cards.Card. :kreuz :W))
@@ -20,74 +20,74 @@
 (deftest allowed-for-null-test
   (testing "Filters allowed responses in null game"
     (is (same-elements?
-          (allowed-for-null c1 cards)
-          (list c1 c2)))
+         (allowed-for-null c1 cards)
+         (list c1 c2)))
     (is (same-elements?
-          (allowed-for-null c2 cards)
-          (list c1 c2)))
+         (allowed-for-null c2 cards)
+         (list c1 c2)))
     (is (same-elements?
-          (allowed-for-null c3 cards)
-          (list c3 c4)))
+         (allowed-for-null c3 cards)
+         (list c3 c4)))
     (is (same-elements?
-          (allowed-for-null c4 cards)
-          (list c3 c4)))))
+         (allowed-for-null c4 cards)
+         (list c3 c4)))))
 
 (deftest allowed-for-grand-test
   (testing "Filters allowed responses in grand game"
     (is (same-elements?
-          (allowed-for-grand c1 cards)
-          (list c1 c3 c5 c7)))
+         (allowed-for-grand c1 cards)
+         (list c1 c3 c5 c7)))
     (is (same-elements?
-          (allowed-for-grand c2 cards)
-          (list c2)))
+         (allowed-for-grand c2 cards)
+         (list c2)))
     (is (same-elements?
-          (allowed-for-grand c3 cards)
-          (list c1 c3 c5 c7)))
+         (allowed-for-grand c3 cards)
+         (list c1 c3 c5 c7)))
     (is (same-elements?
-          (allowed-for-grand c4 cards)
-          (list c4)))))
+         (allowed-for-grand c4 cards)
+         (list c4)))))
 
 (deftest allowed-for-kreuz-test
   (testing "Filters allowed responses in kreuz game"
     (is (same-elements?
-          (allowed-for-kreuz c1 cards)
-          (list c1 c2 c3 c5 c7)))
+         (allowed-for-kreuz c1 cards)
+         (list c1 c2 c3 c5 c7)))
     (is (same-elements?
-          (allowed-for-kreuz c2 cards)
-          (list c1 c2 c3 c5 c7)))
+         (allowed-for-kreuz c2 cards)
+         (list c1 c2 c3 c5 c7)))
     (is (same-elements?
-          (allowed-for-kreuz c3 cards)
-          (list c1 c2 c3 c5 c7)))
+         (allowed-for-kreuz c3 cards)
+         (list c1 c2 c3 c5 c7)))
     (is (same-elements?
-          (allowed-for-kreuz c4 cards)
-          (list c4)))))
+         (allowed-for-kreuz c4 cards)
+         (list c4)))))
 
 (deftest allowed-for-grun-test
   (testing "Filters allowed responses in grun game"
     (is (same-elements?
-          (allowed-for-grun c1 cards)
-          (list c1 c3 c4 c5 c7)))
+         (allowed-for-grun c1 cards)
+         (list c1 c3 c4 c5 c7)))
     (is (same-elements?
-          (allowed-for-grun c2 cards)
-          (list c2)))
+         (allowed-for-grun c2 cards)
+         (list c2)))
     (is (same-elements?
-          (allowed-for-grun c3 cards)
-          (list c1 c3 c4 c5 c7)))
+         (allowed-for-grun c3 cards)
+         (list c1 c3 c4 c5 c7)))
     (is (same-elements?
-          (allowed-for-grun c4 cards)
-          (list c1 c3 c4 c5 c7)))))
+         (allowed-for-grun c4 cards)
+         (list c1 c3 c4 c5 c7)))))
 
 (deftest allowed-for-herz-test
   (testing "Filters allowed responses in herz game"
     (is (same-elements?
-          (allowed-for-herz c3 cards)
-          (list c1 c3 c5 c6 c7)))
+         (allowed-for-herz c3 cards)
+         (list c1 c3 c5 c6 c7)))
     (is (same-elements?
-          (allowed-for-herz c4 cards)
-          (list c4)))
+         (allowed-for-herz c4 cards)
+         (list c4)))
     (is (same-elements?
-          (allowed-for-herz c5 cards)
-          (list c1 c3 c5 c6 c7)))
+         (allowed-for-herz c5 cards)
+         (list c1 c3 c5 c6 c7)))
     (is (same-elements?
-          (allowed-for-herz c6 cards)
-          (list c1 c3 c5 c6 c7)))))
+         (allowed-for-herz c6 cards)
+         (list c1 c3 c5 c6 c7)))))
