@@ -1,5 +1,7 @@
 # Skat game engine
 
+[![Build Status](https://travis-ci.org/MateuszKubuszok/skat.png)](https://travis-ci.org/MateuszKubuszok/skat)
+
 Engine intented to be able to completely simulate Skat game, as well as act
 in a bot-like manner.
 
