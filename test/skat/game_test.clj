@@ -3,7 +3,7 @@
             [clojure.pprint :refer :all]
             [clojure.tools.trace :refer :all]
             [skat.log :as log]
-  	        [skat.cards :refer :all]
+            [skat.cards :refer :all]
             [skat.game :refer :all]))
 
 (defn play-first [{:keys [:cards-allowed]} & _] (first cards-allowed))
@@ -53,7 +53,7 @@
             (skat.game.PlayerKnowledge. pl played-cards players-cards))]
     (let [p1-knowledge (mock-knowledge pl1)
           p2-knowledge (mock-knowledge pl2)
-          p3-knowledge (mock-knowledge pl3)]  
+          p3-knowledge (mock-knowledge pl3)]
       (testing "allowed cards are properly calculated"
         (is (=
           (:cards-allowed (figure-situation conf-grand p1-knowledge order c3))
@@ -97,7 +97,7 @@
       (is (= (next-turn-order p3-start pl1) p1-start))
       (is (= (next-turn-order p3-start pl2) p2-start))
       (is (= (next-turn-order p3-start pl3) p3-start)))))
- 
+
 (deftest next-turn-test
   (testing "next turn rotates correctly"
     (is (=

@@ -43,9 +43,9 @@
 (def allowed-for-schell "Filters allowed responses in schell games"
   (partial allowed-for-color :schell))
 (def allowed-for "Allowed responses for each game"
-  { :grand allowed-for-grand
-    :kreuz allowed-for-kreuz
-    :grun allowed-for-grun
-    :herz allowed-for-herz
-    :schell allowed-for-schell
+  { :grand allowed-for-grand,
+    :kreuz allowed-for-kreuz,
+    :grun allowed-for-grun,
+    :herz allowed-for-herz,
+    :schell allowed-for-schell,
     :null allowed-for-null })

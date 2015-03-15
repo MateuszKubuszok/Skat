@@ -5,9 +5,14 @@ in a bot-like manner.
 
 ## Installation
 
-Download from https://bitbucket.org/MateuszKubuszok/skat.
+Download from [Bitbucket](https://bitbucket.org/MateuszKubuszok/skat) or
+[GitHub](https://github.com/MateuszKubuszok/skat).
 
 ## Usage
+
+Build:
+
+    $ lein uberjar
 
 Run:
 
@@ -15,7 +20,7 @@ Run:
 
 ## License
 
-Copyright © 2014 Mateusz Kubuszok
+Copyright © 2014-2015 Mateusz Kubuszok
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
