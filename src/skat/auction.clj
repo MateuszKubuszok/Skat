@@ -92,3 +92,26 @@
   (match [type]
     [:null] (null-game-value with-skat? ouvert?)
     [_]     (normal-game-value cards type with-skat? ouvert?)))
+
+;;; Possible game values
+
+(def min-normal-game-coefficients 2)
+(def max-normal-game-coefficients
+  ;            for playing | peaks | without skat | ouvert
+  { :grand  (+ 1             11      1              1),
+    :kreuz  (+ 1             7       1              1),
+    :grun   (+ 1             7       1              1),
+    :herz   (+ 1             7       1              1),
+    :schell (+ 1             7       1              1) })
+
+(def possible-game-values
+  (letfn [(vals-for [type]
+            (map #(* (game-type-coefficients type) %)
+                 (range min-normal-game-coefficients
+                        (inc (max-normal-game-coefficients type)))))]
+    (set (concat (vals null-game-values)
+                 (vals-for :grand)
+                 (vals-for :kreuz)
+                 (vals-for :grun)
+                 (vals-for :herz)
+                 (vals-for :schell)))))
