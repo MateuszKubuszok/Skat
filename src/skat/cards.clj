@@ -61,6 +61,19 @@
     (let [o1 (ordinal c1)
           o2 (ordinal c2)]
       (compare o1 o2))))
+(defn compare-by-color-display "Comparison used for displying cards" [type]
+  (letfn [(W? [c] (property-matches? :figure :W c))
+          (played-color? [c] (property-matches? :color type c))
+          (display-ordinal [c]
+            (if (W? c)
+              (-> c :color color-ordinal (+ 1 (:kreuz color-ordinal)))
+              (if (played-color? c)
+                (+ 1 (:kreuz color-ordinal))
+                (-> c :color color-ordinal)
+                )))]
+    (fn [c1 c2] (let [o1 (display-ordinal c1)
+                      o2 (display-ordinal c2)]
+                  (compare o1 o2)))))
 (defn compare-by-figure [fun c1 c2]
   {:pre [(card? c1) (card? c2)]}
   (let [o1 (-> c1 :figure fun)
@@ -76,10 +89,6 @@
     (if (identical? (:color c1) (:color c2))
       (compare-by-figure c1 c2)
       (compare-by-color  c1 c2))))
-(def compare-for-sort-normal "Normal game comparator for card sorting"
-  (compare-for-sort compare-by-color-normal compare-by-figure-normal))
-(def compare-for-sort-null "Null game comparator for card sorting"
-  (compare-for-sort compare-by-color-null compare-by-figure-null))
 
 (defn filter-cards [property-name property-figure cards]
   (filter (partial property-matches? property-name property-figure) cards))
