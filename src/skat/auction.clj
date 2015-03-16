@@ -193,6 +193,34 @@
 
 ;;; Bidding
 
-(def bidding-positions #{ :front :middle :rear })
+(defrecord Bidders [front middle rear])
 
-(defrecord BiddingOrder [front middle rear])
+(defrecord Bidding [winner cards bid])
+
+(defn bids? "Nil and 17 means pass, accept otherwise" [bid]
+  (and bid (not (= bid passed-game-value))))
+
+(defn bidding-101 "Determines who of two players wins the bid"
+  [bidder bidder-cards responder responder-cards current-bid]
+  { :pre  [(or (nil? current-bid) (possible-game-values current-bid))]
+    :post [(possible-game-values %)] }
+  (loop [last-bid current-bid]
+    (let [bid (.place-bid bidder bidder-cards last-bid)]
+      (if (bids? bid)
+        (let [response (.respond-to-bid responder responder-cards bid)]
+          (if (bids? response)
+            (recur bid)
+            (Bidding. bidder bidder-cards bid)))
+        (Bidding. responder responder-cards bid)))))
+
+(defn do-auction [{:keys [front middle rear] :as bidders}
+                  { front-cards  :front,
+                    middle-cards :middle,
+                    rear-cards   :rear }]
+  (let [bid-1st (bidding-101 middle middle-cards front front-cards 17)
+        bid-2nd (bidding-101 rear
+                             rear-cards
+                             (:winner bid-1st)
+                             (:cards bid-1st)
+                             (:bid bid-1st))]
+    (.declare-suit (:winner bid-2nd) (:cards bid-2nd) (:bid bid-2nd))))

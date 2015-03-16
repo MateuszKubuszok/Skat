@@ -12,11 +12,13 @@
   #{ :grand :kreuz :grun :herz :schell :null })
 (def suits-ordinals "suits' ordinals"
   { :grand 6, :kreuz 5, :grun 4, :herz 3, :schell 2, :null 1 })
-(defrecord Configuration [suit
+(defrecord Configuration [declarer
+                          suit
                           hand?
                           ouvert?
                           announced-schneider?
-                          announced-schwarz?])
+                          announced-schwarz?
+                          declared-bid])
 
 ;;; Deal
 
@@ -39,7 +41,8 @@
   (play-2nd-card [this situation c1])
   (play-3rd-card [this situation c1 c2])
   (place-bid [this cards last-bid])
-  (respond-to-bid [this cards bid]))
+  (respond-to-bid [this cards bid])
+  (declare-suit [this cards final-bid]))
 
 ;;; Situation
 

@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             ;[clojure.pprint :refer :all]
             ;[clojure.tools.trace :refer :all]
-            [skat.log :as log]
+            ;[skat.log :as log]
             [skat.cards :refer :all]
             [skat.game :refer :all]))
 
@@ -30,9 +30,9 @@
 (def c8 (skat.cards.Card. :schell :K))
 (def played-cards { pl1 [], pl2 [], pl3 [] })
 (def players-cards { pl1 #{c1 c2}, pl2 #{c3 c4}, pl3 #{c5 c6} })
-(def conf-grand (skat.game.Configuration. :grand true false false false))
-(def conf-kreuz (skat.game.Configuration. :kreuz true false false false))
-(def conf-null  (skat.game.Configuration. :null  true false false false))
+(def conf-grand (skat.game.Configuration. pl1 :grand true false false false 48))
+(def conf-kreuz (skat.game.Configuration. pl1 :kreuz true false false false 24))
+(def conf-null  (skat.game.Configuration. pl1 :null  true false false false 23))
 
 (defn map-equal [m1 m2] (= (into (hash-map) m1) (into (hash-map) m2)))
 
