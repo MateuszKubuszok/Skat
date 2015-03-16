@@ -10,24 +10,24 @@
   (let [filtered (filter fun coll)]
     (if (empty? filtered) coll filtered)))
 
-(defn allow-trumph-then-color-then-everything "Filters only allowed cards"
-  [trumph? c coll]
+(defn allow-trump-then-color-then-everything "Filters only allowed cards"
+  [trump? c coll]
   {:pre [(cards/card? c)]}
-  (letfn [(matching-non-trumph? [c2]
+  (letfn [(matching-non-trump? [c2]
             {:pre [(cards/card? c2)]}
-            (and (not (trumph? c2))
+            (and (not (trump? c2))
                  (cards/property-matches? :color (:color c) c2)))]
-    (filter-if-not-empty (if (trumph? c) trumph? matching-non-trumph?) coll)))
+    (filter-if-not-empty (if (trump? c) trump? matching-non-trump?) coll)))
 
 ;;; Responses
 
 (defn allowed-for-null "Filters allowed responses in null games" [c cards]
-  (allow-trumph-then-color-then-everything cards/trumph-null? c cards))
+  (allow-trump-then-color-then-everything cards/trump-null? c cards))
 (defn allowed-for-grand "Filters allowed responses in grand games" [c cards]
-  (allow-trumph-then-color-then-everything cards/trumph-grand? c cards))
+  (allow-trump-then-color-then-everything cards/trump-grand? c cards))
 (defn allowed-for-color [color c cards]
-  (let [trumph-color? (partial cards/trumph-color? color)]
-    (allow-trumph-then-color-then-everything trumph-color? c cards)))
+  (let [trump-color? (partial cards/trump-color? color)]
+    (allow-trump-then-color-then-everything trump-color? c cards)))
 (def allowed-for-kreuz "Filters allowed responses in kreuz games"
   (partial allowed-for-color :kreuz))
 (def allowed-for-grun "Filters allowed responses in grun games"

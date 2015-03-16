@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             ;[clojure.pprint :refer :all]
             ;[clojure.tools.trace :refer :all]
-            ;[skat.log :as log]
+            [skat.log :as log]
             [skat.cards :refer :all]
             [skat.game :refer :all]))
 
@@ -25,14 +25,14 @@
 
 (deftest update-cards-played-test
   (let [played-now { pl1 c3, pl2 c2, pl3 c1 }]
-    (testing "adds cards played at given turn"
+    (testing "adds cards played at given trick"
       (is (map-equal
            (update-cards-played played-cards played-now)
            { pl1 [c3], pl2 [c2], pl3 [c1] })))))
 
 (deftest update-cards-owned-test
   (let [played-now { pl1 c1, pl2 c3, pl3 c2 }]
-    (testing "removed cards played at given turn"
+    (testing "removed cards played at given trick"
       (is (map-equal
            (update-cards-owned players-cards played-now)
            { pl1 #{c2}, pl2 #{c1}, pl3 #{c3} })))))
@@ -57,65 +57,65 @@
       (testing "allowed cards are properly calculated"
         (is (= (:cards-allowed
                 (figure-situation conf-grand p1-knowledge order c3))
-             #{c1}))
+               #{c1}))
         (is (= (:cards-allowed
                 (figure-situation conf-grand p2-knowledge order c2))
-             #{c1 c3}))
+               #{c1 c3}))
         (is (= (:cards-allowed
                 (figure-situation conf-grand p3-knowledge order c1))
-            #{c3}))
+              #{c3}))
         (is (= (:cards-allowed
                 (figure-situation conf-kreuz p1-knowledge order c3))
-             #{c1 c2}))
+               #{c1 c2}))
         (is (= (:cards-allowed
                 (figure-situation conf-kreuz p2-knowledge order c2))
-             #{c1 c3}))
+               #{c1 c3}))
         (is (= (:cards-allowed
                 (figure-situation conf-kreuz p3-knowledge order c1))
-             #{c2 c3}))
+               #{c2 c3}))
         (is (= (:cards-allowed
                 (figure-situation conf-null p1-knowledge order c3))
-             #{c1 c2}))
+               #{c1 c2}))
         (is (= (:cards-allowed
                 (figure-situation conf-null p2-knowledge order c2))
-             #{c1}))
+               #{c1}))
         (is (= (:cards-allowed
                 (figure-situation conf-null p3-knowledge order c1))
-             #{c2}))))))
+               #{c2}))))))
 
-(deftest next-turn-order-test
+(deftest next-trick-order-test
   (let [p1-start { :p1 pl1, :p2 pl2, :p3 pl3 }
         p2-start { :p1 pl2, :p2 pl3, :p3 pl1 }
         p3-start { :p1 pl3, :p2 pl1, :p3 pl2 }]
     (testing "winner rotates correctly"
-      (is (= (next-turn-order p1-start pl1) p1-start))
-      (is (= (next-turn-order p1-start pl2) p2-start))
-      (is (= (next-turn-order p1-start pl3) p3-start))
-      (is (= (next-turn-order p2-start pl1) p1-start))
-      (is (= (next-turn-order p2-start pl2) p2-start))
-      (is (= (next-turn-order p2-start pl3) p3-start))
-      (is (= (next-turn-order p3-start pl1) p1-start))
-      (is (= (next-turn-order p3-start pl2) p2-start))
-      (is (= (next-turn-order p3-start pl3) p3-start)))))
+      (is (= (next-trick-order p1-start pl1) p1-start))
+      (is (= (next-trick-order p1-start pl2) p2-start))
+      (is (= (next-trick-order p1-start pl3) p3-start))
+      (is (= (next-trick-order p2-start pl1) p1-start))
+      (is (= (next-trick-order p2-start pl2) p2-start))
+      (is (= (next-trick-order p2-start pl3) p3-start))
+      (is (= (next-trick-order p3-start pl1) p1-start))
+      (is (= (next-trick-order p3-start pl2) p2-start))
+      (is (= (next-trick-order p3-start pl3) p3-start)))))
 
-(deftest next-turn-test
-  (testing "next turn rotates correctly"
+(deftest next-trick-test
+  (testing "next trick rotates correctly"
     (is (=
-         (next-turn (skat.game.Turn. { :p1 pl1, :p2 pl2, :p3 pl3 }) pl2)
-         (skat.game.Turn. { :p1 pl2, :p2 pl3, :p3 pl1 })))))
+         (next-trick (skat.game.Trick. { :p1 pl1, :p2 pl2, :p3 pl3 }) pl2)
+         (skat.game.Trick. { :p1 pl2, :p2 pl3, :p3 pl1 })))))
 
-(deftest play-turn-test
+(deftest play-trick-test
   (letfn [(mock-knowledge [pl]
             (skat.game.PlayerKnowledge. pl played-cards players-cards))]
     (let [p1-knowledge (mock-knowledge pl1)
           p2-knowledge (mock-knowledge pl2)
           p3-knowledge (mock-knowledge pl3)
           knowledge { pl1 p1-knowledge, pl2 p2-knowledge, pl3 p3-knowledge }
-          turn (skat.game.Turn. order)
-          deal (skat.game.Deal. knowledge turn #{})
+          trick (skat.game.Trick. order)
+          deal (skat.game.Deal. knowledge trick #{})
           next-deal (skat.game.Deal.
                       (update-knowledge knowledge { pl1 c1, pl2 c3, pl3 c3 })
-                      (next-turn turn pl1)
+                      (next-trick trick pl1)
                       #{})]
-      (testing "calculates next turn"
-        (is (= (play-turn conf-grand deal) next-deal))))))
+      (testing "calculates next trick"
+        (is (= (play-trick conf-grand deal) next-deal))))))

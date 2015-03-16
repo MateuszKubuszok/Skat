@@ -101,27 +101,27 @@
       (is (== 10 (count (:rear deal))))
       (is (== 2 (count (:skat deal)))))))
 
-(deftest trumph-null?-test
-  (testing "no card is trumph"
-    (not (some trumph-null? deck))))
+(deftest trump-null?-test
+  (testing "no card is trump"
+    (not (some trump-null? deck))))
 
-(deftest trumph-grand?-test
-  (testing "4 card are trumph"
-    (let [trumphs-grand (filter trumph-grand? deck)]
-      (is (== 4 (count trumphs-grand)))
-      (is (every? #(= :W (:figure %)) trumphs-grand)))))
+(deftest trump-grand?-test
+  (testing "4 card are trump"
+    (let [trumps-grand (filter trump-grand? deck)]
+      (is (== 4 (count trumps-grand)))
+      (is (every? #(= :W (:figure %)) trumps-grand)))))
 
-(deftest trumph-color?-test
-  (testing "4 card are trumph"
-    (let [trumphs-kreuz  (filter (partial trumph-color? :kreuz) deck)
-          trumphs-grun   (filter (partial trumph-color? :grun) deck)
-          trumphs-herz   (filter (partial trumph-color? :herz) deck)
-          trumphs-schell (filter (partial trumph-color? :schell) deck)]
-      (is (every? #(or (= :W (:figure %)) (= :kreuz (:color %))) trumphs-kreuz))
-      (is (== 11 (count trumphs-kreuz)))
-      (is (every? #(or (= :W (:figure %)) (= :grun (:color %))) trumphs-grun))
-      (is (== 11 (count trumphs-grun)))
-      (is (every? #(or (= :W (:figure %)) (= :herz (:color %))) trumphs-herz))
-      (is (== 11 (count trumphs-grun)))
-      (is (every? #(or (= :W (:figure %)) (= :schell (:color %))) trumphs-schell))
-      (is (== 11 (count trumphs-grun))))))
+(deftest trump-color?-test
+  (testing "4 card are trump"
+    (let [trumps-kreuz  (filter (partial trump-color? :kreuz) deck)
+          trumps-grun   (filter (partial trump-color? :grun) deck)
+          trumps-herz   (filter (partial trump-color? :herz) deck)
+          trumps-schell (filter (partial trump-color? :schell) deck)]
+      (is (every? #(or (= :W (:figure %)) (= :kreuz (:color %))) trumps-kreuz))
+      (is (== 11 (count trumps-kreuz)))
+      (is (every? #(or (= :W (:figure %)) (= :grun (:color %))) trumps-grun))
+      (is (== 11 (count trumps-grun)))
+      (is (every? #(or (= :W (:figure %)) (= :herz (:color %))) trumps-herz))
+      (is (== 11 (count trumps-grun)))
+      (is (every? #(or (= :W (:figure %)) (= :schell (:color %))) trumps-schell))
+      (is (== 11 (count trumps-grun))))))

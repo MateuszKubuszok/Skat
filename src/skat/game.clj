@@ -8,11 +8,11 @@
 
 ;;; Configuration
 
-(def types "Possible games' types"
+(def suits "Possible games' suits"
   #{ :grand :kreuz :grun :herz :schell :null })
-(def types-ordinals "Types' ordinals"
+(def suits-ordinals "suits' ordinals"
   { :grand 6, :kreuz 5, :grun 4, :herz 3, :schell 2, :null 1 })
-(defrecord Configuration [type with-skat ouvert who-won?])
+(defrecord Configuration [suit hand? ouvert? who-won?])
 
 ;;; Deal
 
@@ -21,7 +21,7 @@
 (def player-in-next-deal "Player's position in next deal"
   { :front :rear, :middle :front, :rear :middle })
 
-(defrecord Deal [knowledge turn skat])
+(defrecord Deal [knowledge trick skat])
 
 ;;; Knowledge
 
@@ -35,9 +35,9 @@
 
 (defrecord PlayerSituation [config knowledge order cards-allowed])
 
-;;; Turn
+;;; Trick
 
-(defrecord Turn [order])
+(defrecord Trick [order])
 
 ;;; Knowledge update
 
@@ -65,32 +65,31 @@
 
 ;;; Situation update
 
-(defn figure-situation [{:keys [:type] :as config}
-                        {:keys [:self :cards-played :cards-owned] :as knowledge}
+(defn figure-situation [{:keys [:suit] :as config}
+                        {:keys [:self :cards-owned] :as knowledge}
                         order
                         & [c1]]
   {:pre [(if c1 (cards/card? c1) true)]}
   (let [players-cards (cards-owned self)
         cards-allowed (set (if c1
-                             ((responses/allowed-for type) c1 players-cards)
+                             ((responses/allowed-for suit) c1 players-cards)
                              players-cards))]
     (PlayerSituation. config knowledge order cards-allowed)))
+;;; Trick update
 
-;;; Turn update
-
-(defn next-turn-order [{:keys [p1 p2 p3] :as order} winner]
+(defn next-trick-order [{:keys [p1 p2 p3] :as order} winner]
   {:pre [(contains? #{p1 p2 p3} winner)]}
   (cond
     (= winner p1) order
     (= winner p2) { :p1 p2, :p2 p3, :p3 p1 }
     (= winner p3) { :p1 p3, :p2 p1, :p3 p2 }))
 
-(defn next-turn "Updates turn" [{:keys [order] :as turn} winner]
-  (assoc turn :order (next-turn-order order winner)))
+(defn next-trick "Updates trick" [{:keys [order] :as trick} winner]
+  (assoc trick :order (next-trick-order order winner)))
 
-(defn play-turn "Plays turn"
+(defn play-trick "Plays trick"
   [config
-   { { { :keys [p1 p2 p3] :as order } :order :as turn } :turn
+   { { { :keys [p1 p2 p3] :as order } :order :as trick } :trick
      knowledge :knowledge
      :as deal}]
   (let [p1-situation (figure-situation config (knowledge p1) order)
@@ -103,4 +102,4 @@
         winner       (order ((:who-won? config) c1 c2 c3))]
     (-> deal
       (update-in [:knowledge] update-knowledge played-now)
-      (update-in [:turn]      next-turn winner))))
+      (update-in [:trick]      next-trick winner))))

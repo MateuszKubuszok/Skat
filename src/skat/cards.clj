@@ -25,7 +25,7 @@
     :herz   figure-ordinal-normal,
     :schell figure-ordinal-normal,
     :null   figure-ordinal-null })
-(def figure-values "Values for each card figure"
+(def face-values "Values for each card's figure"
   { :7 0, :8 0, :9 0, :W 2, :Q 3, :K 4, :10 10, :A 11 })
 
 ;;; Cards
@@ -61,9 +61,9 @@
     (let [o1 (ordinal c1)
           o2 (ordinal c2)]
       (compare o1 o2))))
-(defn compare-by-color-display "Comparison used for displying cards" [type]
+(defn compare-by-color-display "Comparison used for displying cards" [suit]
   (letfn [(W? [c] (property-matches? :figure :W c))
-          (played-color? [c] (property-matches? :color type c))
+          (played-color? [c] (property-matches? :color suit c))
           (display-ordinal [c]
             (if (W? c)
               (-> c :color color-ordinal (+ 1 (:kreuz color-ordinal)))
@@ -105,7 +105,7 @@
             (helpers/list-from cards-of-color colors))]
     (flatten (cards-grouped-by-color))))
 
-(defn deal-cards "Returns dealt cards" []
+(defn deal-cards "Retricks dealt cards" []
   (letfn [(drop-take [seq d t] (take t (drop d seq)))]
     (let [shuffled-cards (shuffle deck)
           front  (-> shuffled-cards (drop-take 0  10))
@@ -116,10 +116,10 @@
 
 ;;; Trumphs
 
-(defn trumph-null? "Is trumph in null game" [_]
+(defn trump-null? "Is trump in null game" [_]
   false)
-(defn trumph-grand? "Is trumph in grand game" [card]
+(defn trump-grand? "Is trump in grand game" [card]
   (property-matches? :figure :W card))
-(defn trumph-color? "Is trumph in color game" [color card]
+(defn trump-color? "Is trump in color game" [color card]
   (or (property-matches? :figure :W    card)
       (property-matches? :color  color card)))
