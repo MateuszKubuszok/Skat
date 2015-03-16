@@ -88,13 +88,47 @@
 
 ;;; Trick winner
 
+(defn highest-trump-wins "Determines winner for normal game" [suit c1 c2 c3]
+  { :pre  [(suits suit) (cards/card? c1) (cards/card? c2) (cards/card? c3)] }
+  (let [cards [c1 c2 c3]]
+    (letfn [(trump? [c] (or (cards/property-matches? :figure :W   c)
+                            (cards/property-matches? :color  suit c)))
+            (highest-card [filtered]
+              (first
+                (reverse
+                  (sort (cards/compare-by-color-display suit) filtered))))
+            (of-color? [c] cards/property-matches? :color (:color c1) c)
+            (card-to-player [c] ({ c1 :p1, c2 :p2, c3 :p3 } c))]
+      (card-to-player (highest-card (filter (if (some trump? cards)
+                                              trump?
+                                              of-color?)
+                                            cards))))))
+(def trick-winning-grand "Determines winner for grand game"
+  (partial highest-trump-wins :grand))
+(def trick-winning-kreuz "Determines winner for kreuz game"
+  (partial highest-trump-wins :kreuz))
+(def trick-winning-grun "Determines winner for grun game"
+  (partial highest-trump-wins :grun))
+(def trick-winning-herz "Determines winner for herz game"
+  (partial highest-trump-wins :herz))
+(def trick-winning-schell "Determines winner for schell game"
+  (partial highest-trump-wins :schell))
+(defn trick-winning-null "Determines winner for null game" [c1 c2 c3]
+  { :pre  [(cards/card? c1) (cards/card? c2) (cards/card? c3)] }
+  (let [cards [c1 c2 c3]]
+    (letfn [(highest-card [filtered]
+              (first (reverse (sort cards/compare-by-color-null filtered))))
+            (of-color? [c] cards/property-matches? :color (:color c1) c)
+            (card-to-player [c] ({ c1 :p1, c2 :p2, c3 :p3 } c))]
+      (card-to-player (highest-card (filter of-color? cards))))))
+
 (def trick-winning
-  { :grand  (fn [_ _ _] :p1)
-    :kreuz  (fn [_ _ _] :p1)
-    :grun   (fn [_ _ _] :p1)
-    :herz   (fn [_ _ _] :p1)
-    :schell (fn [_ _ _] :p1)
-    :null   (fn [_ _ _] :p1) })
+  { :grand  trick-winning-grand,
+    :kreuz  trick-winning-kreuz,
+    :grun   trick-winning-grun,
+    :herz   trick-winning-herz,
+    :schell trick-winning-schell,
+    :null   trick-winning-null })
 
 ;;; Trick update
 

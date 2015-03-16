@@ -23,8 +23,13 @@
 (def c1 (skat.cards.Card. :kreuz :W))
 (def c2 (skat.cards.Card. :kreuz :K))
 (def c3 (skat.cards.Card. :schell :W))
+(def c4 (skat.cards.Card. :kreuz :A))
+(def c5 (skat.cards.Card. :kreuz :10))
+(def c6 (skat.cards.Card. :schell :A))
+(def c7 (skat.cards.Card. :schell :10))
+(def c8 (skat.cards.Card. :schell :K))
 (def played-cards { pl1 [], pl2 [], pl3 [] })
-(def players-cards { pl1 #{c1 c2}, pl2 #{c1 c3}, pl3 #{c2 c3} })
+(def players-cards { pl1 #{c1 c2}, pl2 #{c3 c4}, pl3 #{c5 c6} })
 (def conf-grand (skat.game.Configuration. :grand true false false false))
 (def conf-kreuz (skat.game.Configuration. :kreuz true false false false))
 (def conf-null  (skat.game.Configuration. :null  true false false false))
@@ -43,18 +48,19 @@
     (testing "removed cards played at given trick"
       (is (map-equal
            (update-cards-owned players-cards played-now)
-           { pl1 #{c2}, pl2 #{c1}, pl3 #{c3} })))))
+           { pl1 #{c2}, pl2 #{c4}, pl3 #{c5 c6} })))))
 
 (deftest update-knowledge-test
   (let [p-knowledge (skat.game.PlayerKnowledge. pl1 played-cards players-cards)
         knowledge { pl1 p-knowledge }
-        played-now { pl1 c1, pl2 c3, pl3 c2 }]
+        played-now { pl1 c1, pl2 c3, pl3 c5 }]
     (testing "updates played and owned cards"
       (is (=
            (update-knowledge knowledge played-now)
-           { pl1 (skat.game.PlayerKnowledge. pl1
-                                          { pl1 [c1], pl2 [c3], pl3 [c2] }
-                                          { pl1 #{c2}, pl2 #{c1}, pl3 #{c3} }) })))))
+           { pl1 (skat.game.PlayerKnowledge.
+                  pl1
+                  { pl1 [c1], pl2 [c3], pl3 [c5] }
+                  { pl3 #{c6}, pl2 #{c4}, pl1 #{c2} }) })))))
 
 (deftest figure-situation-test
   (letfn [(mock-knowledge [pl]
@@ -68,28 +74,43 @@
                #{c1}))
         (is (= (:cards-allowed
                 (figure-situation conf-grand p2-knowledge order c2))
-               #{c1 c3}))
+               #{c4}))
         (is (= (:cards-allowed
                 (figure-situation conf-grand p3-knowledge order c1))
-              #{c3}))
+              #{c5 c6}))
         (is (= (:cards-allowed
                 (figure-situation conf-kreuz p1-knowledge order c3))
                #{c1 c2}))
         (is (= (:cards-allowed
                 (figure-situation conf-kreuz p2-knowledge order c2))
-               #{c1 c3}))
+               #{c3 c4}))
         (is (= (:cards-allowed
                 (figure-situation conf-kreuz p3-knowledge order c1))
-               #{c2 c3}))
+               #{c5}))
         (is (= (:cards-allowed
                 (figure-situation conf-null p1-knowledge order c3))
                #{c1 c2}))
         (is (= (:cards-allowed
                 (figure-situation conf-null p2-knowledge order c2))
-               #{c1}))
+               #{c4}))
         (is (= (:cards-allowed
                 (figure-situation conf-null p3-knowledge order c1))
-               #{c2}))))))
+               #{c5}))))))
+
+(deftest trick-winning-grand-test
+  (testing "jack always wins"
+    (is (= :p2 (trick-winning-grand c2 c3 c4)))
+    (is (= :p1 (trick-winning-grand c1 c2 c3))))
+  (testing "when no jack highest of first card's color wins"
+    (is (= :p2 (trick-winning-grand c5 c4 c6)))))
+
+(deftest trick-winning-kreuz-test
+  (testing "trumph always wins"
+    (is (= :p2 (trick-winning-kreuz c2 c3 c4)))
+    (is (= :p1 (trick-winning-kreuz c1 c2 c3)))
+    (is (= :p3 (trick-winning-kreuz c6 c5 c4))))
+  (testing "when no trumph highest of first card's color wins"
+    (is (= :p3 (trick-winning-kreuz c8 c7 c6)))))
 
 (deftest next-trick-order-test
   (let [p1-start { :p1 pl1, :p2 pl2, :p3 pl3 }
@@ -122,7 +143,7 @@
           trick (skat.game.Trick. order)
           deal (skat.game.Deal. knowledge trick #{})
           next-deal (skat.game.Deal.
-                      (update-knowledge knowledge { pl1 c1, pl2 c3, pl3 c3 })
+                      (update-knowledge knowledge { pl1 c1, pl2 c3, pl3 c6 })
                       (next-trick trick pl1)
                       #{})]
       (testing "calculates next trick"
