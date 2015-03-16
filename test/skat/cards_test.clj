@@ -125,3 +125,13 @@
       (is (== 11 (count trumps-grun)))
       (is (every? #(or (= :W (:figure %)) (= :schell (:color %))) trumps-schell))
       (is (== 11 (count trumps-grun))))))
+
+(deftest calculate-points-test
+  (let [worth-11 (skat.cards.Card. :kreuz :A)
+        worth-10 (skat.cards.Card. :kreuz :10)
+        worth-4  (skat.cards.Card. :kreuz :K)
+        worth-3  (skat.cards.Card. :kreuz :Q)
+        worth-2  (skat.cards.Card. :kreuz :W)
+        worth-30 [worth-11 worth-10 worth-4 worth-3 worth-2]]
+    (testing "sum is calculated correctly"
+      (is (== 30 (calculate-points worth-30))))))

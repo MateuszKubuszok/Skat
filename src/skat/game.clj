@@ -107,7 +107,7 @@
         winner       (order ((:who-won? config) c1 c2 c3))]
     (-> deal
       (update-in [:knowledge] update-knowledge played-now)
-      (update-in [:trick]      next-trick winner))))
+      (update-in [:trick]     next-trick winner))))
 
 ;;; Win conditions
 
@@ -115,7 +115,7 @@
   (> (cards/calculate-points cards) 60))
 
 (defn schneider? "Is enough points for Schneider reached" [cards]
-  (> (cards/calculate-points cards) 90))
+  (>= (cards/calculate-points cards) 90))
 
 (defn schwarz? "Are all cards taken" [cards]
   (== (count cards) (count cards/deck)))

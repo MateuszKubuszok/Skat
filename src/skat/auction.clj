@@ -2,13 +2,49 @@
   (:require [clojure.core.match :refer [match]]
             [clojure.set :as sets]
             ;[clojure.tools.trace :refer :all]
-            [skat.log :as log]
+            ;[skat.log :as log]
             [skat.cards :as cards]
+            [skat.game :as game]
             [skat.helpers :as helpers]))
+
+;;; Possible game values
+
+(def passed-game-value "Value used when player gives up bidding" 17)
+
+(def suit-base-value "Base values for each suit (except Null with not use them)"
+  { :grand 24, :kreuz 12, :grun 11, :herz 10, :schell 9 })
+
+(def null-game-values "Predefined null game values"
+  { [true  false] 23,
+    [false false] 35,
+    [true  true ] 46,
+    [false true ] 59 })
+
+(def possible-game-values "All possible game values"
+  (let [min-normal-game-level 2
+                                         ; game mat. hand ouvert schn. schw.
+        max-normal-game-level { :grand  (+ 1    11   1    1      2     2),
+                                :kreuz  (+ 1    7    1    1      2     2),
+                                :grun   (+ 1    7    1    1      2     2),
+                                :herz   (+ 1    7    1    1      2     2),
+                                :schell (+ 1    7    1    1      2     2) }]
+    (letfn [(vals-for [suit]
+              (map #(* (suit-base-value suit) %)
+                   (range min-normal-game-level
+                          (inc (max-normal-game-level suit)))))]
+      (set (concat (list passed-game-value)
+                   (vals null-game-values)
+                   (vals-for :grand)
+                   (vals-for :kreuz)
+                   (vals-for :grun)
+                   (vals-for :herz)
+                   (vals-for :schell))))))
 
 ;;; Matadors' values calculation helpers
 
 (defn with-matadors-value-calculator [pattern matched]
+  { :pre  [(every? cards/card? pattern) (every? cards/card? matched)]
+    :post [(not (neg? %))] }
   (loop [value 0
          s1    pattern
          s2    matched]
@@ -16,6 +52,8 @@
       (recur (inc value) (rest s1) (rest s2))
       value)))
 (defn without-matadors-value-calculator [pattern matched]
+  { :pre  [(every? cards/card? pattern) (every? cards/card? matched)]
+    :post [(not (neg? %))] }
   (loop [value 0
          sub   pattern]
     (if (first sub)
@@ -32,6 +70,10 @@
 ;;; Matadors' values for normal games
 
 (defn matadors-for-trumps "Count matadors by trumps" [suit trumps cards]
+  { :pre  [(game/suits suit)
+           (every? cards/card? trumps)
+           (every? cards/card? cards)]
+    :post [(pos? %)] }
   (let [sorting          (cards/compare-for-sort
                           (cards/compare-by-color-display suit)
                           cards/compare-by-figure-normal)
@@ -62,9 +104,6 @@
     :schell matadors-schell })
 
 ;;; Normal games values
-
-(def suit-base-value
-  { :grand 24, :kreuz 12, :grun 11, :herz 10, :schell 9 })
 
 (defn normal-game-value "Calculate normal game value"
   ([cards
@@ -109,14 +148,10 @@
 
 ;;; Null game values
 
-(def null-game-values
-  { [true  false] 23,
-    [false false] 35,
-    [true  true ] 46,
-    [false true ] 59 })
-
 (defn null-game-value "Calculate null game value" [hand? ouvert?]
+  { :post [(identity %)] }
   (null-game-values [hand? ouvert?]))
+
 
 ;;; Game values
 
@@ -143,6 +178,8 @@
     announced-schneider?
     schwarz?
     announced-schwarz?]
+   { :pre  [(game/suits suit)]
+     :post [(possible-game-values %)] }
    (match [suit]
      [:null] (null-game-value hand? ouvert?)
      [_]     (normal-game-value cards
@@ -153,29 +190,3 @@
                                 announced-schneider?
                                 schwarz?
                                 announced-schwarz?))))
-
-;;; Possible game values
-
-(def passed-game-value 17)
-
-(def min-normal-game-level 2)
-(def max-normal-game-level
-  ;            for playing | matadors | hand | ouvert
-  { :grand  (+ 1             11         1      1),
-    :kreuz  (+ 1             7          1      1),
-    :grun   (+ 1             7          1      1),
-    :herz   (+ 1             7          1      1),
-    :schell (+ 1             7          1      1) })
-
-(def possible-game-values
-  (letfn [(vals-for [suit]
-            (map #(* (suit-base-value suit) %)
-                 (range min-normal-game-level
-                        (inc (max-normal-game-level suit)))))]
-    (set (concat (list passed-game-value)
-                 (vals null-game-values)
-                 (vals-for :grand)
-                 (vals-for :kreuz)
-                 (vals-for :grun)
-                 (vals-for :herz)
-                 (vals-for :schell)))))

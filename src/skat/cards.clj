@@ -46,6 +46,7 @@
 
 (defn compare-by-color-normal "Order cards by color in normal game"
   [c1 c2]
+  {:pre [(card? c1) (card? c2)]}
   (letfn [(W? [c] (property-matches? :figure :W c))
           (W-exceptonal-ordinal [c]
             (if (W? c)
@@ -62,6 +63,7 @@
           o2 (ordinal c2)]
       (compare o1 o2))))
 (defn compare-by-color-display "Comparison used for displying cards" [suit]
+  { :pre [(#{:grand :kreuz :grun :herz :schell} suit)] }
   (letfn [(W? [c] (property-matches? :figure :W c))
           (played-color? [c] (property-matches? :color suit c))
           (display-ordinal [c]
@@ -127,5 +129,7 @@
 ;;; Points
 
 (defn calculate-points "Sum face values" [cards]
+  { :pre  [every? card? cards]
+    :post [(<= 0 %) (<= % 120)] }
   (letfn [(card-to-point [c] (-> c :figure face-values))]
-    (reduce + (map card-to-point cards))))
+    (reduce + 0 (map card-to-point cards))))

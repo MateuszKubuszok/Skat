@@ -119,3 +119,49 @@
                       #{})]
       (testing "calculates next trick"
         (is (= (play-trick conf-grand deal) next-deal))))))
+
+(deftest enough-points?-test
+  (let [c1  (skat.cards.Card. :kreuz  :10)
+        c2  (skat.cards.Card. :grun   :10)
+        c3  (skat.cards.Card. :herz   :10)
+        c4  (skat.cards.Card. :schell :10)
+        c5  (skat.cards.Card. :kreuz  :K)
+        c6  (skat.cards.Card. :grun   :K)
+        c7  (skat.cards.Card. :herz   :K)
+        c8  (skat.cards.Card. :schell :K)
+        c9  (skat.cards.Card. :kreuz  :Q)
+        c10 (skat.cards.Card. :kreuz  :W)
+        c11 (skat.cards.Card. :grun   :W)
+        enough     [c1 c2 c3 c4 c5 c6 c7 c8 c9 c10]
+        not-enough [c1 c2 c3 c4 c5 c6 c7 c8    c10 c11]]
+    (testing "61 is enough to win"
+      (is (enough-points? enough)))
+    (testing "60 is not enough to win"
+      (is (not (enough-points? not-enough))))))
+
+(deftest schneider?-test
+  (let [c1  (skat.cards.Card. :kreuz  :A)
+        c2  (skat.cards.Card. :grun   :A)
+        c3  (skat.cards.Card. :herz   :A)
+        c4  (skat.cards.Card. :schell :A)
+        c5  (skat.cards.Card. :kreuz  :10)
+        c6  (skat.cards.Card. :grun   :10)
+        c7  (skat.cards.Card. :herz   :10)
+        c8  (skat.cards.Card. :schell :10)
+        c9  (skat.cards.Card. :kreuz  :K)
+        c10 (skat.cards.Card. :kreuz  :Q)
+        c11 (skat.cards.Card. :kreuz  :W)
+        enough     [c1 c2 c3 c4 c5 c6 c7 c8 c9     c11]
+        not-enough [c1 c2 c3 c4 c5 c6 c7 c8    c10 c11]]
+    (testing "90 is enough for schneider"
+      (is (schneider? enough)))
+    (testing "89 is not enough for schneider"
+      (is (not (schneider? not-enough))))))
+
+(deftest schwarz?-test
+  (let [enough     deck
+        not-enough (rest deck)]
+    (testing "all cards taken is schawrz"
+      (is (schwarz? enough)))
+    (testing "at least one trick not taken is not schawrz"
+      (is (not (schwarz? not-enough))))))
