@@ -33,7 +33,13 @@
 
 ;;; Players
 
-(defrecord Player [id play-1st-card-fun play-2nd-card-fun play-3rd-card-fun])
+(defprotocol Player
+  (id [this])
+  (play-1st-card [this situation])
+  (play-2nd-card [this situation c1])
+  (play-3rd-card [this situation c1 c2])
+  (place-bid [this cards last-bid])
+  (respond-to-bid [this cards bid]))
 
 ;;; Situation
 
@@ -65,7 +71,7 @@
     (fn [player-knowledge]
       (-> player-knowledge
         (update-in [:cards-played] update-cards-played played-now)
-        (update-in [:cards-owned] update-cards-owned played-now)))))
+        (update-in [:cards-owned]  update-cards-owned played-now)))))
 
 ;;; Situation update
 
@@ -80,6 +86,16 @@
                              players-cards))]
     (PlayerSituation. config knowledge order cards-allowed)))
 
+;;; Trick winner
+
+(def trick-winning
+  { :grand  (fn [_ _ _] :p1)
+    :kreuz  (fn [_ _ _] :p1)
+    :grun   (fn [_ _ _] :p1)
+    :herz   (fn [_ _ _] :p1)
+    :schell (fn [_ _ _] :p1)
+    :null   (fn [_ _ _] :p1) })
+
 ;;; Trick update
 
 (defn next-trick-order [{:keys [p1 p2 p3] :as order} winner]
@@ -93,18 +109,18 @@
   (assoc trick :order (next-trick-order order winner)))
 
 (defn play-trick "Plays trick"
-  [config
+  [{ :keys [suit] :as config }
    { { { :keys [p1 p2 p3] :as order } :order :as trick } :trick
      knowledge :knowledge
      :as deal}]
   (let [p1-situation (figure-situation config (knowledge p1) order)
-        c1           ((:play-1st-card-fun p1) p1-situation)
+        c1           (.play-1st-card p1 p1-situation)
         p2-situation (figure-situation config (knowledge p2) order c1)
-        c2           ((:play-2nd-card-fun p2) p2-situation c1)
+        c2           (.play-2nd-card p2 p2-situation c1)
         p3-situation (figure-situation config (knowledge p3) order c1)
-        c3           ((:play-3rd-card-fun p3) p3-situation c1 c2)
+        c3           (.play-3rd-card p3 p3-situation c1 c2)
         played-now   { p1 c1, p2 c2, p3 c3 }
-        winner       (order ((:who-won? config) c1 c2 c3))]
+        winner       (order ((trick-winning suit) c1 c2 c3))]
     (-> deal
       (update-in [:knowledge] update-knowledge played-now)
       (update-in [:trick]     next-trick winner))))

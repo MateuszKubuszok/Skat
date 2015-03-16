@@ -190,3 +190,9 @@
                                 announced-schneider?
                                 schwarz?
                                 announced-schwarz?))))
+
+;;; Bidding
+
+(def bidding-positions #{ :front :middle :rear })
+
+(defrecord BiddingOrder [front middle rear])

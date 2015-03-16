@@ -6,20 +6,28 @@
             [skat.cards :refer :all]
             [skat.game :refer :all]))
 
-(defn play-first [{:keys [:cards-allowed]} & _] (first cards-allowed))
+(defn create-player [pid]
+  (reify skat.game.Player
+         (id [_] pid)
+         (play-1st-card [_ { :keys [ :cards-allowed ] }]
+           (first cards-allowed))
+         (play-2nd-card [_ { :keys [ :cards-allowed ] } _]
+           (first cards-allowed))
+         (play-3rd-card [_ { :keys [ :cards-allowed ] } _ _]
+            (first cards-allowed))))
 (defn first-won [_ _ _] :p1)
-(def pl1 (skat.game.Player. "p1" play-first play-first play-first))
-(def pl2 (skat.game.Player. "p2" play-first play-first play-first))
-(def pl3 (skat.game.Player. "p3" play-first play-first play-first))
+(def pl1 (create-player "p1"))
+(def pl2 (create-player "p2"))
+(def pl3 (create-player "p3"))
 (def order { :p1 pl1, :p2 pl2, :p3 pl3 })
 (def c1 (skat.cards.Card. :kreuz :W))
 (def c2 (skat.cards.Card. :kreuz :K))
 (def c3 (skat.cards.Card. :schell :W))
 (def played-cards { pl1 [], pl2 [], pl3 [] })
 (def players-cards { pl1 #{c1 c2}, pl2 #{c1 c3}, pl3 #{c2 c3} })
-(def conf-grand (skat.game.Configuration. :grand true false first-won))
-(def conf-kreuz (skat.game.Configuration. :kreuz true false first-won))
-(def conf-null  (skat.game.Configuration. :null  true false first-won))
+(def conf-grand (skat.game.Configuration. :grand true false false false))
+(def conf-kreuz (skat.game.Configuration. :kreuz true false false false))
+(def conf-null  (skat.game.Configuration. :null  true false false false))
 
 (defn map-equal [m1 m2] (= (into (hash-map) m1) (into (hash-map) m2)))
 

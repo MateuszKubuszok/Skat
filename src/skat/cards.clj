@@ -130,6 +130,6 @@
 
 (defn calculate-points "Sum face values" [cards]
   { :pre  [every? card? cards]
-    :post [(<= 0 %) (<= % 120)] }
+    :post [(<= 0 %  120)] }
   (letfn [(card-to-point [c] (-> c :figure face-values))]
     (reduce + 0 (map card-to-point cards))))
