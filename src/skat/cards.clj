@@ -114,7 +114,7 @@
           skat   (-> shuffled-cards (drop-take 30 2))]
       { :front front, :middle middle, :rear rear, :skat skat })))
 
-;;; Trumphs
+;;; Trumps
 
 (defn trump-null? "Is trump in null game" [_]
   false)
@@ -123,3 +123,9 @@
 (defn trump-color? "Is trump in color game" [color card]
   (or (property-matches? :figure :W    card)
       (property-matches? :color  color card)))
+
+;;; Points
+
+(defn calculate-points "Sum face values" [cards]
+  (letfn [(card-to-point [c] (-> c :figure face-values))]
+    (reduce + (map card-to-point cards))))

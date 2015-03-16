@@ -6,7 +6,7 @@
             [skat.cards :as cards]
             [skat.helpers :as helpers]))
 
-;;; Peaks' values calculation helpers
+;;; Matadors' values calculation helpers
 
 (defn with-matadors-value-calculator [pattern matched]
   (loop [value 0
@@ -29,7 +29,7 @@
         without-value (without-matadors-value-calculator pattern matched)]
     (if (pos? with-value) with-value without-value)))
 
-;;; Peaks' values for normal games
+;;; Matadors' values for normal games
 
 (defn matadors-for-trumps "Count matadors by trumps" [suit trumps cards]
   (let [sorting          (cards/compare-for-sort
@@ -54,7 +54,7 @@
   (matadors-color :herz cards))
 (defn matadors-schell "Count matadors in schell game" [cards]
   (matadors-color :schell cards))
-(def matadors "Peaks' values calculation functions"
+(def matadors "Matadors' values calculation functions"
   { :grand  matadors-grand,
     :kreuz  matadors-kreuz,
     :grun   matadors-grun,
@@ -66,13 +66,46 @@
 (def suit-base-value
   { :grand 24, :kreuz 12, :grun 11, :herz 10, :schell 9 })
 
-(defn normal-game-value "Calculate normal game value" [cards suit hand? ouvert?]
-  (let [base-value   (suit-base-value suit)
-        for-game     1
-        for-matadors ((matadors suit) cards)
-        for-hand     (if hand? 1 0)
-        for-ouvert   (if ouvert? 1 0)]
-    (* base-value (+ for-game for-matadors for-hand for-ouvert))))
+(defn normal-game-value "Calculate normal game value"
+  ([cards
+    suit
+    hand?
+    ouvert?
+    announced-schneider?
+    announced-schwarz?]
+   (normal-game-value cards
+                      suit
+                      hand?
+                      ouvert?
+                      false
+                      announced-schneider?
+                      false
+                      announced-schwarz?))
+  ([cards
+    suit
+    hand?
+    ouvert?
+    schneider?
+    announced-schneider?
+    schwarz?
+    announced-schwarz?]
+   (let [base-value   (suit-base-value suit)
+         for-game                1
+         for-matadors            ((matadors suit) cards)
+         for-hand                (if hand? 1 0)
+         for-ouvert              (if ouvert? 1 0)
+         for-schneider           (if schneider? 1 0)
+         for-announced-schneider (if announced-schneider? 1 0)
+         for-schwarz             (if schwarz? 1 0)
+         for-announced-schwarz   (if announced-schwarz? 1 0)]
+     (* base-value (+ for-game
+                      for-matadors
+                      for-hand
+                      for-ouvert
+                      for-schneider
+                      for-announced-schneider
+                      for-schwarz
+                      for-announced-schwarz)))))
 
 ;;; Null game values
 
@@ -87,12 +120,43 @@
 
 ;;; Game values
 
-(defn game-value "Calculate overall game value" [cards suit hand? ouvert?]
-  (match [suit]
-    [:null] (null-game-value hand? ouvert?)
-    [_]     (normal-game-value cards suit hand? ouvert?)))
+(defn game-value "Calculate overall game value"
+  ([cards
+    suit
+    hand?
+    ouvert?
+    announced-schneider?
+    announced-schwarz?]
+   (game-value cards
+               suit
+               hand?
+               ouvert?
+               false
+               announced-schneider?
+               false
+               announced-schwarz?))
+  ([cards
+    suit
+    hand?
+    ouvert?
+    schneider?
+    announced-schneider?
+    schwarz?
+    announced-schwarz?]
+   (match [suit]
+     [:null] (null-game-value hand? ouvert?)
+     [_]     (normal-game-value cards
+                                suit
+                                hand?
+                                ouvert?
+                                schneider?
+                                announced-schneider?
+                                schwarz?
+                                announced-schwarz?))))
 
 ;;; Possible game values
+
+(def passed-game-value 17)
 
 (def min-normal-game-level 2)
 (def max-normal-game-level
@@ -108,7 +172,8 @@
             (map #(* (suit-base-value suit) %)
                  (range min-normal-game-level
                         (inc (max-normal-game-level suit)))))]
-    (set (concat (vals null-game-values)
+    (set (concat (list passed-game-value)
+                 (vals null-game-values)
                  (vals-for :grand)
                  (vals-for :kreuz)
                  (vals-for :grun)

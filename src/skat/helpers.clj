@@ -7,7 +7,7 @@
   (reduce conj '() (map fun coll)))
 
 (defn append "Appends one collection to another" [coll coll2]
-  (loop [result coll
+  (loop [result   coll
          appended coll2]
     (if (empty? appended)
       result

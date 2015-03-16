@@ -12,7 +12,11 @@
   #{ :grand :kreuz :grun :herz :schell :null })
 (def suits-ordinals "suits' ordinals"
   { :grand 6, :kreuz 5, :grun 4, :herz 3, :schell 2, :null 1 })
-(defrecord Configuration [suit hand? ouvert? who-won?])
+(defrecord Configuration [suit
+                          hand?
+                          ouvert?
+                          announced-schneider?
+                          announced-schwarz?])
 
 ;;; Deal
 
@@ -65,8 +69,8 @@
 
 ;;; Situation update
 
-(defn figure-situation [{:keys [:suit] :as config}
-                        {:keys [:self :cards-owned] :as knowledge}
+(defn figure-situation [{ :keys [:suit] :as config }
+                        { :keys [:self :cards-owned] :as knowledge }
                         order
                         & [c1]]
   {:pre [(if c1 (cards/card? c1) true)]}
@@ -75,6 +79,7 @@
                              ((responses/allowed-for suit) c1 players-cards)
                              players-cards))]
     (PlayerSituation. config knowledge order cards-allowed)))
+
 ;;; Trick update
 
 (defn next-trick-order [{:keys [p1 p2 p3] :as order} winner]
@@ -103,3 +108,14 @@
     (-> deal
       (update-in [:knowledge] update-knowledge played-now)
       (update-in [:trick]      next-trick winner))))
+
+;;; Win conditions
+
+(defn enough-points? "Is minimal required number of points reached" [cards]
+  (> (cards/calculate-points cards) 60))
+
+(defn schneider? "Is enough points for Schneider reached" [cards]
+  (> (cards/calculate-points cards) 90))
+
+(defn schwarz? "Are all cards taken" [cards]
+  (== (count cards) (count cards/deck)))
