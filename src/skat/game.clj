@@ -172,3 +172,6 @@
 
 (defn schwarz? "Are all cards taken" [cards]
   (== (count cards) (count cards/deck)))
+
+(defn requires-hard [hand? modifier?]
+  (if modifier? hand? true))

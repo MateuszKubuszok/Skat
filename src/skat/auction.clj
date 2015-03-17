@@ -23,11 +23,11 @@
 (def possible-game-values "All possible game values"
   (let [min-normal-game-level 2
                                          ; game mat. hand ouvert schn. schw.
-        max-normal-game-level { :grand  (+ 1    11   1    1      2     2),
-                                :kreuz  (+ 1    7    1    1      2     2),
-                                :grun   (+ 1    7    1    1      2     2),
-                                :herz   (+ 1    7    1    1      2     2),
-                                :schell (+ 1    7    1    1      2     2) }]
+        max-normal-game-level { :grand  (+ 1    4    1    1      2     2),
+                                :kreuz  (+ 1    11   1    1      2     2),
+                                :grun   (+ 1    11   1    1      2     2),
+                                :herz   (+ 1    11   1    1      2     2),
+                                :schell (+ 1    11   1    1      2     2) }]
     (letfn [(vals-for [suit]
               (map #(* (suit-base-value suit) %)
                    (range min-normal-game-level
@@ -128,6 +128,8 @@
     announced-schneider?
     schwarz?
     announced-schwarz?]
+   { :pre [(game/requires-hard hand? ouvert?)
+           (game/requires-hard hand? announced-schwarz?)] }
    (let [base-value   (suit-base-value suit)
          for-game                1
          for-matadors            ((matadors suit) cards)
@@ -228,3 +230,33 @@
       r2w
       (let [rear-1st-bid (.place-bid r r-cards 17)]
         (if (bids? (:bid rear-1st-bid)) rear-1st-bid)))))
+
+;;; Contracts
+
+(defn contract-fulfilled?
+  [{ :keys [declarer
+            suit
+            hand?
+            ouvert?
+            announced-schneider?
+            announced-schwarz?
+            declared-bid] :as config }
+   cards]
+  { :pre [(every? cards/card? cards)] }
+  (if (= suit :null)
+    (= 0 (count cards))
+    (let [enough-points? (game/enough-points? cards)
+          schneider? (game/schneider? cards)
+          schwarz?   (game/schwarz? cards)
+          game-value (game-value cards
+                                 suit
+                                 hand?
+                                 ouvert?
+                                 schneider?
+                                 announced-schneider?
+                                 schwarz?
+                                 announced-schwarz?)]
+      (and enough-points?
+           (<= declared-bid game-value)
+           (if announced-schneider? schneider? true)
+           (if announced-schwarz? schwarz? true)))))
