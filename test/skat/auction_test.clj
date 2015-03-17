@@ -258,3 +258,39 @@
     (is (not (bids? 17))))
   (testing "other game values means bid"
     (is (every? bids? [18 27 20 30 22 33 24 36 46]))))
+
+(deftest bidding-101-test
+  (letfn [(numeric-bid [bid] (if bid bid 17))
+          (mock-player [pid max-bid suit]
+            (reify skat.game.Player
+              (id [this] pid)
+              (place-bid [this _ last-bid]
+                (if (< (numeric-bid last-bid) max-bid) max-bid))
+              (respond-to-bid [this _ bid]
+                (<= (numeric-bid bid) max-bid))
+              (declare-suit [this _ _] suit)))]
+    (let [bid-17   (mock-player "a" 17 :null)
+          bid-24   (mock-player "b" 24 :kreuz)
+          bid-48   (mock-player "c" 48 :grand)
+          bid-48-2 (mock-player "d" 48 :kreuz)]
+      (testing "two passes don't make a winner"
+        (is (not (bids? (:bid (bidding-101 bid-17 [] bid-17 [] nil))))))
+      (testing "bid wins agains pass"
+        (let [pass-bid (bidding-101 bid-17 [] bid-24 [] nil)
+              bid-pass (bidding-101 bid-24 [] bid-17 [] nil)]
+          (is (= bid-24 (:winner pass-bid)))
+          (is (= bid-24 (:winner bid-pass)))))
+      (testing "higher bid wins"
+        (let [hi-low (bidding-101 bid-48 [] bid-24 [] nil)
+              low-hi (bidding-101 bid-24 [] bid-48 [] nil)]
+          (is (bids? (:bid hi-low)))
+          (is (= bid-48 (:winner hi-low)))
+          (is (bids? (:bid low-hi)))
+          (is (= bid-48 (:winner low-hi)))))
+      (testing "bidder backs first"
+        (let [same-1 (bidding-101 bid-48   [] bid-48-2 [] nil)
+              same-2 (bidding-101 bid-48-2 [] bid-48   [] nil)]
+          (is (bids? (:bid same-1)))
+          (is (= bid-48-2 (:winner same-1)))
+          (is (bids? (:bid same-2)))
+          (is (= bid-48 (:winner same-2))))))))

@@ -2,7 +2,7 @@
   (:require [clojure.core.match :refer [match]]
             [clojure.set :as sets]
             ;[clojure.tools.trace :refer :all]
-            ;[skat.log :as log]
+            [skat.log :as log]
             [skat.cards :as cards]
             [skat.game :as game]
             [skat.helpers :as helpers]))
@@ -202,22 +202,22 @@
 
 (defn bids? "Nil and 17 means pass, player bids otherwise" [bid]
   { :pre [(game-value? bid)] }
-  (and bid (not (= bid passed-game-value))))
+  (and bid (not (== bid passed-game-value))))
 
 (defn bidding-101 "Determines who of two players wins the bid"
-  [bidder bidder-cards responder responder-cards current-bid]
+  [bidder bidder-cards responder responder-cards starting-bid]
   { :pre  [(every? cards/card? bidder-cards)
            (every? cards/card? responder-cards)
-           (game-value? current-bid)]
-    :post [(possible-game-values %)] }
-  (loop [last-bid current-bid]
+           (game-value? starting-bid)]
+    :post [(game-value? (:bid %))] }
+  (loop [last-bid starting-bid]
     (let [bid (.place-bid bidder bidder-cards last-bid)]
       (if (bids? bid)
-        (let [response (.respond-to-bid responder responder-cards bid)]
-          (if (bids? response)
+        (let [accept? (.respond-to-bid responder responder-cards bid)]
+          (if accept?
             (recur bid)
             (Bidding. bidder bidder-cards bid)))
-        (Bidding. responder responder-cards bid)))))
+        (Bidding. responder responder-cards last-bid)))))
 
 (defn do-auction "Auction: 1st middle bids front player, then rear bids winner"
   [{ f :front, m :middle, r :rear }
