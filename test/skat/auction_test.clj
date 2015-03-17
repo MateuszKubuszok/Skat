@@ -241,3 +241,20 @@
       (is (== (*  9 3) (game-value cards-wout-1 :schell t f f f)))
       (is (== (*  9 3) (game-value cards-wout-1 :schell f t f f)))
       (is (== (*  9 4) (game-value cards-wout-1 :schell t t f f))))))
+
+(deftest game-value?-test
+  (testing "nil is valid game value"
+    (is (game-value? nil)))
+   (testing "all possible-game-values are game values"
+    (is (every? game-value? possible-game-values)))
+   (testing "other values are invalid"
+    (is (not (game-value? 0)))
+    (is (not (game-value? 16)))
+    (is (not (game-value? -48)))))
+
+(deftest bids?-test
+  (testing "values nil or 17 means pass"
+    (is (not (bids? nil)))
+    (is (not (bids? 17))))
+  (testing "other game values means bid"
+    (is (every? bids? [18 27 20 30 22 33 24 36 46]))))
