@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             ;[clojure.pprint :refer :all]
             ;[clojure.tools.trace :refer :all]
+            [skat.log :refer :all]
             [skat.cards :refer :all]
             [skat.auction :refer :all]))
 
@@ -278,19 +279,48 @@
       (testing "bid wins agains pass"
         (let [pass-bid (bidding-101 bid-17 [] bid-24 [] nil)
               bid-pass (bidding-101 bid-24 [] bid-17 [] nil)]
+          (is (not (bids? (:bid pass-bid))))
           (is (= bid-24 (:winner pass-bid)))
+          (is (== 24 (:bid bid-pass)))
           (is (= bid-24 (:winner bid-pass)))))
       (testing "higher bid wins"
         (let [hi-low (bidding-101 bid-48 [] bid-24 [] nil)
               low-hi (bidding-101 bid-24 [] bid-48 [] nil)]
-          (is (bids? (:bid hi-low)))
+          (is (== 48 (:bid hi-low)))
           (is (= bid-48 (:winner hi-low)))
-          (is (bids? (:bid low-hi)))
+          (is (== 24 (:bid low-hi)))
           (is (= bid-48 (:winner low-hi)))))
       (testing "bidder backs first"
         (let [same-1 (bidding-101 bid-48   [] bid-48-2 [] nil)
               same-2 (bidding-101 bid-48-2 [] bid-48   [] nil)]
-          (is (bids? (:bid same-1)))
+          (is (== 48 (:bid same-1)))
           (is (= bid-48-2 (:winner same-1)))
-          (is (bids? (:bid same-2)))
+          (is (== 48 (:bid same-2)))
           (is (= bid-48 (:winner same-2))))))))
+
+(deftest do-auction-test
+  (letfn [(numeric-bid [bid] (if bid bid 17))
+          (mock-player [pid max-bid suit]
+            (reify skat.game.Player
+              (id [this] pid)
+              (place-bid [this _ last-bid]
+                (if (< (numeric-bid last-bid) max-bid) max-bid))
+              (respond-to-bid [this _ bid]
+                (<= (numeric-bid bid) max-bid))
+              (declare-suit [this _ _] suit)))]
+    (let [bid-17   (mock-player "a" 17 :null)
+          bid-24   (mock-player "b" 24 :kreuz)
+          bid-48   (mock-player "c" 48 :grand)
+          bid-48-2 (mock-player "d" 48 :kreuz)]
+      (testing "for all players passing aucion is undecided"
+        (is (not (do-auction (skat.auction.Bidders. bid-17 bid-17 bid-17)
+                             { :front [], :middle [], :rear [] }))))
+      (testing "highest bidder wins"
+        (let [no-min  (do-auction (skat.auction.Bidders. bid-17 bid-24 bid-48)
+                                  { :front [], :middle [], :rear [] })
+              min-bid (do-auction (skat.auction.Bidders. bid-24 bid-48 bid-48-2)
+                                  { :front [], :middle [], :rear [] })]
+          (is (== 48 (:bid no-min)))
+          (is (= bid-48 (:winner no-min)))
+          (is (== 48 (:bid min-bid)))
+          (is (= bid-48 (:winner min-bid))))))))

@@ -224,5 +224,7 @@
    { f-cards :front, m-cards :middle, r-cards :rear }]
   (let [m2f (bidding-101 m m-cards f             f-cards      17)
         r2w (bidding-101 r r-cards (:winner m2f) (:cards m2f) (:bid m2f))]
-    (if (bids? (:bid r2w))
-      (.declare-suit (:winner r2w) (:cards r2w) (:bid r2w)))))
+    (if (or (bids? (:bid r2w)) (not= r (:winner r2w)))
+      r2w
+      (let [rear-1st-bid (.place-bid r r-cards 17)]
+        (if (bids? (:bid rear-1st-bid)) rear-1st-bid)))))
