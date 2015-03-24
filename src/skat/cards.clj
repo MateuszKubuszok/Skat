@@ -13,11 +13,11 @@
 ;;; Figures
 
 (def figures "Possible cards' figures"
-  #{ :7 :8 :9 :10 :W :Q :K :A })
+  #{ :7 :8 :9 :10 :W :D :K :A })
 (def figure-ordinal-normal "Figures' ordnals in normal games"
-  { :7 0, :8 1, :9 3, :Q 4, :K 5, :10 6, :A 7, :W 8 })
+  { :7 0, :8 1, :9 3, :D 4, :K 5, :10 6, :A 7, :W 8 })
 (def figure-ordinal-null "Figures' ordnals in null games"
-  { :7 0, :8 1, :9 3, :10 7, :W 4, :Q 5, :K 6, :A 8 })
+  { :7 0, :8 1, :9 3, :10 7, :W 4, :D 5, :K 6, :A 8 })
 (def figure-ordinals "Figures ordinals for each game"
   { :grand  figure-ordinal-normal,
     :kreuz  figure-ordinal-normal,
@@ -26,7 +26,7 @@
     :schell figure-ordinal-normal,
     :null   figure-ordinal-null })
 (def face-values "Values for each card's figure"
-  { :7 0, :8 0, :9 0, :W 2, :Q 3, :K 4, :10 10, :A 11 })
+  { :7 0, :8 0, :9 0, :W 2, :D 3, :K 4, :10 10, :A 11 })
 
 ;;; Cards
 

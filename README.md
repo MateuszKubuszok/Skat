@@ -5,20 +5,45 @@
 Engine intented to be able to completely simulate Skat game, as well as act
 in a bot-like manner.
 
+Compiled program uses CLI interface as to demonstrate library's abilities.
+
+## Notes
+
+Game implements official rules without any local additions (no *Ramsch* for
+instance).
+
+Naming in the game is in most part derrived from English Wikipedia. However
+there are some local names used. Cards suites use upper-silesian names:
+
+  * **Kreuz** - for *Clubs*/*Acorns*/*Trefl*,
+  * **Grün** - for *Spades*/*Leaves*/*Pik*,
+  * **Herz** - for *Hearts*/*Hearts*/*Caro*,
+  * **Schell** - for *Diamonds*/*Bells*/*Kier*
+
+Similarly *Jack* is denoted with **W** and *Queen* with **D**. It can be changed
+using i18n settings.
+
 ## Installation
 
-Download from [Bitbucket](https://bitbucket.org/MateuszKubuszok/skat) or
-[GitHub](https://github.com/MateuszKubuszok/skat).
+Download source from [Bitbucket](https://bitbucket.org/MateuszKubuszok/skat) or
+[GitHub](https://github.com/MateuszKubuszok/skat) and build using instructions
+below.
 
 ## Usage
 
-Build:
+Building requires Leiningen installed.
+
+To only build standalone jar run:
 
     $ lein uberjar
 
-Run:
+It can be run with:
 
     $ java -jar skat-0.1.0-standalone.jar
+
+Alternatively build and run program at once:
+
+    $ lein run
 
 ## License
 

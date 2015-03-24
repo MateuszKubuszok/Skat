@@ -20,22 +20,29 @@
 (def player-separator " | ")
 
 (def bool-str "Maps booleans to string"
-  { true  (with-tscope [:skat :cli] *lang* :answer-yes)
-    false (with-tscope [:skat :cli] *lang* :answer-no) })
+  { true  (with-tscope :skat/cli (i18n/t *lang* :answer/yes))
+    false (with-tscope :skat/cli (i18n/t *lang* :answer/no)) })
 
 (def color-str "Maps card colors to character"
   { :kreuz \♣, :grun \♠, :herz \♥, :schell \♦ })
 
 (def figure-str "Maps card figure to string"
-  { :7 " 7", :8 " 8", :9 " 9", :10 "10", :W " W", :Q " Q", :K " K", :A " A" })
+  { :7  (with-tscope :skat/cli (i18n/t *lang* :figure/r7))
+    :8  (with-tscope :skat/cli (i18n/t *lang* :figure/r8))
+    :9  (with-tscope :skat/cli (i18n/t *lang* :figure/r9))
+    :10 (with-tscope :skat/cli (i18n/t *lang* :figure/r10))
+    :W  (with-tscope :skat/cli (i18n/t *lang* :figure/W))
+    :D  (with-tscope :skat/cli (i18n/t *lang* :figure/D))
+    :K  (with-tscope :skat/cli (i18n/t *lang* :figure/K))
+    :A  (with-tscope :skat/cli (i18n/t *lang* :figure/A)) })
 
 (def suit-str "Maps suit to string"
-  { :grand  "Grand",
-    :kreuz  "Kreuz",
-    :grun   "Grün",
-    :herz   "Herz",
-    :schell "Schell",
-    :null   "Null" })
+  { :grand  (with-tscope :skat/cli (i18n/t *lang* :suit/grand)),
+    :kreuz  (with-tscope :skat/cli (i18n/t *lang* :suit/kreuz)),
+    :grun   (with-tscope :skat/cli (i18n/t *lang* :suit/grun)),
+    :herz   (with-tscope :skat/cli (i18n/t *lang* :suit/herz)),
+    :schell (with-tscope :skat/cli (i18n/t *lang* :suit/schell)),
+    :null   (with-tscope :skat/cli (i18n/t *lang* :suit/null)) })
 
 (defn card-str "Maps card to string" [card]
   { :pre [(cards/card? card)] }
@@ -52,31 +59,31 @@
   (with-tscope [:skat :cli]
     (println (i18n/t *lang* args))))
 (defn show-player-make-bid "Shows new bid question" [last-bid cards]
-  (show-t :player-make-bid
+  (show-t :player/make-bid
           last-bid
           (coll-str cards (fn [_] " ") card-str card-separator)))
 (defn show-player-answer-bid "Shows bid response question" [bid cards]
-  (show-t :player-answer-bid
+  (show-t :player/answer-bid
           bid
           (coll-str cards (fn [_] " ") card-str card-separator)))
 (defn show-owned-cards "Prints owned cards" [cards]
   (do
-    (show-t :card-owned
+    (show-t :cards/owned
             (coll-str cards-owned (fn [_] " ") card-str card-separator))))
 (defn show-allowed-cards "Prints owned and allowed cards"
   [{ :keys [:cards-allowed] { :keys [:cards-owned] } :knowledge }]
   (do
     (show-owned-cards cards-owned)
-    (show-t :card-allowed
+    (show-t :cards/allowed
             (coll-str cards-allowed str card-str card-separator))))
 (defn show-player1-card "Prints cards played by player 1" [situation c1]
-  (show-t :player-played (-> situation :order :p1 .id) c1))
+  (show-t :player/played (-> situation :order :p1 .id) c1))
 (defn show-player2-card "Prints cards played by player 2" [situation c2]
-  (show-t :player-played (-> situation :order :p2 .id) c2))
+  (show-t :player/played (-> situation :order :p2 .id) c2))
 (defn show-select-nth-item "Shows nth item question" []
-  (show-t :select-nth-item))
+  (show-t :select/nth-item))
 (defn show-select-player-name "Shows player name question" []
-  (show-t :select-player-name))
+  (show-t :select/player-name))
 
 ;;; Obtaining data
 

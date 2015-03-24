@@ -155,7 +155,7 @@
         c6  (skat.cards.Card. :grun   :K)
         c7  (skat.cards.Card. :herz   :K)
         c8  (skat.cards.Card. :schell :K)
-        c9  (skat.cards.Card. :kreuz  :Q)
+        c9  (skat.cards.Card. :kreuz  :D)
         c10 (skat.cards.Card. :kreuz  :W)
         c11 (skat.cards.Card. :grun   :W)
         enough     [c1 c2 c3 c4 c5 c6 c7 c8 c9 c10]
@@ -175,7 +175,7 @@
         c7  (skat.cards.Card. :herz   :10)
         c8  (skat.cards.Card. :schell :10)
         c9  (skat.cards.Card. :kreuz  :K)
-        c10 (skat.cards.Card. :kreuz  :Q)
+        c10 (skat.cards.Card. :kreuz  :D)
         c11 (skat.cards.Card. :kreuz  :W)
         enough     [c1 c2 c3 c4 c5 c6 c7 c8 c9     c11]
         not-enough [c1 c2 c3 c4 c5 c6 c7 c8    c10 c11]]
