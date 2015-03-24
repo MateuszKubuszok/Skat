@@ -1,4 +1,5 @@
 (ns skat.helpers)
+(set! *warn-on-reflection* true)
 
 (defn coll-contains? "Whether collection contains element" [coll m]
   (contains? (set coll) m))

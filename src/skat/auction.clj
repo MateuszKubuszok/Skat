@@ -3,6 +3,7 @@
             [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.game :as game]))
+(set! *warn-on-reflection* true)
 
 ;;; Possible game values
 

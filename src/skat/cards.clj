@@ -1,6 +1,7 @@
 (ns skat.cards
   (:require [clojure.set :as sets]
             [skat.helpers :as helpers]))
+(set! *warn-on-reflection* true)
 
 ;;; Colors
 

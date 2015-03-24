@@ -1,6 +1,7 @@
 (ns skat.responses
   (:require [skat.helpers :as helpers]
             [skat.cards :as cards]))
+(set! *warn-on-reflection* true)
 
 ;;; General patterns
 

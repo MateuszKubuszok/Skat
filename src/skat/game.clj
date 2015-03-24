@@ -3,6 +3,7 @@
             [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.responses :as responses]))
+(set! *warn-on-reflection* true)
 
 ;;; Configuration
 
@@ -147,13 +148,13 @@
   [{ :keys [suit] :as config }
    { { { :keys [p1 p2 p3] :as order } :order :as trick } :trick
      knowledge :knowledge
-     :as deal}]
+     :as deal }]
   (let [p1-situation (figure-situation config (knowledge p1) order)
-        c1           (.play-1st-card p1 p1-situation)
+        c1           (.play-1st-card ^skat.game.Player p1 p1-situation)
         p2-situation (figure-situation config (knowledge p2) order c1)
-        c2           (.play-2nd-card p2 p2-situation c1)
+        c2           (.play-2nd-card ^skat.game.Player p2 p2-situation c1)
         p3-situation (figure-situation config (knowledge p3) order c1)
-        c3           (.play-3rd-card p3 p3-situation c1 c2)
+        c3           (.play-3rd-card ^skat.game.Player p3 p3-situation c1 c2)
         played-now   { p1 c1, p2 c2, p3 c3 }
         winner       (order ((trick-winning suit) c1 c2 c3))]
     (-> deal
