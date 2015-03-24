@@ -15,14 +15,27 @@
 
 ;;; Generating displayed content
 
+(def bool-separator "; ")
 (def card-separator "  ")
 (def player-separator " | ")
+
+(def bool-str "Maps booleans to string"
+  { true  (with-tscope [:skat :cli] *lang* :answer-yes)
+    false (with-tscope [:skat :cli] *lang* :answer-no) })
 
 (def color-str "Maps card colors to character"
   { :kreuz \♣, :grun \♠, :herz \♥, :schell \♦ })
 
 (def figure-str "Maps card figure to string"
   { :7 " 7", :8 " 8", :9 " 9", :10 "10", :W " W", :Q " Q", :K " K", :A " A" })
+
+(def suit-str "Maps suit to string"
+  { :grand  "Grand",
+    :kreuz  "Kreuz",
+    :grun   "Grün",
+    :herz   "Herz",
+    :schell "Schell",
+    :null   "Null" })
 
 (defn card-str "Maps card to string" [card]
   { :pre [(cards/card? card)] }
@@ -38,30 +51,36 @@
 (defmacro show-t [& args]
   (with-tscope [:skat :cli]
     (println (i18n/t *lang* args))))
-
-(defn show-nth-item "Shows nth item question" []
-  (show-t :select-nth-item))
-
-(defn show-player-name-question "Shows player name question" []
-  (show-t :select-player-name))
-
+(defn show-player-make-bid "Shows new bid question" [last-bid cards]
+  (show-t :player-make-bid
+          last-bid
+          (coll-str cards (fn [_] " ") card-str card-separator)))
+(defn show-player-answer-bid "Shows bid response question" [bid cards]
+  (show-t :player-answer-bid
+          bid
+          (coll-str cards (fn [_] " ") card-str card-separator)))
+(defn show-owned-cards "Prints owned cards" [cards]
+  (do
+    (show-t :card-owned
+            (coll-str cards-owned (fn [_] " ") card-str card-separator))))
 (defn show-allowed-cards "Prints owned and allowed cards"
   [{ :keys [:cards-allowed] { :keys [:cards-owned] } :knowledge }]
   (do
-    (show-t :select-card-owned
-            (coll-str cards-owned (fn [_] " ") card-str card-separator))
-    (show-t :select-card-allowed
+    (show-owned-cards cards-owned)
+    (show-t :card-allowed
             (coll-str cards-allowed str card-str card-separator))))
-
 (defn show-player1-card "Prints cards played by player 1" [situation c1]
   (show-t :player-played (-> situation :order :p1 .id) c1))
-
 (defn show-player2-card "Prints cards played by player 2" [situation c2]
   (show-t :player-played (-> situation :order :p2 .id) c2))
+(defn show-select-nth-item "Shows nth item question" []
+  (show-t :select-nth-item))
+(defn show-select-player-name "Shows player name question" []
+  (show-t :select-player-name))
 
 ;;; Obtaining data
 
-(defn select-nth "User select nth element of collection (size in [1, 10])"
+(defn select-nth "User selects nth element of collection (size in [1, 10])"
   [coll value-str separator]
   { :pre [coll (<= 1 (count coll) 10)] }
   (letfn [(rotate [in pos] (if in (mod (+ in pos) 10)))
@@ -74,26 +93,40 @@
         (if (and idx (< idx size))
           (coll idx)
           (do
-            (show-nth-item)
+            (show-select-nth-item)
             (println preview)
             (recur (pos-to-idx (read-line)))))))))
 
-(defn select-card "User select nth card" [cards]
+(defn select-new-bid "User selects new bid" [last-bid cards]
+  (letfn [(parse-int [in] (if (re-find #"\d+" in) (Integer/parseInt in)))
+          (correct-bid? [bid] (and (auction/possible-game-values bid)
+                                   (or (== 17 bid) (< last-bid bid))))]
+    (loop [bid nil]
+      (if (correct-bid? bid)
+        bid
+        (do
+          (show-player-make-bid last-bid cards)
+          (recur (parse-int (read-line))))))))
+
+(defn select-yes-no-answer "User answers to yes-no question" []
+  (select-nth [true false] bool-str bool-separator))
+
+(defn select-card "User selects nth card" [cards]
   { :pre [(every? cards/card? cards)] }
   (select-nth cards color-str "  "))
 
-(defn select-player-name "Select player name" [used-names]
+(defn select-player-name "User selects player name" [used-names]
   (loop [id nil]
     (if (and id (not (used-names id)))
       id
       (do
-        (show-player-name-question)
+        (show-select-player-name)
         (recur (read-line))))))
 
-(defn select-player-type "Select player type" []
+(defn select-player-type "User selects player type" []
   (select-nth (vec player-types) player-types-str player-separator))
 
-(defn select-players "Select all players" []
+(defn select-players "User selects all players" []
   (let [pl-front-name  (select-player-name #{})
         pl-front-type  (select-player-type)
         pl-middle-name (select-player-name #{ pl-front-name })
@@ -103,6 +136,13 @@
     (skat.auction.Bidders. (pl-front-type  pl-front-name)
                            (pl-middle-type pl-middle-name)
                            (pl-rear-type   pl-rear-name))))
+
+;;; TODO: after auction:
+;;; TODO: select suite
+;;; TODO: select with[out] hand
+;;; TODO: select with[out] schnieder
+;;; TODO: select with[out] schwarz
+;;; TODO: if schwarz select with[out] ouvert
 
 ;;; Players
 
@@ -126,8 +166,15 @@
         (show-player2-card situation c2)
         (show-allowed-cards situation)
         (select-card cards-allowed)))
-    (place-bid [this cards last-bid] nil)
-    (respond-to-bid [this cards bid] nil)
+    (place-bid [this cards last-bid]
+      (do
+        (show-owned-cards cards)
+        (select-new-bid last-bid cards)))
+    (respond-to-bid [this cards bid]
+      (do
+        (show-owned-cards cards)
+        (show-player-answer-bid bid cards)
+        (select-yes-no-answer bid cards)))
     (declare-suit [this cards final-bid] nil)))
 
 (def player-types "Players types to choose"

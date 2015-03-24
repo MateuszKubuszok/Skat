@@ -211,12 +211,11 @@
            (game-value? starting-bid)]
     :post [(game-value? (:bid %))] }
   (loop [last-bid starting-bid]
-    (let [bid (.place-bid bidder bidder-cards last-bid)]
+    (let [bid (.place-bid ^skat.game.Player bidder bidder-cards last-bid)]
       (if (bids? bid)
-        (let [accept? (.respond-to-bid responder responder-cards bid)]
-          (if accept?
-            (recur bid)
-            (Bidding. bidder bidder-cards bid)))
+        (if (.respond-to-bid ^skat.game.Player responder responder-cards bid)
+          (recur bid)
+          (Bidding. bidder bidder-cards bid))
         (Bidding. responder responder-cards last-bid)))))
 
 (defn do-auction "Auction: 1st middle bids front player, then rear bids winner"
@@ -226,8 +225,8 @@
         r2w (bidding-101 r r-cards (:winner m2f) (:cards m2f) (:bid m2f))]
     (if (or (bids? (:bid r2w)) (not= r (:winner r2w)))
       r2w
-      (let [rear-1st-bid (.place-bid r r-cards 17)]
-        (if (bids? (:bid rear-1st-bid)) rear-1st-bid)))))
+      (let [rear-1st-bid (.place-bid ^skat.game.Player r r-cards 17)]
+        (if (bids? rear-1st-bid) (Bidding. r r-cards rear-1st-bid))))))
 
 ;;; Contracts
 
