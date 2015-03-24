@@ -1,6 +1,5 @@
 (ns skat.responses
-  (:require ;[clojure.tools.trace :refer :all]
-            [skat.helpers :as helpers]
+  (:require [skat.helpers :as helpers]
             [skat.cards :as cards]))
 
 ;;; General patterns

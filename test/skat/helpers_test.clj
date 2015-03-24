@@ -1,8 +1,5 @@
 (ns skat.helpers_test
   (:require [clojure.test :refer :all]
-            ;[clojure.pprint :refer :all]
-            ;[clojure.tools.trace :refer :all]
-            ;[skat.log :as log]
             [skat.helpers :refer :all]))
 
 (deftest list-from-test

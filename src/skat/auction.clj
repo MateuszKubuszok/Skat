@@ -1,11 +1,8 @@
 (ns skat.auction
   (:require [clojure.core.match :refer [match]]
-            [clojure.set :as sets]
-            ;[clojure.tools.trace :refer :all]
-            [skat.log :as log]
+            [skat.helpers :as helpers]
             [skat.cards :as cards]
-            [skat.game :as game]
-            [skat.helpers :as helpers]))
+            [skat.game :as game]))
 
 ;;; Possible game values
 

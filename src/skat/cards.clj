@@ -1,6 +1,5 @@
 (ns skat.cards
   (:require [clojure.set :as sets]
-            ;[clojure.tools.trace :refer :all]
             [skat.helpers :as helpers]))
 
 ;;; Colors

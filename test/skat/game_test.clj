@@ -1,8 +1,5 @@
 (ns skat.game_test
   (:require [clojure.test :refer :all]
-            ;[clojure.pprint :refer :all]
-            ;[clojure.tools.trace :refer :all]
-            ;[skat.log :as log]
             [skat.cards :refer :all]
             [skat.game :refer :all]))
 

@@ -1,8 +1,5 @@
 (ns skat.auction_test
   (:require [clojure.test :refer :all]
-            ;[clojure.pprint :refer :all]
-            ;[clojure.tools.trace :refer :all]
-            [skat.log :refer :all]
             [skat.cards :refer :all]
             [skat.auction :refer :all]))
 
