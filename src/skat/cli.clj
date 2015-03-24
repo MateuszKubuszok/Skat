@@ -1,12 +1,13 @@
 (ns skat.cli
   (:require [clojure.string :refer [join]]
             [taoensso.tower :refer [with-tscope]]
+            [skat]
             [skat.i18n :as i18n :refer [*lang*]]
             [skat.cards :as cards]
-            [skat.responses :as responses]
             [skat.game :as game]
             [skat.auction :as auction]
-            [skat.ai :as ai]))
+            [skat.ai :as ai])
+  (:import  [skat Bidders Player GameDriver]))
 (set! *warn-on-reflection* true)
 
 ;;; Players forward declarations
@@ -18,6 +19,7 @@
 (def bool-separator "; ")
 (def card-separator "  ")
 (def player-separator " | ")
+(def suit-separator " | ")
 
 (def bool-str "Maps booleans to string"
   { true  (with-tscope :skat/cli (i18n/t *lang* :answer/yes))
@@ -55,9 +57,22 @@
 
 ;;; Displaying data
 
+(defn pid "Show player ID" [player]
+  (.id ^Player player))
+
 (defmacro show-t [& args]
-  (with-tscope [:skat :cli]
-    (println (i18n/t *lang* args))))
+  (list `with-tscope
+        :skat/cli
+        (list `println (concat (list `i18n/t `*lang*) args))))
+(defn show-owned-cards "Prints owned cards" [cards]
+  (show-t :cards/owned
+          (coll-str cards (fn [_] " ") card-str card-separator)))
+(defn show-allowed-cards "Prints owned and allowed cards"
+  [{ :keys [:cards-allowed] { :keys [:cards-owned] } :knowledge }]
+  (do
+    (show-owned-cards cards-owned)
+    (show-t :cards/allowed
+            (coll-str cards-allowed str card-str card-separator))))
 (defn show-player-make-bid "Shows new bid question" [last-bid cards]
   (show-t :player/make-bid
           last-bid
@@ -66,20 +81,30 @@
   (show-t :player/answer-bid
           bid
           (coll-str cards (fn [_] " ") card-str card-separator)))
-(defn show-owned-cards "Prints owned cards" [cards]
+(defn show-player-choose-suit "Shows suit choice question" [cards]
   (do
-    (show-t :cards/owned
-            (coll-str cards-owned (fn [_] " ") card-str card-separator))))
-(defn show-allowed-cards "Prints owned and allowed cards"
-  [{ :keys [:cards-allowed] { :keys [:cards-owned] } :knowledge }]
+    (show-owned-cards cards)
+    (show-t :player/choose-suit)))
+(defn show-player-choose-hand "Shows hand choice question" [cards]
   (do
-    (show-owned-cards cards-owned)
-    (show-t :cards/allowed
-            (coll-str cards-allowed str card-str card-separator))))
+    (show-owned-cards cards)
+    (show-t :player/choose-hand)))
+(defn show-player-choose-schneider "Shows schneider choice question" [cards]
+  (do
+    (show-owned-cards cards)
+    (show-t :player/choose-schneider)))
+(defn show-player-choose-schwarz "Shows schwarz choice question" [cards]
+  (do
+    (show-owned-cards cards)
+    (show-t :player/choose-schwarz)))
+(defn show-player-choose-ouvert "Shows ouvert choice question" [cards]
+  (do
+    (show-owned-cards cards)
+    (show-t :player/choose-ouvert)))
 (defn show-player1-card "Prints cards played by player 1" [situation c1]
-  (show-t :player/played (-> situation :order :p1 .id) c1))
+  (show-t :player/played (-> situation :order :p1 pid) c1))
 (defn show-player2-card "Prints cards played by player 2" [situation c2]
-  (show-t :player/played (-> situation :order :p2 .id) c2))
+  (show-t :player/played (-> situation :order :p2 pid) c2))
 (defn show-select-nth-item "Shows nth item question" []
   (show-t :select/nth-item))
 (defn show-select-player-name "Shows player name question" []
@@ -120,7 +145,7 @@
 
 (defn select-card "User selects nth card" [cards]
   { :pre [(every? cards/card? cards)] }
-  (select-nth cards color-str "  "))
+  (select-nth cards color-str card-separator))
 
 (defn select-player-name "User selects player name" [used-names]
   (loop [id nil]
@@ -140,9 +165,12 @@
         pl-middle-type (select-player-type)
         pl-rear-name   (select-player-name #{ pl-front-name pl-middle-name })
         pl-rear-type   (select-player-type)]
-    (skat.auction.Bidders. (pl-front-type  pl-front-name)
-                           (pl-middle-type pl-middle-name)
-                           (pl-rear-type   pl-rear-name))))
+    (Bidders. (pl-front-type  pl-front-name)
+              (pl-middle-type pl-middle-name)
+              (pl-rear-type   pl-rear-name))))
+
+(defn select-suit "User selects suit" []
+  (select-nth (vec game/suits) suit-str suit-separator))
 
 ;;; TODO: after auction:
 ;;; TODO: select suite
@@ -156,7 +184,7 @@
 (def create-cpu-player "Creates computer player" ai/ai-player)
 
 (defn create-human-player "Creates human player using CLI" [id]
-  (reify skat.game.Player
+  (reify skat.Player
     (id [this] id)
     (play-1st-card [this { :keys [:cards-allowed] :as situation }]
       (do
@@ -182,7 +210,26 @@
         (show-owned-cards cards)
         (show-player-answer-bid bid cards)
         (select-yes-no-answer bid cards)))
-    (declare-suit [this cards final-bid] nil)))
+    (declare-suit [this cards final-bid]
+      (do
+        (show-player-choose-suit cards)
+        (select-suit)))
+    (declare-hand [this cards final-bid]
+      (do
+        (show-player-choose-hand cards)
+        (select-yes-no-answer)))
+    (declare-schneider [this cards final-bid]
+      (do
+        (show-player-choose-schneider cards)
+        (select-yes-no-answer)))
+    (declare-schwarz [this cards final-bid]
+      (do
+        (show-player-choose-schwarz cards)
+        (select-yes-no-answer)))
+    (declare-ouvert [this cards final-bid]
+      (do
+        (show-player-choose-ouvert cards)
+        (select-yes-no-answer)))))
 
 (def player-types "Players types to choose"
   #{ create-cpu-player, create-human-player })
@@ -191,6 +238,11 @@
   { create-cpu-player "CPU player", create-human-player "Human player" })
 
 ;;; Gameplay
+
+(defn start-cli-game "Starts CLI game" []
+  (let [driver (reify GameDriver
+                      (create-players [this] (select-players)))]
+    (game/start-game driver)))
 
 ;; TODO:
 ;; ☑ select 3 players [human/computer]

@@ -1,16 +1,18 @@
 (ns skat.auction_test
   (:require [clojure.test :refer :all]
+            [skat]
             [skat.cards :refer :all]
-            [skat.auction :refer :all]))
+            [skat.auction :refer :all])
+  (:import  [skat Card Bidders Player]))
 
-(def c1 (skat.cards.Card. :kreuz :W))
-(def c2 (skat.cards.Card. :grun :W))
-(def c3 (skat.cards.Card. :herz :W))
-(def c4 (skat.cards.Card. :schell :W))
-(def c5 (skat.cards.Card. :kreuz :A))
-(def c6 (skat.cards.Card. :grun :A))
-(def c7 (skat.cards.Card. :herz :A))
-(def c8 (skat.cards.Card. :schell :A))
+(def c1 (Card. :kreuz :W))
+(def c2 (Card. :grun :W))
+(def c3 (Card. :herz :W))
+(def c4 (Card. :schell :W))
+(def c5 (Card. :kreuz :A))
+(def c6 (Card. :grun :A))
+(def c7 (Card. :herz :A))
+(def c8 (Card. :schell :A))
 (def pattern [c1 c2 c3 c4 c5 c6 c7 c8])
 
 (deftest with-matadors-value-calculator-test
@@ -240,7 +242,7 @@
 (deftest bidding-101-test
   (letfn [(numeric-bid [bid] (if bid bid 17))
           (mock-player [pid max-bid suit]
-            (reify skat.game.Player
+            (reify Player
               (id [this] pid)
               (place-bid [this _ last-bid]
                 (if (< (numeric-bid last-bid) max-bid) max-bid))
@@ -278,7 +280,7 @@
 (deftest do-auction-test
   (letfn [(numeric-bid [bid] (if bid bid 17))
           (mock-player [pid max-bid suit]
-            (reify skat.game.Player
+            (reify Player
               (id [this] pid)
               (place-bid [this _ last-bid]
                 (if (< (numeric-bid last-bid) max-bid) max-bid))
@@ -290,12 +292,12 @@
           bid-48   (mock-player "c" 48 :grand)
           bid-48-2 (mock-player "d" 48 :kreuz)]
       (testing "for all players passing aucion is undecided"
-        (is (not (do-auction (skat.auction.Bidders. bid-17 bid-17 bid-17)
+        (is (not (do-auction (Bidders. bid-17 bid-17 bid-17)
                              { :front [], :middle [], :rear [] }))))
       (testing "highest bidder wins"
-        (let [no-min  (do-auction (skat.auction.Bidders. bid-17 bid-24 bid-48)
+        (let [no-min  (do-auction (Bidders. bid-17 bid-24 bid-48)
                                   { :front [], :middle [], :rear [] })
-              min-bid (do-auction (skat.auction.Bidders. bid-24 bid-48 bid-48-2)
+              min-bid (do-auction (Bidders. bid-24 bid-48 bid-48-2)
                                   { :front [], :middle [], :rear [] })]
           (is (== 48 (:bid no-min)))
           (is (= bid-48 (:winner no-min)))

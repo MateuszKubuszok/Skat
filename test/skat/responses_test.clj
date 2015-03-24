@@ -1,15 +1,17 @@
 (ns skat.responses_test
   (:require [clojure.test :refer :all]
-            [skat.responses :refer :all]))
+            [skat]
+            [skat.responses :refer :all])
+  (:import  [skat Card]))
 
-(def c1 (skat.cards.Card. :kreuz :W))
-(def c2 (skat.cards.Card. :kreuz :K))
-(def c3 (skat.cards.Card. :grun :W))
-(def c4 (skat.cards.Card. :grun :K))
-(def c5 (skat.cards.Card. :herz :W))
-(def c6 (skat.cards.Card. :herz :K))
-(def c7 (skat.cards.Card. :schell :W))
-(def c8 (skat.cards.Card. :schell :K))
+(def c1 (Card. :kreuz :W))
+(def c2 (Card. :kreuz :K))
+(def c3 (Card. :grun :W))
+(def c4 (Card. :grun :K))
+(def c5 (Card. :herz :W))
+(def c6 (Card. :herz :K))
+(def c7 (Card. :schell :W))
+(def c8 (Card. :schell :K))
 (def cards (list c1 c2 c3 c4 c5 c6 c7 c8))
 
 (defn same-elements? [coll1 coll2] (= (set coll1) (set coll2)))

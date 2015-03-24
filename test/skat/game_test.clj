@@ -1,10 +1,12 @@
 (ns skat.game_test
   (:require [clojure.test :refer :all]
+            [skat]
             [skat.cards :refer :all]
-            [skat.game :refer :all]))
+            [skat.game :refer :all])
+  (:import  [skat Card Configuration Deal PlayerKnowledge Player Trick]))
 
 (defn create-player [pid]
-  (reify skat.game.Player
+  (reify Player
          (id [_] pid)
          (play-1st-card [_ { :keys [ :cards-allowed ] }]
            (first cards-allowed))
@@ -12,24 +14,23 @@
            (first cards-allowed))
          (play-3rd-card [_ { :keys [ :cards-allowed ] } _ _]
             (first cards-allowed))))
-(defn first-won [_ _ _] :p1)
 (def pl1 (create-player "p1"))
 (def pl2 (create-player "p2"))
 (def pl3 (create-player "p3"))
 (def order { :p1 pl1, :p2 pl2, :p3 pl3 })
-(def c1 (skat.cards.Card. :kreuz :W))
-(def c2 (skat.cards.Card. :kreuz :K))
-(def c3 (skat.cards.Card. :schell :W))
-(def c4 (skat.cards.Card. :kreuz :A))
-(def c5 (skat.cards.Card. :kreuz :10))
-(def c6 (skat.cards.Card. :schell :A))
-(def c7 (skat.cards.Card. :schell :10))
-(def c8 (skat.cards.Card. :schell :K))
+(def c1 (Card. :kreuz :W))
+(def c2 (Card. :kreuz :K))
+(def c3 (Card. :schell :W))
+(def c4 (Card. :kreuz :A))
+(def c5 (Card. :kreuz :10))
+(def c6 (Card. :schell :A))
+(def c7 (Card. :schell :10))
+(def c8 (Card. :schell :K))
 (def played-cards { pl1 [], pl2 [], pl3 [] })
 (def players-cards { pl1 #{c1 c2}, pl2 #{c3 c4}, pl3 #{c5 c6} })
-(def conf-grand (skat.game.Configuration. pl1 :grand true false false false 48))
-(def conf-kreuz (skat.game.Configuration. pl1 :kreuz true false false false 24))
-(def conf-null  (skat.game.Configuration. pl1 :null  true false false false 23))
+(def conf-grand (Configuration. pl1 :grand true false false false 48))
+(def conf-kreuz (Configuration. pl1 :kreuz true false false false 24))
+(def conf-null  (Configuration. pl1 :null  true false false false 23))
 
 (defn map-equal [m1 m2] (= (into (hash-map) m1) (into (hash-map) m2)))
 
@@ -48,20 +49,20 @@
            { pl1 #{c2}, pl2 #{c4}, pl3 #{c5 c6} })))))
 
 (deftest update-knowledge-test
-  (let [p-knowledge (skat.game.PlayerKnowledge. pl1 played-cards players-cards)
+  (let [p-knowledge (PlayerKnowledge. pl1 played-cards players-cards)
         knowledge { pl1 p-knowledge }
         played-now { pl1 c1, pl2 c3, pl3 c5 }]
     (testing "updates played and owned cards"
       (is (=
            (update-knowledge knowledge played-now)
-           { pl1 (skat.game.PlayerKnowledge.
+           { pl1 (PlayerKnowledge.
                   pl1
                   { pl1 [c1], pl2 [c3], pl3 [c5] }
                   { pl3 #{c6}, pl2 #{c4}, pl1 #{c2} }) })))))
 
 (deftest figure-situation-test
   (letfn [(mock-knowledge [pl]
-            (skat.game.PlayerKnowledge. pl played-cards players-cards))]
+            (PlayerKnowledge. pl played-cards players-cards))]
     (let [p1-knowledge (mock-knowledge pl1)
           p2-knowledge (mock-knowledge pl2)
           p3-knowledge (mock-knowledge pl3)]
@@ -127,37 +128,37 @@
 (deftest next-trick-test
   (testing "next trick rotates correctly"
     (is (=
-         (next-trick (skat.game.Trick. { :p1 pl1, :p2 pl2, :p3 pl3 }) pl2)
-         (skat.game.Trick. { :p1 pl2, :p2 pl3, :p3 pl1 })))))
+         (next-trick (Trick. { :p1 pl1, :p2 pl2, :p3 pl3 }) pl2)
+         (Trick. { :p1 pl2, :p2 pl3, :p3 pl1 })))))
 
 (deftest play-trick-test
   (letfn [(mock-knowledge [pl]
-            (skat.game.PlayerKnowledge. pl played-cards players-cards))]
+            (PlayerKnowledge. pl played-cards players-cards))]
     (let [p1-knowledge (mock-knowledge pl1)
           p2-knowledge (mock-knowledge pl2)
           p3-knowledge (mock-knowledge pl3)
           knowledge { pl1 p1-knowledge, pl2 p2-knowledge, pl3 p3-knowledge }
-          trick (skat.game.Trick. order)
-          deal (skat.game.Deal. knowledge trick #{})
-          next-deal (skat.game.Deal.
-                      (update-knowledge knowledge { pl1 c1, pl2 c3, pl3 c6 })
-                      (next-trick trick pl1)
+          trick (Trick. order)
+          deal (Deal. knowledge trick #{})
+          next-deal (Deal.
+                      (update-knowledge knowledge { pl1 c2, pl2 c4, pl3 c5 })
+                      (next-trick trick pl2)
                       #{})]
       (testing "calculates next trick"
         (is (= (play-trick conf-grand deal) next-deal))))))
 
 (deftest enough-points?-test
-  (let [c1  (skat.cards.Card. :kreuz  :10)
-        c2  (skat.cards.Card. :grun   :10)
-        c3  (skat.cards.Card. :herz   :10)
-        c4  (skat.cards.Card. :schell :10)
-        c5  (skat.cards.Card. :kreuz  :K)
-        c6  (skat.cards.Card. :grun   :K)
-        c7  (skat.cards.Card. :herz   :K)
-        c8  (skat.cards.Card. :schell :K)
-        c9  (skat.cards.Card. :kreuz  :D)
-        c10 (skat.cards.Card. :kreuz  :W)
-        c11 (skat.cards.Card. :grun   :W)
+  (let [c1  (Card. :kreuz  :10)
+        c2  (Card. :grun   :10)
+        c3  (Card. :herz   :10)
+        c4  (Card. :schell :10)
+        c5  (Card. :kreuz  :K)
+        c6  (Card. :grun   :K)
+        c7  (Card. :herz   :K)
+        c8  (Card. :schell :K)
+        c9  (Card. :kreuz  :D)
+        c10 (Card. :kreuz  :W)
+        c11 (Card. :grun   :W)
         enough     [c1 c2 c3 c4 c5 c6 c7 c8 c9 c10]
         not-enough [c1 c2 c3 c4 c5 c6 c7 c8    c10 c11]]
     (testing "61 is enough to win"
@@ -166,17 +167,17 @@
       (is (not (enough-points? not-enough))))))
 
 (deftest schneider?-test
-  (let [c1  (skat.cards.Card. :kreuz  :A)
-        c2  (skat.cards.Card. :grun   :A)
-        c3  (skat.cards.Card. :herz   :A)
-        c4  (skat.cards.Card. :schell :A)
-        c5  (skat.cards.Card. :kreuz  :10)
-        c6  (skat.cards.Card. :grun   :10)
-        c7  (skat.cards.Card. :herz   :10)
-        c8  (skat.cards.Card. :schell :10)
-        c9  (skat.cards.Card. :kreuz  :K)
-        c10 (skat.cards.Card. :kreuz  :D)
-        c11 (skat.cards.Card. :kreuz  :W)
+  (let [c1  (Card. :kreuz  :A)
+        c2  (Card. :grun   :A)
+        c3  (Card. :herz   :A)
+        c4  (Card. :schell :A)
+        c5  (Card. :kreuz  :10)
+        c6  (Card. :grun   :10)
+        c7  (Card. :herz   :10)
+        c8  (Card. :schell :10)
+        c9  (Card. :kreuz  :K)
+        c10 (Card. :kreuz  :D)
+        c11 (Card. :kreuz  :W)
         enough     [c1 c2 c3 c4 c5 c6 c7 c8 c9     c11]
         not-enough [c1 c2 c3 c4 c5 c6 c7 c8    c10 c11]]
     (testing "90 is enough for schneider"

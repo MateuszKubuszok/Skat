@@ -1,6 +1,8 @@
 (ns skat.cards
   (:require [clojure.set :as sets]
-            [skat.helpers :as helpers]))
+            [skat]
+            [skat.helpers :as helpers])
+  (:import  [skat Card]))
 (set! *warn-on-reflection* true)
 
 ;;; Colors
@@ -29,8 +31,6 @@
   { :7 0, :8 0, :9 0, :W 2, :D 3, :K 4, :10 10, :A 11 })
 
 ;;; Cards
-
-(defrecord Card [color figure])
 
 (def card-properties #{:color :figure})
 
@@ -70,7 +70,7 @@
             (if (W? c)
               (-> c :color color-ordinal (+ 1 (:kreuz color-ordinal)))
               (if (played-color? c)
-                (+ 1 (:kreuz color-ordinal))
+                (inc (:kreuz color-ordinal))
                 (-> c :color color-ordinal)
                 )))]
     (fn [c1 c2] (let [o1 (display-ordinal c1)

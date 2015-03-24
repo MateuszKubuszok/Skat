@@ -1,8 +1,10 @@
 (ns skat.auction
   (:require [clojure.core.match :refer [match]]
+            [skat]
             [skat.helpers :as helpers]
             [skat.cards :as cards]
-            [skat.game :as game]))
+            [skat.game :as game])
+  (:import  [skat Bidding Player]))
 (set! *warn-on-reflection* true)
 
 ;;; Possible game values
@@ -193,10 +195,6 @@
 
 ;;; Bidding
 
-(defrecord Bidders [front middle rear])
-
-(defrecord Bidding [winner cards bid])
-
 (defn game-value? "Whether input is valid game value (nil act like 17)" [value]
   (or (nil? value) (possible-game-values value)))
 
@@ -211,9 +209,9 @@
            (game-value? starting-bid)]
     :post [(game-value? (:bid %))] }
   (loop [last-bid starting-bid]
-    (let [bid (.place-bid ^skat.game.Player bidder bidder-cards last-bid)]
+    (let [bid (.place-bid ^Player bidder bidder-cards last-bid)]
       (if (bids? bid)
-        (if (.respond-to-bid ^skat.game.Player responder responder-cards bid)
+        (if (.respond-to-bid ^Player responder responder-cards bid)
           (recur bid)
           (Bidding. bidder bidder-cards bid))
         (Bidding. responder responder-cards last-bid)))))
@@ -225,7 +223,7 @@
         r2w (bidding-101 r r-cards (:winner m2f) (:cards m2f) (:bid m2f))]
     (if (or (bids? (:bid r2w)) (not= r (:winner r2w)))
       r2w
-      (let [rear-1st-bid (.place-bid ^skat.game.Player r r-cards 17)]
+      (let [rear-1st-bid (.place-bid ^Player r r-cards 17)]
         (if (bids? rear-1st-bid) (Bidding. r r-cards rear-1st-bid))))))
 
 ;;; Contracts
@@ -241,7 +239,7 @@
    cards]
   { :pre [(every? cards/card? cards)] }
   (if (= suit :null)
-    (= 0 (count cards))
+    (== 0 (count cards))
     (let [enough-points? (game/enough-points? cards)
           schneider? (game/schneider? cards)
           schwarz?   (game/schwarz? cards)

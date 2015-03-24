@@ -1,8 +1,11 @@
 (ns skat.game
   (:require [clojure.set :as sets]
+            [clojure.pprint :refer [pprint]]
+            [skat]
             [skat.helpers :as helpers]
             [skat.cards :as cards]
-            [skat.responses :as responses]))
+            [skat.responses :as responses])
+  (:import  [skat Player PlayerSituation]))
 (set! *warn-on-reflection* true)
 
 ;;; Configuration
@@ -11,13 +14,6 @@
   #{ :grand :kreuz :grun :herz :schell :null })
 (def suits-ordinals "suits' ordinals"
   { :grand 6, :kreuz 5, :grun 4, :herz 3, :schell 2, :null 1 })
-(defrecord Configuration [declarer
-                          suit
-                          hand?
-                          ouvert?
-                          announced-schneider?
-                          announced-schwarz?
-                          declared-bid])
 
 ;;; Deal
 
@@ -25,31 +21,6 @@
   #{ :front :middle :rear })
 (def player-in-next-deal "Player's position in next deal"
   { :front :rear, :middle :front, :rear :middle })
-
-(defrecord Deal [knowledge trick skat])
-
-;;; Knowledge
-
-(defrecord PlayerKnowledge [self cards-played cards-owned])
-
-;;; Players
-
-(defprotocol Player
-  (id [this])
-  (play-1st-card [this situation])
-  (play-2nd-card [this situation c1])
-  (play-3rd-card [this situation c1 c2])
-  (place-bid [this cards last-bid])
-  (respond-to-bid [this cards bid])
-  (declare-suit [this cards final-bid]))
-
-;;; Situation
-
-(defrecord PlayerSituation [config knowledge order cards-allowed])
-
-;;; Trick
-
-(defrecord Trick [order])
 
 ;;; Knowledge update
 
@@ -92,13 +63,14 @@
 
 (defn highest-trump-wins "Determines winner for normal game" [suit c1 c2 c3]
   { :pre  [(suits suit) (cards/card? c1) (cards/card? c2) (cards/card? c3)] }
-  (let [cards [c1 c2 c3]]
+  (let [cards      [c1 c2 c3]
+        comparator (cards/compare-for-sort
+                    (cards/compare-by-color-display suit)
+                    cards/compare-by-figure-normal)]
     (letfn [(trump? [c] (or (cards/property-matches? :figure :W   c)
                             (cards/property-matches? :color  suit c)))
             (highest-card [filtered]
-              (first
-                (reverse
-                  (sort (cards/compare-by-color-display suit) filtered))))
+              (first (reverse (sort comparator filtered))))
             (of-color? [c] cards/property-matches? :color (:color c1) c)
             (card-to-player [c] ({ c1 :p1, c2 :p2, c3 :p3 } c))]
       (card-to-player (highest-card (filter (if (some trump? cards)
@@ -150,11 +122,11 @@
      knowledge :knowledge
      :as deal }]
   (let [p1-situation (figure-situation config (knowledge p1) order)
-        c1           (.play-1st-card ^skat.game.Player p1 p1-situation)
+        c1           (.play-1st-card ^skat.Player p1 p1-situation)
         p2-situation (figure-situation config (knowledge p2) order c1)
-        c2           (.play-2nd-card ^skat.game.Player p2 p2-situation c1)
+        c2           (.play-2nd-card ^skat.Player p2 p2-situation c1)
         p3-situation (figure-situation config (knowledge p3) order c1)
-        c3           (.play-3rd-card ^skat.game.Player p3 p3-situation c1 c2)
+        c3           (.play-3rd-card ^skat.Player p3 p3-situation c1 c2)
         played-now   { p1 c1, p2 c2, p3 c3 }
         winner       (order ((trick-winning suit) c1 c2 c3))]
     (-> deal
@@ -174,3 +146,16 @@
 
 (defn requires-hard [hand? modifier?]
   (if modifier? hand? true))
+
+;;; Run game
+
+(defn perform-auction "Performs auction" [driver bidders])
+
+(defn start-game "Start game using passed driver" [driver]
+  (let [initial-bidders (.create-players ^skat.GameDriver driver)
+        player-1        (:front  initial-bidders)
+        player-2        (:middle initial-bidders)
+        player-3        (:rear   initial-bidders)
+        initial-points  { player-1 0, player-2 0, player-3 0 }]
+    (pprint initial-points)
+    ))

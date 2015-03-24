@@ -1,6 +1,5 @@
 (ns skat.i18n
-  (:require [clojure.string :refer [join]]
-            [taoensso.tower :as tower :refer (with-tscope)]))
+  (:require [taoensso.tower :as tower :refer [with-tscope]]))
 (set! *warn-on-reflection* true)
 
 (def skat-i18n-config "I18n configuration for Tower library"
@@ -20,9 +19,14 @@
                       :D   " D"
                       :K   " K"
                       :A   " A" }
-            :player { :make-bid    "Place bid (more than %d) or pass (17):"
-                      :answer-bid  "You have been bid: %d\nDo you accept?"
-                      :played      "%s played: %s" }
+            :player { :make-bid         "Place bid (more than %d) or pass (17):"
+                      :answer-bid       "You have been bid: %d\nDo you accept?"
+                      :choose-suit      "Choose suit:"
+                      :choose-hand      "Choose hand:"
+                      :choose-schneider "Choose schneider:"
+                      :choose-schwarz   "Choose schwarz:"
+                      :choose-ouvert    "Choose ouvert:"
+                      :played           "%s played: %s" }
             :select { :nth-item    "Select which one you want:"
                       :player-name "Select player's name:" }
             :suit { :grand  "Grand",

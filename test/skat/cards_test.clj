@@ -1,11 +1,13 @@
 (ns skat.cards_test
   (:require [clojure.test :refer :all]
-            [skat.cards :refer :all]))
+            [skat]
+            [skat.cards :refer :all])
+  (:import  [skat Card]))
 
-(def c1 (skat.cards.Card. :kreuz :W))
-(def c2 (skat.cards.Card. :kreuz :K))
-(def c3 (skat.cards.Card. :schell :W))
-(def c4 (skat.cards.Card. :schell :K))
+(def c1 (Card. :kreuz :W))
+(def c2 (Card. :kreuz :K))
+(def c3 (Card. :schell :W))
+(def c4 (Card. :schell :K))
 (def cards (list c1 c2 c3 c4))
 
 (defn same-elements? [coll1 coll2] (= (set coll1) (set coll2)))
@@ -110,25 +112,25 @@
 
 (deftest trump-color?-test
   (testing "4 card are trump"
-    (let [trumps-kreuz  (filter (partial trump-color? :kreuz) deck)
-          trumps-grun   (filter (partial trump-color? :grun) deck)
-          trumps-herz   (filter (partial trump-color? :herz) deck)
-          trumps-schell (filter (partial trump-color? :schell) deck)]
-      (is (every? #(or (= :W (:figure %)) (= :kreuz (:color %))) trumps-kreuz))
-      (is (== 11 (count trumps-kreuz)))
-      (is (every? #(or (= :W (:figure %)) (= :grun (:color %))) trumps-grun))
-      (is (== 11 (count trumps-grun)))
-      (is (every? #(or (= :W (:figure %)) (= :herz (:color %))) trumps-herz))
-      (is (== 11 (count trumps-grun)))
-      (is (every? #(or (= :W (:figure %)) (= :schell (:color %))) trumps-schell))
-      (is (== 11 (count trumps-grun))))))
+    (let [trump-kreuz  (filter (partial trump-color? :kreuz) deck)
+          trump-grun   (filter (partial trump-color? :grun) deck)
+          trump-herz   (filter (partial trump-color? :herz) deck)
+          trump-schell (filter (partial trump-color? :schell) deck)]
+      (is (every? #(or (= :W (:figure %)) (= :kreuz (:color %))) trump-kreuz))
+      (is (== 11 (count trump-kreuz)))
+      (is (every? #(or (= :W (:figure %)) (= :grun (:color %))) trump-grun))
+      (is (== 11 (count trump-grun)))
+      (is (every? #(or (= :W (:figure %)) (= :herz (:color %))) trump-herz))
+      (is (== 11 (count trump-grun)))
+      (is (every? #(or (= :W (:figure %)) (= :schell (:color %))) trump-schell))
+      (is (== 11 (count trump-grun))))))
 
 (deftest calculate-points-test
-  (let [worth-11 (skat.cards.Card. :kreuz :A)
-        worth-10 (skat.cards.Card. :kreuz :10)
-        worth-4  (skat.cards.Card. :kreuz :K)
-        worth-3  (skat.cards.Card. :kreuz :D)
-        worth-2  (skat.cards.Card. :kreuz :W)
+  (let [worth-11 (Card. :kreuz :A)
+        worth-10 (Card. :kreuz :10)
+        worth-4  (Card. :kreuz :K)
+        worth-3  (Card. :kreuz :D)
+        worth-2  (Card. :kreuz :W)
         worth-30 [worth-11 worth-10 worth-4 worth-3 worth-2]]
     (testing "sum is calculated correctly"
       (is (== 30 (calculate-points worth-30))))))
