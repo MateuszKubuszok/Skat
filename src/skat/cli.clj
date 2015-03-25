@@ -7,7 +7,7 @@
             [skat.game :as game]
             [skat.auction :as auction]
             [skat.ai :as ai])
-  (:import  [skat Bidders Player GameDriver]))
+  (:import  [skat Bidders Configuration Player GameDriver]))
 (set! *warn-on-reflection* true)
 
 ;;; Players forward declarations
@@ -176,6 +176,16 @@
 (defn select-suit "User selects suit" []
   (select-nth (vec game/suits) suit-str suit-separator))
 
+(defn select-config "User selects used config" [{ :keys [:winner :cards :bid] }]
+  (let [declarer     winner
+        suit         (.declare-suit ^Player winner cards bid)
+        hand         (.declare-hand ^Player winner cards bid)
+        ouvert       (if hand (.declare-ouvert ^Player winner cards bid))
+        schneider    (.declare-schneider ^Player winner cards bid)
+        schwarz      (if hand (.declare-schwarz ^Player winner cards bid))
+        declared-bid bid]
+    (Configuration. declarer suit hand ouvert schneider schwarz declared-bid)))
+
 ;;; Players
 
 (def create-cpu-player "Creates computer player" ai/ai-player)
@@ -247,7 +257,7 @@
                                                    (-> result :bid))
                               (show-player-bid-draw))
                             (identity result))))
-                      (declare-game [this bidding] nil))]
+                      (declare-game [this bidding] (select-config bidding)))]
     (game/start-game driver)))
 
 ;; TODO:
