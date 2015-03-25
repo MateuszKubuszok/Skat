@@ -158,7 +158,7 @@
         (recur)))))
 
 (defn declare-game "Declare game suit, hand, schneider, schwarz and ouvert"
-  [driver { :keys [deal bidding] }]
+  [driver bidding]
   (letfn [(acceptable-game? [config] true)]
     (loop []
       (let [config (.declare-game ^GameDriver driver bidding)]
