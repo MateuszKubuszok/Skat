@@ -42,7 +42,8 @@
   (declare-hand [this cards final-bid])
   (declare-schneider [this cards final-bid])
   (declare-schwarz [this cards final-bid])
-  (declare-ouvert [this cards final-bid]))
+  (declare-ouvert [this cards final-bid])
+  (skat-swapping [this config cards-owned skat-card]))
 
 ;;; Situation
 

@@ -26,6 +26,7 @@
                       :choose-schneider "Choose schneider:"
                       :choose-schwarz   "Choose schwarz:"
                       :choose-ouvert    "Choose ouvert:"
+                      :swap-skat-card   "Choose card to swap for %s:"
                       :played           "%s played: %s"
                       :won-bid          "%s won bid: %d"
                       :bid-draw         "No one won bid" }

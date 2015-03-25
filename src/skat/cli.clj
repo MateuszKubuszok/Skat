@@ -83,24 +83,29 @@
           (coll-str cards (fn [_] " ") card-str card-separator)))
 (defn show-player-choose-suit "Shows suit choice question" [cards]
   (do
-    (show-owned-cards cards)
-    (show-t :player/choose-suit)))
+    (show-t :player/choose-suit)
+    (show-owned-cards cards)))
 (defn show-player-choose-hand "Shows hand choice question" [cards]
   (do
-    (show-owned-cards cards)
-    (show-t :player/choose-hand)))
+    (show-t :player/choose-hand)
+    (show-owned-cards cards)))
 (defn show-player-choose-schneider "Shows schneider choice question" [cards]
   (do
-    (show-owned-cards cards)
-    (show-t :player/choose-schneider)))
+    (show-t :player/choose-schneider)
+    (show-owned-cards cards)))
 (defn show-player-choose-schwarz "Shows schwarz choice question" [cards]
   (do
-    (show-owned-cards cards)
-    (show-t :player/choose-schwarz)))
+    (show-t :player/choose-schwarz)
+    (show-owned-cards cards)))
 (defn show-player-choose-ouvert "Shows ouvert choice question" [cards]
   (do
-    (show-owned-cards cards)
-    (show-t :player/choose-ouvert)))
+    (show-t :player/choose-ouvert)
+    (show-owned-cards cards)))
+(defn show-player-swap-skat-card "Shows skat card swap choice question"
+  [cards skat-card]
+  (do
+    (show-t :player/swap-skat-card (card-str skat-card))
+    (show-owned-cards cards)))
 (defn show-player1-card "Prints cards played by player 1" [situation c1]
   (show-t :player/played (-> situation :order :p1 pid) c1))
 (defn show-player2-card "Prints cards played by player 2" [situation c2]
@@ -236,7 +241,11 @@
     (declare-ouvert [this cards final-bid]
       (do
         (show-player-choose-ouvert cards)
-        (select-yes-no-answer)))))
+        (select-yes-no-answer)))
+    (skat-swapping [this config cards-owned skat-card]
+      (do
+        (show-player-swap-skat-card cards-owned skat-card)
+        (select-card cards-owned)))))
 
 (def player-types "Players types to choose"
   #{ create-cpu-player, create-human-player })
@@ -268,7 +277,7 @@
 ;; ☑     deal cards
 ;; ☑     perform auction
 ;; ☑   while auction is not successful
-;; ☐   play 10 tricks
+;; ☑   play 10 tricks
 ;; ☐   determine whether solist win
 ;; ☐   rotate positions
 ;; ☐ show results

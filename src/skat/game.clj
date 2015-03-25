@@ -172,7 +172,21 @@
           (recur))))))
 
 (defn swap-skat "Swap skat with owned cards if game without hand declared"
-  [hand? deal winner winner-position] "TODO")
+  [hand? config deal winner winner-position]
+  (if hand?
+    deal
+    (letfn [(cards [deal] (-> deal :knowledge winner :cards-owned))
+            (replacements [skat owned] { skat owned, owned skat })
+            (replacing [replacements] (fn [coll] (replace replacements coll)))
+            (swap-cards [deal replacing]
+              (update-in deal [:knowledge winner :cards-owned] replacing))]
+      (let [skat-1 (-> deal :skat 0)
+            card-1 (.skat-swapping ^Player winner config (cards deal) skat-1)
+            swap-1 (swap-cards deal (replacing (replacements skat-1 card-1)))
+            skat-2 (-> deal :skat 1)
+            card-2 (.skat-swapping ^Player winner config (cards swap-1) skat-2)
+            swap-2 (swap-cards deal (replacing (replacements skat-2 card-2)))]
+        swap-2))))
 
 (defn play-deal "Play whole 10-trick deal and reach conclusion"
   [{ :keys [] :as config }
