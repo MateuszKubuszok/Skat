@@ -1,4 +1,7 @@
 language:       clojure
+script:
+              - lein check
+              - lein test
 notifications:
   email:
     on_success: never
