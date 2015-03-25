@@ -5,7 +5,12 @@
             [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.responses :as responses])
-  (:import  [skat Player PlayerSituation GameDriver]))
+  (:import  [skat Deal
+                  Player
+                  PlayerKnowledge
+                  PlayerSituation
+                  Trick
+                  GameDriver]))
 (set! *warn-on-reflection* true)
 
 ;;; Configuration
@@ -165,6 +170,25 @@
         (if (acceptable-game? config)
           config
           (recur))))))
+
+(defn swap-skat "Swap skat with owned cards if game without hand declared"
+  [hand? deal winner winner-position] "TODO")
+
+(defn play-deal "Play whole 10-trick deal and reach conclusion"
+  [{ :keys [] :as config }
+   { :keys [:front :middle :rear] :as bidders }
+   { front-cards :front, middle-cards :middle, rear-cards :rear, skat :skat }]
+  (letfn [(out-of-cards? [pk] (some #(-> pk :cards-owned empty?)))
+          (game-finished? [knowledge] out-of-cards? (vals knowledge))]
+    (let [initial-knowledge { front  (PlayerKnowledge. front  [] front-cards)
+                              middle (PlayerKnowledge. middle [] middle-cards)
+                              rear   (PlayerKnowledge. rear   [] rear-cards) }
+          initial-trick     (Trick. { :p1 front, :p2 middle, :p3 rear })
+          initial-deal      (Deal. initial-knowledge initial-trick skat)]
+      (loop [deal initial-deal]
+        (if (-> deal :knowledge game-finished?)
+          deal
+          (recur (next-trick config deal)))))))
 
 (defn start-game "Start game using passed driver" [driver]
   (let [initial-bidders (.create-players ^GameDriver driver)
