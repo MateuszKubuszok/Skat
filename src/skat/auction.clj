@@ -15,10 +15,10 @@
   { :grand 24, :kreuz 12, :grun 11, :herz 10, :schell 9 })
 
 (def null-game-values "Predefined null game values"
-  { [true  false] 23,
-    [false false] 35,
-    [true  true ] 46,
-    [false true ] 59 })
+  { [false false] 23,
+    [true  false] 35,
+    [false true ] 46,
+    [true  true ] 59 })
 
 (def possible-game-values "All possible game values"
   (let [min-normal-game-level 2
@@ -128,8 +128,8 @@
     announced-schneider?
     schwarz?
     announced-schwarz?]
-   { :pre [(game/requires-hard hand? ouvert?)
-           (game/requires-hard hand? announced-schwarz?)] }
+   { :pre [(game/requires-hand hand? ouvert?)
+           (game/requires-hand hand? announced-schwarz?)] }
    (let [base-value   (suit-base-value suit)
          for-game                1
          for-matadors            ((matadors suit) cards)
@@ -229,8 +229,7 @@
 ;;; Contracts
 
 (defn contract-fulfilled?
-  [{ :keys [declarer
-            suit
+  [{ :keys [suit
             hand?
             ouvert?
             announced-schneider?
