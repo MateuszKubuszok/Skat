@@ -176,13 +176,6 @@
 (defn select-suit "User selects suit" []
   (select-nth (vec game/suits) suit-str suit-separator))
 
-;;; TODO: after auction:
-;;; TODO: select suite
-;;; TODO: select with[out] hand
-;;; TODO: select with[out] schnieder
-;;; TODO: select with[out] schwarz
-;;; TODO: if schwarz select with[out] ouvert
-
 ;;; Players
 
 (def create-cpu-player "Creates computer player" ai/ai-player)

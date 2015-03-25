@@ -4,13 +4,13 @@
 
 (def skat-i18n-config "I18n configuration for Tower library"
   { :dictionary
-    { :default
+    { :en
       { :skat
         { :cli
           { :answer { :yes "yes"
                       :no  "no" }
-            :cards { :allowed "Allowed cards:\n%s"
-                     :owned   "Owned cards:\n%s" }
+            :cards { :allowed! "Allowed cards:\n%s"
+                     :owned!   "Owned cards:\n%s" }
             :figure { :r7  " 7"
                       :r8  " 8"
                       :r9  " 9"
@@ -20,14 +20,14 @@
                       :K   " K"
                       :A   " A" }
             :player { :make-bid         "Place bid (more than %d) or pass (17):"
-                      :answer-bid       "You have been bid: %d\nDo you accept?"
+                      :answer-bid!      "You have been bid: %d\nDo you accept?"
                       :choose-suit      "Choose suit:"
                       :choose-hand      "Choose hand:"
                       :choose-schneider "Choose schneider:"
                       :choose-schwarz   "Choose schwarz:"
                       :choose-ouvert    "Choose ouvert:"
                       :played           "%s played: %s"
-                      :won-bid          "% won bid: %d"
+                      :won-bid          "%s won bid: %d"
                       :bid-draw         "No one won bid" }
             :select { :nth-item    "Select which one you want:"
                       :player-name "Select player's name:" }
@@ -39,8 +39,8 @@
                     :null   "Null" } } }
       :missing  "|Missing translation: [%1$s %2$s %3$s]|" } }
    :dev-mode? false
-   :fallback-locale :default })
+   :fallback-locale :en })
 
 (def t "Translation function" (tower/make-t skat-i18n-config))
 
-(def ^:dynamic *lang* "Language" :default)
+(def ^:dynamic *lang* "Language" :en)
