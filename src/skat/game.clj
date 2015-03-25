@@ -1,11 +1,11 @@
 (ns skat.game
   (:require [clojure.set :as sets]
-            [clojure.pprint :refer [pprint]]
             [skat]
             [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.responses :as responses])
   (:import  [skat Deal
+                  Result
                   Player
                   PlayerKnowledge
                   PlayerSituation
@@ -151,63 +151,3 @@
 
 (defn requires-hand [hand? modifier?]
   (if modifier? hand? true))
-
-;;; Run game
-
-(defn perform-auction "Performs auction" [driver bidders]
-  (loop []
-    (let [deal    (cards/deal-cards)
-          bidding (.do-auction ^GameDriver driver bidders deal)]
-      (if bidding
-        { :deal deal, :bidding bidding }
-        (recur)))))
-
-(defn declare-game "Declare game suit, hand, schneider, schwarz and ouvert"
-  [driver bidding]
-  (letfn [(acceptable-game? [config] true)]
-    (loop []
-      (let [config (.declare-game ^GameDriver driver bidding)]
-        (if (acceptable-game? config)
-          config
-          (recur))))))
-
-(defn swap-skat "Swap skat with owned cards if game without hand declared"
-  [hand? config deal winner winner-position]
-  (if hand?
-    deal
-    (letfn [(cards [deal] (-> deal :knowledge winner :cards-owned))
-            (replacements [skat owned] { skat owned, owned skat })
-            (replacing [replacements] (fn [coll] (replace replacements coll)))
-            (swap-cards [deal replacing]
-              (update-in deal [:knowledge winner :cards-owned] replacing))]
-      (let [skat-1 (-> deal :skat 0)
-            card-1 (.skat-swapping ^Player winner config (cards deal) skat-1)
-            swap-1 (swap-cards deal (replacing (replacements skat-1 card-1)))
-            skat-2 (-> deal :skat 1)
-            card-2 (.skat-swapping ^Player winner config (cards swap-1) skat-2)
-            swap-2 (swap-cards deal (replacing (replacements skat-2 card-2)))]
-        swap-2))))
-
-(defn play-deal "Play whole 10-trick deal and reach conclusion"
-  [{ :keys [] :as config }
-   { :keys [:front :middle :rear] :as bidders }
-   { front-cards :front, middle-cards :middle, rear-cards :rear, skat :skat }]
-  (letfn [(out-of-cards? [pk] (some #(-> pk :cards-owned empty?)))
-          (game-finished? [knowledge] out-of-cards? (vals knowledge))]
-    (let [initial-knowledge { front  (PlayerKnowledge. front  [] front-cards)
-                              middle (PlayerKnowledge. middle [] middle-cards)
-                              rear   (PlayerKnowledge. rear   [] rear-cards) }
-          initial-trick     (Trick. { :p1 front, :p2 middle, :p3 rear })
-          initial-deal      (Deal. initial-knowledge initial-trick skat)]
-      (loop [deal initial-deal]
-        (if (-> deal :knowledge game-finished?)
-          deal
-          (recur (next-trick config deal)))))))
-
-(defn start-game "Start game using passed driver" [driver]
-  (let [initial-bidders (.create-players ^GameDriver driver)
-        player-1        (:front  initial-bidders)
-        player-2        (:middle initial-bidders)
-        player-3        (:rear   initial-bidders)
-        initial-points  { player-1 0, player-2 0, player-3 0 }]
-    (pprint initial-points)))

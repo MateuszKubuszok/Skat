@@ -25,6 +25,10 @@
 
 (defrecord Deal [knowledge trick skat])
 
+;;; Result
+
+(defrecord Result [solist success? bid])
+
 ;;; Knowledge
 
 (defrecord PlayerKnowledge [self cards-played cards-owned])

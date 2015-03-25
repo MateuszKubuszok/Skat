@@ -6,6 +6,7 @@
             [skat.cards :as cards]
             [skat.game :as game]
             [skat.auction :as auction]
+            [skat.gameplay :as gameplay]
             [skat.ai :as ai])
   (:import  [skat Bidders Configuration Player GameDriver]))
 (set! *warn-on-reflection* true)
@@ -248,7 +249,8 @@
         (select-card cards-owned)))))
 
 (def player-types "Players types to choose"
-  #{ create-cpu-player, create-human-player })
+  #{ create-human-player })
+  ; #{ create-cpu-player, create-human-player }) ; Disabled till AI isn't done
 
 (def player-types-str "Maps player types to string"
   { create-cpu-player "CPU player", create-human-player "Human player" })
@@ -267,18 +269,4 @@
                               (show-player-bid-draw))
                             (identity result))))
                       (declare-game [this bidding] (select-config bidding)))]
-    (game/start-game driver)))
-
-;; TODO:
-;; ☑ select 3 players [human/computer]
-;; ☑ initiate board (0 p each player), assign positions [front, middle, rear]
-;; ☐ 10 times do:
-;; ☑   do
-;; ☑     deal cards
-;; ☑     perform auction
-;; ☑   while auction is not successful
-;; ☑   play 10 tricks
-;; ☐   determine whether solist win
-;; ☐   rotate positions
-;; ☐ show results
-
+    (gameplay/start-game driver)))
