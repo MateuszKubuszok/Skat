@@ -56,4 +56,5 @@
 
 (defprotocol GameDriver
   (create-players [this])
-  )
+  (do-auction [this bidders deal])
+  (declare-game [this bidding]))

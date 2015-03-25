@@ -26,7 +26,9 @@
                       :choose-schneider "Choose schneider:"
                       :choose-schwarz   "Choose schwarz:"
                       :choose-ouvert    "Choose ouvert:"
-                      :played           "%s played: %s" }
+                      :played           "%s played: %s"
+                      :won-bid          "% won bid: %d"
+                      :bid-draw         "No one won bid" }
             :select { :nth-item    "Select which one you want:"
                       :player-name "Select player's name:" }
             :suit { :grand  "Grand",

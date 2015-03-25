@@ -5,7 +5,7 @@
             [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.responses :as responses])
-  (:import  [skat Player PlayerSituation]))
+  (:import  [skat Player PlayerSituation GameDriver]))
 (set! *warn-on-reflection* true)
 
 ;;; Configuration
@@ -149,13 +149,27 @@
 
 ;;; Run game
 
-(defn perform-auction "Performs auction" [driver bidders])
+(defn perform-auction "Performs auction" [driver bidders]
+  (loop []
+    (let [deal    (cards/deal-cards)
+          bidding (.do-auction ^GameDriver driver bidders deal)]
+      (if bidding
+        { :deal deal, :bidding bidding }
+        (recur)))))
+
+(defn declare-game "Declare game suit, hand, schneider, schwarz and ouvert"
+  [driver { :keys [deal bidding] }]
+  (letfn [(acceptable-game? [config] true)]
+    (loop []
+      (let [config (.declare-game ^GameDriver driver bidding)]
+        (if (acceptable-game? config)
+          config
+          (recur))))))
 
 (defn start-game "Start game using passed driver" [driver]
-  (let [initial-bidders (.create-players ^skat.GameDriver driver)
+  (let [initial-bidders (.create-players ^GameDriver driver)
         player-1        (:front  initial-bidders)
         player-2        (:middle initial-bidders)
         player-3        (:rear   initial-bidders)
         initial-points  { player-1 0, player-2 0, player-3 0 }]
-    (pprint initial-points)
-    ))
+    (pprint initial-points)))

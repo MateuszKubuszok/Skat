@@ -105,6 +105,10 @@
   (show-t :player/played (-> situation :order :p1 pid) c1))
 (defn show-player2-card "Prints cards played by player 2" [situation c2]
   (show-t :player/played (-> situation :order :p2 pid) c2))
+(defn show-player-won-bid "Print bid result" [pid bid]
+  (show-t :player/won-bid pid bid))
+(defn show-player-bid-draw "Print bid draw result" []
+  (show-t :player/bid-draw))
 (defn show-select-nth-item "Shows nth item question" []
   (show-t :select/nth-item))
 (defn show-select-player-name "Shows player name question" []
@@ -241,17 +245,26 @@
 
 (defn start-cli-game "Starts CLI game" []
   (let [driver (reify GameDriver
-                      (create-players [this] (select-players)))]
+                      (create-players [this] (select-players))
+                      (do-auction [this bidders deal]
+                        (let [result (auction/do-auction bidders deal)]
+                          (do
+                            (if result
+                              (show-player-won-bid (-> result :winner pid)
+                                                   (-> result :bid))
+                              (show-player-bid-draw))
+                            (identity result))))
+                      (declare-game [this bidding] nil))]
     (game/start-game driver)))
 
 ;; TODO:
 ;; ☑ select 3 players [human/computer]
-;; ☐ initiate board (0 p each player), assign positions [front, middle, rear]
+;; ☑ initiate board (0 p each player), assign positions [front, middle, rear]
 ;; ☐ 10 times do:
-;; ☐   do
-;; ☐     deal cards
-;; ☐     perform auction
-;; ☐   while auction is not successful
+;; ☑   do
+;; ☑     deal cards
+;; ☑     perform auction
+;; ☑   while auction is not successful
 ;; ☐   play 10 tricks
 ;; ☐   determine whether solist win
 ;; ☐   rotate positions
