@@ -20,6 +20,8 @@
            "Place bid (more than 17) or pass (17):"))
     (is (= (t :en :skat/cli/player/answer-bid 17)
            "You have been bid: 17\nDo you accept?"))
+    (is (= (t :en :skat/cli/player/cpu-type)         "CPU player"))
+    (is (= (t :en :skat/cli/player/human-type)       "Human player"))
     (is (= (t :en :skat/cli/player/choose-suit)      "Choose suit:"))
     (is (= (t :en :skat/cli/player/choose-hand)      "Choose hand:"))
     (is (= (t :en :skat/cli/player/choose-schneider) "Choose schneider:"))

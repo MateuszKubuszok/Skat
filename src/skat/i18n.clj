@@ -19,7 +19,9 @@
                       :D   " D"
                       :K   " K"
                       :A   " A" }
-            :player { :make-bid         "Place bid (more than %d) or pass (17):"
+            :player { :cpu-type         "CPU player"
+                      :human-type       "Human player"
+                      :make-bid         "Place bid (more than %d) or pass (17):"
                       :answer-bid!      "You have been bid: %d\nDo you accept?"
                       :choose-suit      "Choose suit:"
                       :choose-hand      "Choose hand:"

@@ -254,11 +254,12 @@
         (select-card cards-owned)))))
 
 (def player-types "Players types to choose"
-  #{ create-human-player })
-  ; #{ create-cpu-player, create-human-player }) ; Disabled till AI isn't done
+  [ create-human-player ])
+  ; [ create-cpu-player, create-human-player ]) ; Disabled till AI isn't done
 
 (def player-types-str "Maps player types to string"
-  { create-cpu-player "CPU player", create-human-player "Human player" })
+  { create-cpu-player   (i18n/t *lang* :skat/cli/player/cpu-type)
+    create-human-player (i18n/t *lang* :skat/cli/player/human-type ) })
 
 ;;; Gameplay
 
