@@ -25,7 +25,8 @@ using i18n settings.
 
 ### To be done
 
-  * some actual functionality testing,
+  * some actual functionality testing (several errors are known),
+  * displaying current player name (for multiple human players case),
   * displaying solist's cards for ouvert game,
   * CPU player implementation.
 

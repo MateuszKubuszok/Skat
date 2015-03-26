@@ -227,7 +227,7 @@
       (do
         (show-owned-cards cards)
         (show-player-answer-bid bid cards)
-        (select-yes-no-answer bid cards)))
+        (select-yes-no-answer)))
     (declare-suit [this cards final-bid]
       (do
         (show-player-choose-suit cards)

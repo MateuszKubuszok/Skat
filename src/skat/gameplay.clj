@@ -43,10 +43,10 @@
               (swap-cards [deal replacing]
                 (-> deal (update-in [winner-position] replacing)
                          (update-in [:skat] replacing)))]
-        (let [skat-1 (-> deal :skat 0)
+        (let [skat-1 (-> deal :skat (get 0))
               card-1 (.skat-swapping ^Player winner conf (cards deal) skat-1)
               swap-1 (swap-cards deal (replacing (replacements skat-1 card-1)))
-              skat-2 (-> deal :skat 1)
+              skat-2 (-> deal :skat (get 1))
               card-2 (.skat-swapping ^Player winner conf (cards swap-1) skat-2)
               swap-2 (swap-cards deal (replacing (replacements skat-2 card-2)))]
           swap-2)))))
