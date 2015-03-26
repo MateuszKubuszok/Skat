@@ -42,14 +42,20 @@
             (remove (partial used-now? player) (cards-owned player))))]
     (update-cards cards-owned remove-card)))
 
-(defn update-knowledge "Updates all players' knowledge" [knowledge played-now]
+(defn update-cards-taken "Updates taken cards coll"
+  [cards-taken played-now winner]
+  (update-in cards-taken [winner] #(set (concat % (vals played-now)))))
+
+(defn update-knowledge "Updates all players' knowledge"
+  [knowledge played-now winner]
   {:pre [(sets/subset? (set (keys knowledge)) (set (keys played-now)))]}
   (helpers/update-all
     knowledge
     (fn [player-knowledge]
       (-> player-knowledge
         (update-in [:cards-played] update-cards-played played-now)
-        (update-in [:cards-owned]  update-cards-owned played-now)))))
+        (update-in [:cards-owned]  update-cards-owned  played-now)
+        (update-in [:cards-taken]  update-cards-taken  played-now winner)))))
 
 ;;; Situation update
 
@@ -135,7 +141,7 @@
         played-now   { p1 c1, p2 c2, p3 c3 }
         winner       (order ((trick-winning suit) c1 c2 c3))]
     (-> deal
-      (update-in [:knowledge] update-knowledge played-now)
+      (update-in [:knowledge] update-knowledge played-now winner)
       (update-in [:trick]     next-trick winner))))
 
 ;;; Win conditions

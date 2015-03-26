@@ -54,12 +54,12 @@
 (defn play-deal "Play whole 10-trick deal and reach conclusion"
   [config
    { :keys [:front :middle :rear] :as bidders }
-   { front-cards :front, middle-cards :middle, rear-cards :rear, skat :skat }]
+   { f-cards :front, m-cards :middle, r-cards :rear, skat :skat }]
   (letfn [(out-of-cards? [pk] (some #(-> pk :cards-owned empty?)))
           (game-finished? [knowledge] out-of-cards? (vals knowledge))]
-    (let [initial-knowledge { front  (PlayerKnowledge. front  [] front-cards)
-                              middle (PlayerKnowledge. middle [] middle-cards)
-                              rear   (PlayerKnowledge. rear   [] rear-cards) }
+    (let [initial-knowledge { front  (PlayerKnowledge. front  [] f-cards #{})
+                              middle (PlayerKnowledge. middle [] m-cards #{})
+                              rear   (PlayerKnowledge. rear   [] r-cards #{}) }
           initial-trick     (Trick. { :p1 front, :p2 middle, :p3 rear })
           initial-deal      (Deal. initial-knowledge initial-trick skat)]
       (loop [deal initial-deal]
@@ -74,7 +74,8 @@
         config         (declare-game driver bidding)
         deal-cards     (swap-skat config (:deal auction-result) winner)
         results        (play-deal config bidders deal-cards)
-        cards-taken    ()]
+        skat           (:skat results)
+        cards-taken    (-> results :knowledge :cards-taken (concat skat))]
     (Result. winner
              (auction/contract-fulfilled? config cards-taken)
              (bidding :bid))))
@@ -86,14 +87,17 @@
         player-3        (:rear   initial-bidders)
         initial-points  { player-1 0, player-2 0, player-3 0 }]
     (letfn [(rotate-bidders [b]
-              (zipmap (map game/player-in-next-deal (keys b)) (vals b)))]
+              (zipmap (map game/player-in-next-deal (keys b)) (vals b)))
+            (update-points [points { :keys [:solist :success? :bid] }]
+              (update-in points [solist] #(+ % (if success? bid (- bid)))))]
       (loop [round   1
              bidders initial-bidders
              points  initial-points]
         (if (<= 1 round 10)
-          (do
-            (pprint bidders)
-            (recur (inc round)
-                   (rotate-bidders bidders)
-                   points))
-          (pprint points))))))
+          (let [deal-result (deal-end2end driver bidders)]
+            (do
+              (.deal-results ^GameDriver driver deal-result)
+              (recur (inc round)
+                     (rotate-bidders bidders)
+                     (update-points points deal-result))))
+          (.game-results ^GameDriver driver points))))))

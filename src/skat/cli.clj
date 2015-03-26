@@ -268,5 +268,7 @@
                                                    (-> result :bid))
                               (show-player-bid-draw))
                             (identity result))))
-                      (declare-game [this bidding] (select-config bidding)))]
+                      (declare-game [this bidding] (select-config bidding))
+                      (deal-results [this results] "TODO")
+                      (game-results [this points] "TODO"))]
     (gameplay/start-game driver)))

@@ -1,6 +1,7 @@
 (ns skat.game_test
   (:require [clojure.test :refer :all]
             [skat]
+            [skat.log :refer :all]
             [skat.cards :refer :all]
             [skat.game :refer :all])
   (:import  [skat Card
@@ -34,6 +35,7 @@
 (def c8 (Card. :schell :K))
 (def played-cards { pl1 [], pl2 [], pl3 [] })
 (def players-cards { pl1 #{c1 c2}, pl2 #{c3 c4}, pl3 #{c5 c6} })
+(def took-cards { pl1 #{}, pl2 #{}, pl3 #{} })
 (def conf-grand (Configuration. pl1 :grand true false false false 48))
 (def conf-kreuz (Configuration. pl1 :kreuz true false false false 24))
 (def conf-null  (Configuration. pl1 :null  true false false false 23))
@@ -54,21 +56,31 @@
            (update-cards-owned players-cards played-now)
            { pl1 #{c2}, pl2 #{c4}, pl3 #{c5 c6} })))))
 
+(deftest update-cards-taken-test
+  (let [played-now { pl1 c1, pl2 c3, pl3 c2 }
+        winner     pl1]
+    (testing "removed cards played at given trick"
+      (is (map-equal
+           (update-cards-taken took-cards played-now winner)
+           { pl1 #{c1 c2 c3}, pl2 #{}, pl3 #{} })))))
+
 (deftest update-knowledge-test
-  (let [p-knowledge (PlayerKnowledge. pl1 played-cards players-cards)
-        knowledge { pl1 p-knowledge }
-        played-now { pl1 c1, pl2 c3, pl3 c5 }]
+  (let [p-knowledge (PlayerKnowledge. pl1 played-cards players-cards took-cards)
+        knowledge   { pl1 p-knowledge }
+        played-now  { pl1 c1, pl2 c3, pl3 c5 }
+        winner      pl1]
     (testing "updates played and owned cards"
       (is (=
-           (update-knowledge knowledge played-now)
+           (update-knowledge knowledge played-now winner)
            { pl1 (PlayerKnowledge.
                   pl1
                   { pl1 [c1], pl2 [c3], pl3 [c5] }
-                  { pl3 #{c6}, pl2 #{c4}, pl1 #{c2} }) })))))
+                  { pl3 #{c6}, pl2 #{c4}, pl1 #{c2} }
+                  { pl1 #{ c1 c3 c5 }, pl2 #{}, pl3 #{} }) })))))
 
 (deftest figure-situation-test
   (letfn [(mock-knowledge [pl]
-            (PlayerKnowledge. pl played-cards players-cards))]
+            (PlayerKnowledge. pl played-cards players-cards took-cards))]
     (let [p1-knowledge (mock-knowledge pl1)
           p2-knowledge (mock-knowledge pl2)
           p3-knowledge (mock-knowledge pl3)]
@@ -139,7 +151,7 @@
 
 (deftest play-trick-test
   (letfn [(mock-knowledge [pl]
-            (PlayerKnowledge. pl played-cards players-cards))]
+            (PlayerKnowledge. pl played-cards players-cards took-cards))]
     (let [p1-knowledge (mock-knowledge pl1)
           p2-knowledge (mock-knowledge pl2)
           p3-knowledge (mock-knowledge pl3)
@@ -147,9 +159,9 @@
           trick (Trick. order)
           deal (Deal. knowledge trick #{})
           next-deal (Deal.
-                      (update-knowledge knowledge { pl1 c2, pl2 c4, pl3 c5 })
-                      (next-trick trick pl2)
-                      #{})]
+                     (update-knowledge knowledge { pl1 c2, pl2 c4, pl3 c5 } pl2)
+                     (next-trick trick pl2)
+                     #{})]
       (testing "calculates next trick"
         (is (= (play-trick conf-grand deal) next-deal))))))
 
