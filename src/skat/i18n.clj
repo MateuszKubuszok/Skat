@@ -30,6 +30,8 @@
                       :played           "%s played: %s"
                       :won-bid          "%s won bid: %d"
                       :bid-draw         "No one won bid" }
+            :results { :deal! "Solist: %s\nBid:    %d\nWon:    %s"
+                       :game! "Player: %s\nPoints: %d" }
             :select { :nth-item    "Select which one you want:"
                       :player-name "Select player's name:" }
             :suit { :grand  "Grand",

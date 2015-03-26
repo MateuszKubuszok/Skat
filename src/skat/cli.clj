@@ -113,8 +113,13 @@
   (show-t :player/played (-> situation :order :p2 pid) c2))
 (defn show-player-won-bid "Print bid result" [pid bid]
   (show-t :player/won-bid pid bid))
-(defn show-player-bid-draw "Print bid draw result" []
+(defn show-player-bid-draw "Prints bid draw result" []
   (show-t :player/bid-draw))
+(defn show-result-deal "Shows deal results" [pid bid success?]
+  (show-t :results/deal pid bid success?))
+(defn show-result-game "Shows game results" [points]
+  (doseq [player (keys points)]
+    (show-t :results/game (pid player) (points player))))
 (defn show-select-nth-item "Shows nth item question" []
   (show-t :select/nth-item))
 (defn show-select-player-name "Shows player name question" []
@@ -269,6 +274,7 @@
                               (show-player-bid-draw))
                             (identity result))))
                       (declare-game [this bidding] (select-config bidding))
-                      (deal-results [this results] "TODO")
-                      (game-results [this points] "TODO"))]
+                      (deal-results [this { :keys [:solist :success? :bid] }]
+                        (show-result-deal (pid solist) bid (bool-str success?)))
+                      (game-results [this points] (show-result-game points)))]
     (gameplay/start-game driver)))
