@@ -10,7 +10,7 @@ Compiled program uses CLI interface as to demonstrate library's abilities.
 ## Notes
 
 Game implements official rules without any local additions (no *Ramsch* for
-instance).
+instance). However it doesn't implement idea of giving deal upearly.
 
 Naming in the game is in most part derrived from English Wikipedia. However
 there are some local names used. Cards suites use upper-silesian names:
@@ -32,7 +32,7 @@ using i18n settings.
 
 ## Installation
 
-Download source from [Bitbucket](https://bitbucket.org/MateuszKubuszok/skat) or
+Download source from [BitBucket](https://bitbucket.org/MateuszKubuszok/skat) or
 [GitHub](https://github.com/MateuszKubuszok/skat) and build using instructions
 below.
 
