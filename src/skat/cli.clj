@@ -69,13 +69,23 @@
     :null   (cards/compare-for-sort cards/compare-by-color-null
                                     cards/compare-by-figure-null) })
 
-(defn sort-cards-for-suite "Sorts cards for current game type"
+(defn sort-cards-for-suit "Sorts cards for current game type"
   [{ :keys [:suit] } cards]
   { :pre [(every? cards/card? cards)] }
   (letfn [(sorter [coll] (sort (card-sorters suit) coll))]
     (-> cards vec sorter vec)))
 
 (def mock-cards-sort "Default config for sorting cards" { :suit :null })
+
+(defn cards-str "Show cards" [idx-str config cards]
+  (coll-str (sort-cards-for-suit config cards)
+            idx-str
+            card-str
+            card-separator))
+(def cards-no-idx-str "Show cards without index"
+  (partial cards-str (fn [_] " ")))
+(def cards-num-idx-str "Show cards without index"
+  (partial cards-str str))
 
 ;;; Displaying data
 
@@ -87,31 +97,18 @@
         :skat/cli
         (list `println (concat (list `i18n/t `*lang*) args))))
 (defn show-owned-cards "Prints owned cards" [config cards]
-  (show-t :cards/owned
-          (coll-str (sort-cards-for-suite config cards)
-                    (fn [_] " ")
-                    card-str
-                    card-separator)))
+  (show-t :cards/owned (cards-no-idx-str config cards)))
 (defn show-allowed-cards "Prints owned and allowed cards"
-  [{ :keys [:config :cards-allowed] { :keys [:cards-owned] } :knowledge }]
+  [{ :keys [:self :config :cards-allowed] { :keys [:cards-owned] } :knowledge }]
   (do
-    (show-owned-cards config cards-owned)
-    (show-t :cards/allowed
-            (coll-str (sort-cards-for-suite config cards-allowed)
-                      str
-                      card-str
-                      card-separator))))
+    (show-owned-cards config (get cards-owned self))
+    (show-t :cards/allowed (cards-no-idx-str config cards-allowed))))
 (defn show-player-make-bid "Shows new bid question" [last-bid cards]
   (show-t :player/make-bid
           last-bid
-          (coll-str (sort-cards-for-suite mock-cards-sort cards)
-                    (fn [_] " ")
-                    card-str
-                    card-separator)))
+          (cards-no-idx-str mock-cards-sort cards)))
 (defn show-player-answer-bid "Shows bid response question" [bid cards]
-  (show-t :player/answer-bid
-          bid
-          (coll-str cards (fn [_] " ") card-str card-separator)))
+  (show-t :player/answer-bid bid (cards-no-idx-str mock-cards-sort cards)))
 (defn show-player-name "Shows player's name" [pid]
   (show-t :player/name pid))
 (defn show-player-choose-suit "Shows suit choice question" [cards]
@@ -140,9 +137,9 @@
     (show-t :player/swap-skat-card (card-str skat-card))
     (show-owned-cards mock-cards-sort cards)))
 (defn show-player1-card "Prints cards played by player 1" [situation c1]
-  (show-t :player/played (-> situation :order :p1 pid) c1))
+  (show-t :player/played (-> situation :order :p1 pid) (card-str c1)))
 (defn show-player2-card "Prints cards played by player 2" [situation c2]
-  (show-t :player/played (-> situation :order :p2 pid) c2))
+  (show-t :player/played (-> situation :order :p2 pid) (card-str c2)))
 (defn show-player-won-bid "Print bid result" [pid bid]
   (show-t :player/won-bid pid bid))
 (defn show-player-bid-draw "Prints bid draw result" []
@@ -192,7 +189,7 @@
 
 (defn select-card "User selects nth card" [config cards]
   { :pre [(every? cards/card? cards)], :post [%] }
-  (select-nth (sort-cards-for-suite config cards) card-str card-separator))
+  (select-nth (sort-cards-for-suit config cards) card-str card-separator))
 
 (defn select-player-name "User selects player name" [used-names]
   (loop [id nil]

@@ -51,7 +51,7 @@
 
 ;;; Situation
 
-(defrecord PlayerSituation [config knowledge order cards-allowed])
+(defrecord PlayerSituation [self config knowledge order cards-allowed])
 
 ;;; Trick
 

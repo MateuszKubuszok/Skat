@@ -78,7 +78,7 @@
                                 rear   (if (= rear   player) cards []) }
                               { front #{}, middle #{}, rear #{} }))
           (out-of-cards? [player-knowledge]
-            (some #(-> % :cards-owned empty?) player-knowledge))
+            (some #(-> % :cards-owned blank?) player-knowledge))
           (game-finished? [knowledge] (out-of-cards? (vals knowledge)))]
     (let [initial-knowledge { front  (initial-knowledge-for front  f-cards)
                               middle (initial-knowledge-for middle m-cards)

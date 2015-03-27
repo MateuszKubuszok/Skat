@@ -69,7 +69,7 @@
         cards-allowed (set (if c1
                              ((responses/allowed-for suit) c1 players-cards)
                              players-cards))]
-    (PlayerSituation. config knowledge order cards-allowed)))
+    (PlayerSituation. self config knowledge order cards-allowed)))
 
 ;;; Trick winner
 
