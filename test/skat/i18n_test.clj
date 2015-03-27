@@ -22,6 +22,7 @@
            "You have been bid: 17\nDo you accept?"))
     (is (= (t :en :skat/cli/player/cpu-type)         "CPU player"))
     (is (= (t :en :skat/cli/player/human-type)       "Human player"))
+    (is (= (t :en :skat/cli/player/name "test")      "[Player test]"))
     (is (= (t :en :skat/cli/player/choose-suit)      "Choose suit:"))
     (is (= (t :en :skat/cli/player/choose-hand)      "Choose hand:"))
     (is (= (t :en :skat/cli/player/choose-schneider) "Choose schneider:"))

@@ -21,6 +21,7 @@
                       :A   " A" }
             :player { :cpu-type         "CPU player"
                       :human-type       "Human player"
+                      :name             "[Player %s]"
                       :make-bid         "Place bid (more than %d) or pass (17):"
                       :answer-bid!      "You have been bid: %d\nDo you accept?"
                       :choose-suit      "Choose suit:"

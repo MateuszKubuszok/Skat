@@ -81,6 +81,8 @@
   (show-t :player/answer-bid
           bid
           (coll-str cards (fn [_] " ") card-str card-separator)))
+(defn show-player-name "Shows player's name" [pid]
+  (show-t :player/name pid))
 (defn show-player-choose-suit "Shows suit choice question" [cards]
   (do
     (show-t :player/choose-suit)
@@ -207,61 +209,61 @@
     (id [this] id)
     (play-1st-card [this { :keys [:cards-allowed] :as situation }]
       (do
-        (println id)
+        (show-player-name id)
         (show-allowed-cards situation)
         (select-card cards-allowed)))
     (play-2nd-card [this { :keys [:cards-allowed] :as situation } c1]
       (do
-        (println id)
+        (show-player-name id)
         (show-player1-card situation c1)
         (show-allowed-cards situation)
         (select-card cards-allowed)))
     (play-3rd-card [this { :keys [:cards-allowed] :as situation } c1 c2]
       (do
-        (println id)
+        (show-player-name id)
         (show-player1-card situation c1)
         (show-player2-card situation c2)
         (show-allowed-cards situation)
         (select-card cards-allowed)))
     (place-bid [this cards last-bid]
       (do
-        (println id)
+        (show-player-name id)
         (show-owned-cards cards)
         (select-new-bid last-bid cards)))
     (respond-to-bid [this cards bid]
       (do
-        (println id)
+        (show-player-name id)
         (show-owned-cards cards)
         (show-player-answer-bid bid cards)
         (select-yes-no-answer)))
     (declare-suit [this cards final-bid]
       (do
-        (println id)
+        (show-player-name id)
         (show-player-choose-suit cards)
         (select-suit)))
     (declare-hand [this cards final-bid]
       (do
-        (println id)
+        (show-player-name id)
         (show-player-choose-hand cards)
         (select-yes-no-answer)))
     (declare-schneider [this cards final-bid]
       (do
-        (println id)
+        (show-player-name id)
         (show-player-choose-schneider cards)
         (select-yes-no-answer)))
     (declare-schwarz [this cards final-bid]
       (do
-        (println id)
+        (show-player-name id)
         (show-player-choose-schwarz cards)
         (select-yes-no-answer)))
     (declare-ouvert [this cards final-bid]
       (do
-        (println id)
+        (show-player-name id)
         (show-player-choose-ouvert cards)
         (select-yes-no-answer)))
     (skat-swapping [this config cards-owned skat-card]
       (do
-        (println id)
+        (show-player-name id)
         (show-player-swap-skat-card cards-owned skat-card)
         (select-card cards-owned)))))
 
