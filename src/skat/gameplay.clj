@@ -71,7 +71,7 @@
            (every? cards/card? skat)]
     :post [%] }
   (letfn [(out-of-cards? [pk] (some #(-> % :cards-owned empty?) pk))
-          (game-finished? [knowledge] out-of-cards? (vals knowledge))]
+          (game-finished? [knowledge] (out-of-cards? (vals knowledge)))]
     (let [initial-knowledge { front  (PlayerKnowledge. front  [] f-cards #{})
                               middle (PlayerKnowledge. middle [] m-cards #{})
                               rear   (PlayerKnowledge. rear   [] r-cards #{}) }
