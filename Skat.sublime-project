@@ -7,6 +7,12 @@
       "folder_exclude_patterns": [ "classes", "lib", "src", "test" ]
     },
     {
+      "path": "src",
+      "name": "Interfaces",
+      "file_include_patterns":   [ "skat.clj" ],
+      "folder_exclude_patterns": [ "skat" ]
+    },
+    {
       "path": "src/skat",
       "name": "Sources",
     },
