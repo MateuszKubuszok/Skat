@@ -16,6 +16,8 @@
 ;;; Run game
 
 (defn perform-auction "Performs auction" [driver bidders]
+  { :pre  [driver bidders]
+    :post [(:deal %) (:bidding %)] }
   (loop []
     (let [deal    (cards/deal-cards)
           bidding (.do-auction ^GameDriver driver bidders deal)]
@@ -25,6 +27,8 @@
 
 (defn declare-game "Declare game suit, hand, schneider, schwarz and ouvert"
   [driver bidding]
+  { :pre  [driver bidding]
+    :post [%] }
   (letfn [(acceptable-game? [config] true)]
     (loop []
       (let [config (.declare-game ^GameDriver driver bidding)]
@@ -33,29 +37,40 @@
           (recur))))))
 
 (defn swap-skat "Swap skat with owned cards if game without hand declared"
-  [conf deal winner]
-  (if (:hand? conf)
+  [config deal winner winner-position]
+  { :pre  [config deal winner]
+    :post [%] }
+  (if (:hand? config)
     deal
-    (let [winner-position (-> deal sets/map-invert (find winner))]
-      (letfn [(cards [deal] (-> deal winner-position))
-              (replacements [skat owned] { skat owned, owned skat })
-              (replacing [replacements] (fn [coll] (replace replacements coll)))
-              (swap-cards [deal replacing]
-                (-> deal (update-in [winner-position] replacing)
-                         (update-in [:skat] replacing)))]
-        (let [skat-1 (-> deal :skat (get 0))
-              card-1 (.skat-swapping ^Player winner conf (cards deal) skat-1)
-              swap-1 (swap-cards deal (replacing (replacements skat-1 card-1)))
-              skat-2 (-> deal :skat (get 1))
-              card-2 (.skat-swapping ^Player winner conf (cards swap-1) skat-2)
-              swap-2 (swap-cards deal (replacing (replacements skat-2 card-2)))]
-          swap-2)))))
+    (letfn [(cards [old-deal] (-> old-deal winner-position))
+            (replacements [owned skat] { skat owned, owned skat })
+            (replacing [replacements] (fn [coll] (replace replacements coll)))
+            (swap-cards [old-deal replacing]
+              { :post [(not= old-deal %)] }
+              (-> old-deal (update-in [winner-position] replacing)
+                           (update-in [:skat] replacing)))
+            (swap-for [old-deal owned skat]
+              { :pre [old-deal owned skat] }
+              (swap-cards old-deal (replacing (replacements owned skat))))]
+      (let [skat-1 (-> deal :skat first)
+            card-1 (.skat-swapping ^Player winner config (cards deal) skat-1)
+            swap-1 (swap-for deal card-1 skat-1)
+            skat-2 (-> deal :skat second)
+            card-2 (.skat-swapping ^Player winner config (cards swap-1) skat-2)
+            swap-2 (swap-for swap-1 card-2 skat-2)]
+        swap-2))))
 
 (defn play-deal "Play whole 10-trick deal and reach conclusion"
   [config
    { :keys [:front :middle :rear] :as bidders }
    { f-cards :front, m-cards :middle, r-cards :rear, skat :skat }]
-  (letfn [(out-of-cards? [pk] (some #(-> pk :cards-owned empty?)))
+  { :pre  [config front middle rear
+           (every? cards/card? f-cards)
+           (every? cards/card? m-cards)
+           (every? cards/card? r-cards)
+           (every? cards/card? skat)]
+    :post [%] }
+  (letfn [(out-of-cards? [pk] (some #(-> % :cards-owned empty?) pk))
           (game-finished? [knowledge] out-of-cards? (vals knowledge))]
     (let [initial-knowledge { front  (PlayerKnowledge. front  [] f-cards #{})
                               middle (PlayerKnowledge. middle [] m-cards #{})
@@ -68,19 +83,24 @@
           (recur (game/next-trick config deal)))))))
 
 (defn deal-end2end "Deal cards, auction and play 10 tricks" [driver bidders]
+  { :pre [driver bidders] }
   (let [auction-result (perform-auction driver bidders)
-        bidding        (:bidding auction-result)
-        winner         (:winner bidding)
-        config         (declare-game driver bidding)
-        deal-cards     (swap-skat config (:deal auction-result) winner)
-        results        (play-deal config bidders deal-cards)
-        skat           (:skat results)
-        cards-taken    (-> results :knowledge :cards-taken (concat skat))]
+        bidding         (:bidding auction-result)
+        winner          (:winner bidding)
+        winner-position (-> bidders sets/map-invert (find winner) (get 1))
+        config          (declare-game driver bidding)
+        deal-cards      (swap-skat config (:deal auction-result)
+                                          winner
+                                          winner-position)
+        results         (play-deal config bidders deal-cards)
+        skat            (:skat results)
+        cards-taken     (-> results :knowledge :cards-taken (concat skat))]
     (Result. winner
              (auction/contract-fulfilled? config cards-taken)
-             (bidding :bid))))
+             (:bid bidding))))
 
 (defn start-game "Start game using passed driver" [driver]
+  { :pre [driver] }
   (let [initial-bidders (.create-players ^GameDriver driver)
         player-1        (:front  initial-bidders)
         player-2        (:middle initial-bidders)

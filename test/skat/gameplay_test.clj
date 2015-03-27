@@ -44,14 +44,14 @@
 (deftest swap-skat-test
   (testing "hand leaves deal intact"
     (let [config (Configuration. pl1 :grand true false false false false 18)]
-      (is (= deal (swap-skat config deal pl1)))))
+      (is (= deal (swap-skat config deal pl1 :front)))))
   (testing "no hand swaps at most 2 cards"
     (let [config (Configuration. pl1 :grand false false false false false 18)]
       (is (= { :front '(c7 c8)
                :middle '(c3 c4)
                :rear '(c5 c6)
                :skat '(c1 c2) }
-             deal (swap-skat config deal pl1))))))
+             (swap-skat config deal pl1 :front))))))
 
 (deftest play-deal-test)
 

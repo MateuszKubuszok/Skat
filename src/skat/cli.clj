@@ -4,7 +4,6 @@
             [skat]
             [skat.i18n :as i18n :refer [*lang*]]
             [skat.cards :as cards]
-            [skat.game :as game]
             [skat.auction :as auction]
             [skat.gameplay :as gameplay]
             [skat.ai :as ai])
@@ -26,8 +25,8 @@
   { true  (with-tscope :skat/cli (i18n/t *lang* :answer/yes))
     false (with-tscope :skat/cli (i18n/t *lang* :answer/no)) })
 
-(def color-str "Maps card colors to character"
-  { :kreuz \♣, :grun \♠, :herz \♥, :schell \♦ })
+(def color-str "Maps card colors to strings"
+  { :kreuz "♣", :grun "♠", :herz   "♥", :schell "♦" })
 
 (def figure-str "Maps card figure to string"
   { :7  (with-tscope :skat/cli (i18n/t *lang* :figure/r7))
@@ -138,7 +137,7 @@
           preview (coll-str coll idx-to-pos value-str separator)]
       (loop [idx nil]
         (if (and idx (< idx size))
-          (coll idx)
+          (-> coll vec (get idx))
           (do
             (show-select-nth-item)
             (println preview)
@@ -159,8 +158,8 @@
   (select-nth [true false] bool-str bool-separator))
 
 (defn select-card "User selects nth card" [cards]
-  { :pre [(every? cards/card? cards)] }
-  (select-nth cards color-str card-separator))
+  { :pre [(every? cards/card? cards)], :post [%] }
+  (select-nth cards card-str card-separator))
 
 (defn select-player-name "User selects player name" [used-names]
   (loop [id nil]
@@ -171,7 +170,7 @@
         (recur (read-line))))))
 
 (defn select-player-type "User selects player type" []
-  (select-nth (vec player-types) player-types-str player-separator))
+  (select-nth player-types player-types-str player-separator))
 
 (defn select-players "User selects all players" []
   (let [pl-front-name  (select-player-name #{})
@@ -185,7 +184,9 @@
               (pl-rear-type   pl-rear-name))))
 
 (defn select-suit "User selects suit" []
-  (select-nth (vec game/suits) suit-str suit-separator))
+  (select-nth [:grand :kreuz :grun :herz :schell :null]
+              suit-str
+              suit-separator))
 
 (defn select-config "User selects used config" [{ :keys [:winner :cards :bid] }]
   (let [declarer     winner
@@ -206,50 +207,61 @@
     (id [this] id)
     (play-1st-card [this { :keys [:cards-allowed] :as situation }]
       (do
+        (println id)
         (show-allowed-cards situation)
         (select-card cards-allowed)))
     (play-2nd-card [this { :keys [:cards-allowed] :as situation } c1]
       (do
+        (println id)
         (show-player1-card situation c1)
         (show-allowed-cards situation)
         (select-card cards-allowed)))
     (play-3rd-card [this { :keys [:cards-allowed] :as situation } c1 c2]
       (do
+        (println id)
         (show-player1-card situation c1)
         (show-player2-card situation c2)
         (show-allowed-cards situation)
         (select-card cards-allowed)))
     (place-bid [this cards last-bid]
       (do
+        (println id)
         (show-owned-cards cards)
         (select-new-bid last-bid cards)))
     (respond-to-bid [this cards bid]
       (do
+        (println id)
         (show-owned-cards cards)
         (show-player-answer-bid bid cards)
         (select-yes-no-answer)))
     (declare-suit [this cards final-bid]
       (do
+        (println id)
         (show-player-choose-suit cards)
         (select-suit)))
     (declare-hand [this cards final-bid]
       (do
+        (println id)
         (show-player-choose-hand cards)
         (select-yes-no-answer)))
     (declare-schneider [this cards final-bid]
       (do
+        (println id)
         (show-player-choose-schneider cards)
         (select-yes-no-answer)))
     (declare-schwarz [this cards final-bid]
       (do
+        (println id)
         (show-player-choose-schwarz cards)
         (select-yes-no-answer)))
     (declare-ouvert [this cards final-bid]
       (do
+        (println id)
         (show-player-choose-ouvert cards)
         (select-yes-no-answer)))
     (skat-swapping [this config cards-owned skat-card]
       (do
+        (println id)
         (show-player-swap-skat-card cards-owned skat-card)
         (select-card cards-owned)))))
 
