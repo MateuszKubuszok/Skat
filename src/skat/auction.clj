@@ -200,7 +200,7 @@
 
 (defn bids? "Nil and 17 means pass, player bids otherwise" [bid]
   { :pre [(game-value? bid)] }
-  (and bid (not (== bid passed-game-value))))
+  (and bid (not= bid passed-game-value)))
 
 (defn bidding-101 "Determines who of two players wins the bid"
   [bidder bidder-cards responder responder-cards starting-bid]

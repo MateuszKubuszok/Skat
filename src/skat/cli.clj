@@ -55,6 +55,28 @@
 (defn coll-str "Preview collection" [coll k2str v2str separator]
   (join separator (map-indexed #(str (k2str %1) \space (v2str %2)) coll)))
 
+(def card-sorters "Sorting functions for different suits"
+  { :grand  (cards/compare-for-sort (cards/compare-by-color-display :grand)
+                                    cards/compare-by-figure-normal)
+    :kreuz  (cards/compare-for-sort (cards/compare-by-color-display :kreuz)
+                                    cards/compare-by-figure-normal)
+    :grun   (cards/compare-for-sort (cards/compare-by-color-display :grun)
+                                    cards/compare-by-figure-normal)
+    :herz   (cards/compare-for-sort (cards/compare-by-color-display :herz)
+                                    cards/compare-by-figure-normal)
+    :schell (cards/compare-for-sort (cards/compare-by-color-display :schell)
+                                    cards/compare-by-figure-normal)
+    :null   (cards/compare-for-sort cards/compare-by-color-null
+                                    cards/compare-by-figure-null) })
+
+(defn sort-cards-for-suite "Sorts cards for current game type"
+  [{ :keys [:suit] } cards]
+  { :pre [(every? cards/card? cards)] }
+  (letfn [(sorter [coll] (sort (card-sorters suit) coll))]
+    (-> cards vec sorter vec)))
+
+(def mock-cards-sort "Default config for sorting cards" { :suit :null })
+
 ;;; Displaying data
 
 (defn pid "Show player ID" [player]
@@ -64,19 +86,28 @@
   (list `with-tscope
         :skat/cli
         (list `println (concat (list `i18n/t `*lang*) args))))
-(defn show-owned-cards "Prints owned cards" [cards]
+(defn show-owned-cards "Prints owned cards" [config cards]
   (show-t :cards/owned
-          (coll-str cards (fn [_] " ") card-str card-separator)))
+          (coll-str (sort-cards-for-suite config cards)
+                    (fn [_] " ")
+                    card-str
+                    card-separator)))
 (defn show-allowed-cards "Prints owned and allowed cards"
-  [{ :keys [:cards-allowed] { :keys [:cards-owned] } :knowledge }]
+  [{ :keys [:config :cards-allowed] { :keys [:cards-owned] } :knowledge }]
   (do
-    (show-owned-cards cards-owned)
+    (show-owned-cards config cards-owned)
     (show-t :cards/allowed
-            (coll-str cards-allowed str card-str card-separator))))
+            (coll-str (sort-cards-for-suite config cards-allowed)
+                      str
+                      card-str
+                      card-separator))))
 (defn show-player-make-bid "Shows new bid question" [last-bid cards]
   (show-t :player/make-bid
           last-bid
-          (coll-str cards (fn [_] " ") card-str card-separator)))
+          (coll-str (sort-cards-for-suite mock-cards-sort cards)
+                    (fn [_] " ")
+                    card-str
+                    card-separator)))
 (defn show-player-answer-bid "Shows bid response question" [bid cards]
   (show-t :player/answer-bid
           bid
@@ -86,28 +117,28 @@
 (defn show-player-choose-suit "Shows suit choice question" [cards]
   (do
     (show-t :player/choose-suit)
-    (show-owned-cards cards)))
+    (show-owned-cards mock-cards-sort cards)))
 (defn show-player-choose-hand "Shows hand choice question" [cards]
   (do
     (show-t :player/choose-hand)
-    (show-owned-cards cards)))
+    (show-owned-cards mock-cards-sort cards)))
 (defn show-player-choose-schneider "Shows schneider choice question" [cards]
   (do
     (show-t :player/choose-schneider)
-    (show-owned-cards cards)))
+    (show-owned-cards mock-cards-sort cards)))
 (defn show-player-choose-schwarz "Shows schwarz choice question" [cards]
   (do
     (show-t :player/choose-schwarz)
-    (show-owned-cards cards)))
+    (show-owned-cards mock-cards-sort cards)))
 (defn show-player-choose-ouvert "Shows ouvert choice question" [cards]
   (do
     (show-t :player/choose-ouvert)
-    (show-owned-cards cards)))
+    (show-owned-cards mock-cards-sort cards)))
 (defn show-player-swap-skat-card "Shows skat card swap choice question"
   [cards skat-card]
   (do
     (show-t :player/swap-skat-card (card-str skat-card))
-    (show-owned-cards cards)))
+    (show-owned-cards mock-cards-sort cards)))
 (defn show-player1-card "Prints cards played by player 1" [situation c1]
   (show-t :player/played (-> situation :order :p1 pid) c1))
 (defn show-player2-card "Prints cards played by player 2" [situation c2]
@@ -159,9 +190,9 @@
 (defn select-yes-no-answer "User answers to yes-no question" []
   (select-nth [true false] bool-str bool-separator))
 
-(defn select-card "User selects nth card" [cards]
+(defn select-card "User selects nth card" [config cards]
   { :pre [(every? cards/card? cards)], :post [%] }
-  (select-nth cards card-str card-separator))
+  (select-nth (sort-cards-for-suite config cards) card-str card-separator))
 
 (defn select-player-name "User selects player name" [used-names]
   (loop [id nil]
@@ -207,33 +238,33 @@
 (defn create-human-player "Creates human player using CLI" [id]
   (reify skat.Player
     (id [this] id)
-    (play-1st-card [this { :keys [:cards-allowed] :as situation }]
+    (play-1st-card [this { :keys [:config :cards-allowed] :as situation }]
       (do
         (show-player-name id)
         (show-allowed-cards situation)
-        (select-card cards-allowed)))
-    (play-2nd-card [this { :keys [:cards-allowed] :as situation } c1]
+        (select-card config cards-allowed)))
+    (play-2nd-card [this { :keys [:config :cards-allowed] :as situation } c1]
       (do
         (show-player-name id)
         (show-player1-card situation c1)
         (show-allowed-cards situation)
-        (select-card cards-allowed)))
-    (play-3rd-card [this { :keys [:cards-allowed] :as situation } c1 c2]
+        (select-card config cards-allowed)))
+    (play-3rd-card [this { :keys [:config :cards-allowed] :as situation } c1 c2]
       (do
         (show-player-name id)
         (show-player1-card situation c1)
         (show-player2-card situation c2)
         (show-allowed-cards situation)
-        (select-card cards-allowed)))
+        (select-card config cards-allowed)))
     (place-bid [this cards last-bid]
       (do
         (show-player-name id)
-        (show-owned-cards cards)
+        (show-owned-cards mock-cards-sort cards)
         (select-new-bid last-bid cards)))
     (respond-to-bid [this cards bid]
       (do
         (show-player-name id)
-        (show-owned-cards cards)
+        (show-owned-cards mock-cards-sort cards)
         (show-player-answer-bid bid cards)
         (select-yes-no-answer)))
     (declare-suit [this cards final-bid]
@@ -265,7 +296,7 @@
       (do
         (show-player-name id)
         (show-player-swap-skat-card cards-owned skat-card)
-        (select-card cards-owned)))))
+        (select-card mock-cards-sort cards-owned)))))
 
 (def player-types "Players types to choose"
   [ create-human-player ])

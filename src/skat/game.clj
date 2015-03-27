@@ -63,7 +63,8 @@
                         { :keys [:self :cards-owned] :as knowledge }
                         order
                         & [c1]]
-  {:pre [(if c1 (cards/card? c1) true)]}
+  { :pre  [(if c1 (cards/card? c1) true)]
+    :post [(-> % :cards-allowed not-empty)] }
   (let [players-cards (-> cards-owned (get self))
         cards-allowed (set (if c1
                              ((responses/allowed-for suit) c1 players-cards)

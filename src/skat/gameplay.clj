@@ -80,9 +80,9 @@
           (out-of-cards? [player-knowledge]
             (some #(-> % :cards-owned empty?) player-knowledge))
           (game-finished? [knowledge] (out-of-cards? (vals knowledge)))]
-    (let [initial-knowledge { front  (PlayerKnowledge. front  [] f-cards #{})
-                              middle (PlayerKnowledge. middle [] m-cards #{})
-                              rear   (PlayerKnowledge. rear   [] r-cards #{}) }
+    (let [initial-knowledge { front  (initial-knowledge-for front  f-cards)
+                              middle (initial-knowledge-for middle m-cards)
+                              rear   (initial-knowledge-for rear   r-cards) }
           initial-trick     (Trick. { :p1 front, :p2 middle, :p3 rear })
           initial-deal      (Deal. initial-knowledge initial-trick skat)]
       (loop [deal initial-deal]
