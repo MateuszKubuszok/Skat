@@ -37,26 +37,26 @@
           (recur))))))
 
 (defn swap-skat "Swap skat with owned cards if game without hand declared"
-  [config deal winner winner-position]
-  { :pre  [config deal winner]
+  [config c-deal solist solist-position]
+  { :pre  [config c-deal solist]
     :post [%] }
   (if (:hand? config)
-    deal
-    (letfn [(cards [old-deal] (-> old-deal winner-position))
+    c-deal
+    (letfn [(cards [old-c-deal] (-> old-c-deal solist-position))
             (replacements [owned skat] { skat owned, owned skat })
             (replacing [replacements] (fn [coll] (replace replacements coll)))
-            (swap-cards [old-deal replacing]
-              { :post [(not= old-deal %)] }
-              (-> old-deal (update-in [winner-position] replacing)
+            (swap-cards [old-c-deal replacing]
+              { :post [(not= old-c-deal %)] }
+              (-> old-c-deal (update-in [solist-position] replacing)
                            (update-in [:skat] replacing)))
-            (swap-for [old-deal owned skat]
-              { :pre [old-deal owned skat] }
-              (swap-cards old-deal (replacing (replacements owned skat))))]
-      (let [skat-1 (-> deal :skat first)
-            card-1 (.skat-swapping ^Player winner config (cards deal) skat-1)
-            swap-1 (swap-for deal card-1 skat-1)
-            skat-2 (-> deal :skat second)
-            card-2 (.skat-swapping ^Player winner config (cards swap-1) skat-2)
+            (swap-for [old-c-deal owned skat]
+              { :pre [old-c-deal owned skat] }
+              (swap-cards old-c-deal (replacing (replacements owned skat))))]
+      (let [skat-1 (-> c-deal :skat first)
+            card-1 (.skat-swapping ^Player solist config (cards c-deal) skat-1)
+            swap-1 (swap-for c-deal card-1 skat-1)
+            skat-2 (-> c-deal :skat second)
+            card-2 (.skat-swapping ^Player solist config (cards swap-1) skat-2)
             swap-2 (swap-for swap-1 card-2 skat-2)]
         swap-2))))
 
@@ -86,16 +86,16 @@
   { :pre [driver bidders] }
   (let [auction-result (perform-auction driver bidders)
         bidding         (:bidding auction-result)
-        winner          (:winner bidding)
-        winner-position (-> bidders sets/map-invert (find winner) (get 1))
+        solist          (:winner bidding)
+        solist-position (-> bidders sets/map-invert (find solist) (get 1))
         config          (declare-game driver bidding)
         deal-cards      (swap-skat config (:deal auction-result)
-                                          winner
-                                          winner-position)
+                                          solist
+                                          solist-position)
         results         (play-deal config bidders deal-cards)
         skat            (:skat results)
         cards-taken     (-> results :knowledge :cards-taken (concat skat))]
-    (Result. winner
+    (Result. solist
              (auction/contract-fulfilled? config cards-taken)
              (:bid bidding))))
 

@@ -57,21 +57,21 @@
            { pl1 #{c2}, pl2 #{c4}, pl3 #{c5 c6} })))))
 
 (deftest update-cards-taken-test
-  (let [played-now { pl1 c1, pl2 c3, pl3 c2 }
-        winner     pl1]
+  (let [played-now   { pl1 c1, pl2 c3, pl3 c2 }
+        trick-winner pl1]
     (testing "removed cards played at given trick"
       (is (map-equal
-           (update-cards-taken took-cards played-now winner)
+           (update-cards-taken took-cards played-now trick-winner)
            { pl1 #{c1 c2 c3}, pl2 #{}, pl3 #{} })))))
 
 (deftest update-knowledge-test
-  (let [p-knowledge (PlayerKnowledge. pl1 played-cards players-cards took-cards)
-        knowledge   { pl1 p-knowledge }
-        played-now  { pl1 c1, pl2 c3, pl3 c5 }
-        winner      pl1]
+  (let [p-knowledge  (PlayerKnowledge. pl1 played-cards players-cards took-cards)
+        knowledge    { pl1 p-knowledge }
+        played-now   { pl1 c1, pl2 c3, pl3 c5 }
+        trick-winner pl1]
     (testing "updates played and owned cards"
       (is (=
-           (update-knowledge knowledge played-now winner)
+           (update-knowledge knowledge played-now trick-winner)
            { pl1 (PlayerKnowledge.
                   pl1
                   { pl1 [c1], pl2 [c3], pl3 [c5] }
@@ -132,7 +132,7 @@
   (let [p1-start { :p1 pl1, :p2 pl2, :p3 pl3 }
         p2-start { :p1 pl2, :p2 pl3, :p3 pl1 }
         p3-start { :p1 pl3, :p2 pl1, :p3 pl2 }]
-    (testing "winner rotates correctly"
+    (testing "trick winner rotates correctly"
       (is (= (next-trick-order p1-start pl1) p1-start))
       (is (= (next-trick-order p1-start pl2) p2-start))
       (is (= (next-trick-order p1-start pl3) p3-start))

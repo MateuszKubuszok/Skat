@@ -13,7 +13,7 @@
 
 ;;; Configuration
 
-(defrecord Configuration [declarer
+(defrecord Configuration [solist
                           suit
                           hand?
                           ouvert?

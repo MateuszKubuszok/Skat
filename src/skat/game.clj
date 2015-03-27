@@ -43,19 +43,19 @@
     (update-cards cards-owned remove-card)))
 
 (defn update-cards-taken "Updates taken cards coll"
-  [cards-taken played-now winner]
-  (update-in cards-taken [winner] #(set (concat % (vals played-now)))))
+  [cards-taken played-now trick-winner]
+  (update-in cards-taken [trick-winner] #(set (concat % (vals played-now)))))
 
 (defn update-knowledge "Updates all players' knowledge"
-  [knowledge played-now winner]
+  [knowledge played-now trick-winner]
   {:pre [(sets/subset? (set (keys knowledge)) (set (keys played-now)))]}
   (helpers/update-all
-    knowledge
-    (fn [player-knowledge]
-      (-> player-knowledge
-        (update-in [:cards-played] update-cards-played played-now)
-        (update-in [:cards-owned]  update-cards-owned  played-now)
-        (update-in [:cards-taken]  update-cards-taken  played-now winner)))))
+   knowledge
+   (fn [player-knowledge]
+     (-> player-knowledge
+         (update-in [:cards-taken]  update-cards-taken  played-now trick-winner)
+         (update-in [:cards-owned]  update-cards-owned  played-now)
+         (update-in [:cards-played] update-cards-played played-now)))))
 
 ;;; Situation update
 
@@ -117,15 +117,15 @@
 
 ;;; Trick update
 
-(defn next-trick-order [{:keys [p1 p2 p3] :as order} winner]
-  {:pre [(contains? #{p1 p2 p3} winner)]}
+(defn next-trick-order [{ :keys [p1 p2 p3] :as order } trick-winner]
+  {:pre [(contains? #{p1 p2 p3} trick-winner)]}
   (cond
-    (= winner p1) order
-    (= winner p2) { :p1 p2, :p2 p3, :p3 p1 }
-    (= winner p3) { :p1 p3, :p2 p1, :p3 p2 }))
+    (= trick-winner p1) order
+    (= trick-winner p2) { :p1 p2, :p2 p3, :p3 p1 }
+    (= trick-winner p3) { :p1 p3, :p2 p1, :p3 p2 }))
 
-(defn next-trick "Updates trick" [{:keys [order] :as trick} winner]
-  (assoc trick :order (next-trick-order order winner)))
+(defn next-trick "Updates trick" [{ :keys [order] :as trick } trick-winner]
+  (assoc trick :order (next-trick-order order trick-winner)))
 
 (defn play-trick "Plays trick"
   [{ :keys [suit] :as config }
@@ -139,10 +139,10 @@
         p3-situation (figure-situation config (knowledge p3) order c1)
         c3           (.play-3rd-card ^skat.Player p3 p3-situation c1 c2)
         played-now   { p1 c1, p2 c2, p3 c3 }
-        winner       (order ((trick-winning suit) c1 c2 c3))]
+        trick-winner (order ((trick-winning suit) c1 c2 c3))]
     (-> deal
-      (update-in [:knowledge] update-knowledge played-now winner)
-      (update-in [:trick]     next-trick winner))))
+      (update-in [:knowledge] update-knowledge played-now trick-winner)
+      (update-in [:trick]     next-trick trick-winner))))
 
 ;;; Win conditions
 

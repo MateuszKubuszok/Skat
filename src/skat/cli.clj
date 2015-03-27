@@ -191,14 +191,14 @@
               suit-separator))
 
 (defn select-config "User selects used config" [{ :keys [:winner :cards :bid] }]
-  (let [declarer     winner
-        suit         (.declare-suit ^Player winner cards bid)
-        hand         (.declare-hand ^Player winner cards bid)
-        ouvert       (if hand (.declare-ouvert ^Player winner cards bid))
-        schneider    (.declare-schneider ^Player winner cards bid)
-        schwarz      (if hand (.declare-schwarz ^Player winner cards bid))
+  (let [solist       winner
+        suit         (.declare-suit ^Player solist cards bid)
+        hand         (.declare-hand ^Player solist cards bid)
+        ouvert       (if hand (.declare-ouvert ^Player solist cards bid))
+        schneider    (.declare-schneider ^Player solist cards bid)
+        schwarz      (if hand (.declare-schwarz ^Player solist cards bid))
         declared-bid bid]
-    (Configuration. declarer suit hand ouvert schneider schwarz declared-bid)))
+    (Configuration. solist suit hand ouvert schneider schwarz declared-bid)))
 
 ;;; Players
 

@@ -253,7 +253,7 @@
           bid-24   (mock-player "b" 24 :kreuz)
           bid-48   (mock-player "c" 48 :grand)
           bid-48-2 (mock-player "d" 48 :kreuz)]
-      (testing "two passes don't make a winner"
+      (testing "two passes don't make a bid winner"
         (is (not (bids? (:bid (bidding-101 bid-17 [] bid-17 [] nil))))))
       (testing "bid wins agains pass"
         (let [pass-bid (bidding-101 bid-17 [] bid-24 [] nil)
