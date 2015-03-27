@@ -64,7 +64,7 @@
                         order
                         & [c1]]
   {:pre [(if c1 (cards/card? c1) true)]}
-  (let [players-cards (cards-owned self)
+  (let [players-cards (-> cards-owned (get self))
         cards-allowed (set (if c1
                              ((responses/allowed-for suit) c1 players-cards)
                              players-cards))]
@@ -108,11 +108,11 @@
       (card-to-player (highest-card (filter of-color? cards))))))
 
 (def trick-winning
-  { :grand  trick-winning-grand,
-    :kreuz  trick-winning-kreuz,
-    :grun   trick-winning-grun,
-    :herz   trick-winning-herz,
-    :schell trick-winning-schell,
+  { :grand  trick-winning-grand
+    :kreuz  trick-winning-kreuz
+    :grun   trick-winning-grun
+    :herz   trick-winning-herz
+    :schell trick-winning-schell
     :null   trick-winning-null })
 
 ;;; Trick update
@@ -140,9 +140,8 @@
         c3           (.play-3rd-card ^skat.Player p3 p3-situation c1 c2)
         played-now   { p1 c1, p2 c2, p3 c3 }
         trick-winner (order ((trick-winning suit) c1 c2 c3))]
-    (-> deal
-      (update-in [:knowledge] update-knowledge played-now trick-winner)
-      (update-in [:trick]     next-trick trick-winner))))
+    (-> deal (update-in [:knowledge] update-knowledge played-now trick-winner)
+             (update-in [:trick]     next-trick trick-winner))))
 
 ;;; Win conditions
 

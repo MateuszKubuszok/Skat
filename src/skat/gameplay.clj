@@ -70,7 +70,15 @@
            (every? cards/card? r-cards)
            (every? cards/card? skat)]
     :post [%] }
-  (letfn [(out-of-cards? [pk] (some #(-> % :cards-owned empty?) pk))
+  (letfn [(initial-knowledge-for [player cards]
+            (PlayerKnowledge. player
+                              { front [], middle [], rear [] }
+                              { front  (if (= front  player) cards [])
+                                middle (if (= middle player) cards [])
+                                rear   (if (= rear   player) cards []) }
+                              { front #{}, middle #{}, rear #{} }))
+          (out-of-cards? [player-knowledge]
+            (some #(-> % :cards-owned empty?) player-knowledge))
           (game-finished? [knowledge] (out-of-cards? (vals knowledge)))]
     (let [initial-knowledge { front  (PlayerKnowledge. front  [] f-cards #{})
                               middle (PlayerKnowledge. middle [] m-cards #{})
@@ -80,7 +88,7 @@
       (loop [deal initial-deal]
         (if (-> deal :knowledge game-finished?)
           deal
-          (recur (game/next-trick config deal)))))))
+          (recur (game/play-trick config deal)))))))
 
 (defn deal-end2end "Deal cards, auction and play 10 tricks" [driver bidders]
   { :pre [driver bidders] }
