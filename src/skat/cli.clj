@@ -237,17 +237,20 @@
     (id [this] id)
     (play-1st-card [this { :keys [:config :cards-allowed] :as situation }]
       (do
+        (println)
         (show-player-name id)
         (show-allowed-cards situation)
         (select-card config cards-allowed)))
     (play-2nd-card [this { :keys [:config :cards-allowed] :as situation } c1]
       (do
+        (println)
         (show-player-name id)
         (show-player1-card situation c1)
         (show-allowed-cards situation)
         (select-card config cards-allowed)))
     (play-3rd-card [this { :keys [:config :cards-allowed] :as situation } c1 c2]
       (do
+        (println)
         (show-player-name id)
         (show-player1-card situation c1)
         (show-player2-card situation c2)
@@ -255,42 +258,50 @@
         (select-card config cards-allowed)))
     (place-bid [this cards last-bid]
       (do
+        (println)
         (show-player-name id)
         (show-owned-cards mock-cards-sort cards)
         (select-new-bid last-bid cards)))
     (respond-to-bid [this cards bid]
       (do
+        (println)
         (show-player-name id)
         (show-owned-cards mock-cards-sort cards)
         (show-player-answer-bid bid cards)
         (select-yes-no-answer)))
     (declare-suit [this cards final-bid]
       (do
+        (println)
         (show-player-name id)
         (show-player-choose-suit cards)
         (select-suit)))
     (declare-hand [this cards final-bid]
       (do
+        (println)
         (show-player-name id)
         (show-player-choose-hand cards)
         (select-yes-no-answer)))
     (declare-schneider [this cards final-bid]
       (do
+        (println)
         (show-player-name id)
         (show-player-choose-schneider cards)
         (select-yes-no-answer)))
     (declare-schwarz [this cards final-bid]
       (do
+        (println)
         (show-player-name id)
         (show-player-choose-schwarz cards)
         (select-yes-no-answer)))
     (declare-ouvert [this cards final-bid]
       (do
+        (println)
         (show-player-name id)
         (show-player-choose-ouvert cards)
         (select-yes-no-answer)))
     (skat-swapping [this config cards-owned skat-card]
       (do
+        (println)
         (show-player-name id)
         (show-player-swap-skat-card cards-owned skat-card)
         (select-card mock-cards-sort cards-owned)))))

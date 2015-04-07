@@ -27,7 +27,7 @@
 
 ;;; Result
 
-(defrecord Result [solist success? bid])
+(defrecord Result [solist success? bid game-value])
 
 ;;; Knowledge
 

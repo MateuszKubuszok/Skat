@@ -1,7 +1,7 @@
 (ns skat.gameplay
   (:require [clojure.set :as sets]
-            [clojure.pprint :refer [pprint]]
             [skat]
+            [skat.log :as log]
             [skat.cards :as cards]
             [skat.game :as game]
             [skat.auction :as auction])
@@ -78,9 +78,20 @@
                                 rear   (if (= rear   player) cards []) }
                               { front #{}, middle #{}, rear #{} }))
           (get-cards-owned [{ :keys [:self :cards-owned] }]
-            (get cards-owned self))
+            (log/pass
+              (get cards-owned self)
+              :cards-owned-by-player
+              "Cards owned by player"))
           (game-finished? [knowledge]
-            (some #(-> % get-cards-owned empty?) knowledge))]
+            (log/pass
+              (some #(-> %
+                         second
+                         (log/pass :trick-knowledge "Player's knowledge")
+                         get-cards-owned
+                         empty?)
+                    knowledge)
+              :deal-finished
+              "Some Player's knowledge for finished deal"))]
     (let [initial-knowledge { front  (initial-knowledge-for front  f-cards)
                               middle (initial-knowledge-for middle m-cards)
                               rear   (initial-knowledge-for rear   r-cards) }
@@ -90,6 +101,20 @@
         (if (-> deal :knowledge game-finished?)
           deal
           (recur (game/play-trick config deal)))))))
+
+(defn final-game-value "Final game value for solist"
+  [cards-taken
+   { :keys [:suit :hand? :ouvert? :announced-schneider? :announced-schwarz?] }]
+  (let [schneider? (game/schneider? cards-taken)
+        schwarz?   (game/schwarz? cards-taken)]
+    (auction/game-value cards-taken
+                        suit
+                        hand?
+                        ouvert?
+                        schneider?
+                        announced-schneider?
+                        schwarz?
+                        announced-schwarz?)))
 
 (defn deal-end2end "Deal cards, auction and play 10 tricks" [driver bidders]
   { :pre [driver bidders] }
@@ -103,26 +128,31 @@
                                           solist-position)
         results         (play-deal config bidders deal-cards)
         skat            (:skat results)
-        cards-taken     (-> results :knowledge :cards-taken (concat skat))]
+        cards-taken     (-> results :knowledge :cards-taken (concat skat))
+        game-value      (final-game-value cards-taken config)]
     (Result. solist
              (auction/contract-fulfilled? config cards-taken)
-             (:bid bidding))))
+             (:bid bidding)
+             game-value)))
 
 (defn start-game "Start game using passed driver" [driver]
   { :pre [driver] }
-  (let [initial-bidders (.create-players ^GameDriver driver)
-        player-1        (:front  initial-bidders)
-        player-2        (:middle initial-bidders)
-        player-3        (:rear   initial-bidders)
-        initial-points  { player-1 0, player-2 0, player-3 0 }]
+  (let [rounds-in-tournament 10
+        initial-bidders     (.create-players ^GameDriver driver)
+        player-1            (:front  initial-bidders)
+        player-2            (:middle initial-bidders)
+        player-3            (:rear   initial-bidders)
+        initial-points      { player-1 0, player-2 0, player-3 0 }]
     (letfn [(rotate-bidders [b]
               (zipmap (map game/player-in-next-deal (keys b)) (vals b)))
-            (update-points [points { :keys [:solist :success? :bid] }]
-              (update-in points [solist] #(+ % (if success? bid (- bid)))))]
+            (update-points [points { :keys [:solist :success? :game-value] }]
+              (update-in points
+                         [solist]
+                         #(+ % (if success? game-value (- game-value)))))]
       (loop [round   1
              bidders initial-bidders
              points  initial-points]
-        (if (<= 1 round 10)
+        (if (<= round rounds-in-tournament)
           (let [deal-result (deal-end2end driver bidders)]
             (do
               (.deal-results ^GameDriver driver deal-result)
@@ -130,3 +160,6 @@
                      (rotate-bidders bidders)
                      (update-points points deal-result))))
           (.game-results ^GameDriver driver points))))))
+
+; (log/for-fun play-deal)
+; (log/for-fun deal-end2end)
