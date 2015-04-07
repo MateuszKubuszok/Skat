@@ -25,14 +25,19 @@
     (is (= (t :en :skat/cli/player/name "test")      "[Player test]"))
     (is (= (t :en :skat/cli/player/choose-suit)      "Choose suit:"))
     (is (= (t :en :skat/cli/player/choose-hand)      "Choose hand:"))
-    (is (= (t :en :skat/cli/player/choose-schneider) "Choose schneider:"))
-    (is (= (t :en :skat/cli/player/choose-schwarz)   "Choose schwarz:"))
+    (is (= (t :en :skat/cli/player/choose-schneider) "Announce schneider:"))
+    (is (= (t :en :skat/cli/player/choose-schwarz)   "Announce schwarz:"))
     (is (= (t :en :skat/cli/player/choose-ouvert)    "Choose ouvert:"))
     (is (= (t :en :skat/cli/player/swap-skat-card "test")
            "Choose card to swap for test:"))
     (is (= (t :en :skat/cli/player/played "x" "y") "x played: y"))
     (is (= (t :en :skat/cli/player/won-bid "x" 18) "x won bid: 18"))
     (is (= (t :en :skat/cli/player/bid-draw)       "No one won bid"))
+    (is (= (t :en :skat/cli/player/declared
+                  "Pl" "Kreuz" "yes" "yes" "yes" "yes" 18)
+           (long-str "Solist: Pl\nSuit:   Kreuz\nHand:   yes\nOuvert: yes"
+                     "Announced schneider: yes\nAnnounced schwarz:   yes"
+                     "Placed bid: 18")))
     (is (= (t :en :skat/cli/results/deal "test" 18 "yes")
            "Solist: test\nBid:    18\nWon:    yes"))
     (is (= (t :en :skat/cli/results/game "test" 18) "Player: test\nPoints: 18"))

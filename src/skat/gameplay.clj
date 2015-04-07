@@ -20,10 +20,12 @@
     :post [(:deal %) (:bidding %)] }
   (loop []
     (let [deal    (cards/deal-cards)
-          bidding (.do-auction ^GameDriver driver bidders deal)]
-      (if bidding
-        { :deal deal, :bidding bidding }
-        (recur)))))
+          bidding (auction/do-auction bidders deal)]
+      (do
+        (.auction-result ^skat.GameDriver driver bidding)
+        (if bidding
+          { :deal deal, :bidding bidding }
+          (recur))))))
 
 (defn declare-game "Declare game suit, hand, schneider, schwarz and ouvert"
   [driver bidding]
@@ -33,7 +35,9 @@
     (loop []
       (let [config (.declare-game ^GameDriver driver bidding)]
         (if (acceptable-game? config)
-          config
+          (do
+            (.declaration-result ^GameDriver driver config)
+            config)
           (recur))))))
 
 (defn swap-skat "Swap skat with owned cards if game without hand declared"

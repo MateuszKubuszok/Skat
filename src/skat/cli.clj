@@ -23,7 +23,8 @@
 
 (def bool-str "Maps booleans to string"
   { true  (with-tscope :skat/cli (i18n/t *lang* :answer/yes))
-    false (with-tscope :skat/cli (i18n/t *lang* :answer/no)) })
+    false (with-tscope :skat/cli (i18n/t *lang* :answer/no))
+    nil   (with-tscope :skat/cli (i18n/t *lang* :answer/no)) })
 
 (def color-str "Maps card colors to strings"
   { :kreuz "♣", :grun "♠", :herz   "♥", :schell "♦" })
@@ -144,6 +145,22 @@
   (show-t :player/won-bid pid bid))
 (defn show-player-bid-draw "Prints bid draw result" []
   (show-t :player/bid-draw))
+(defn show-result-declaration "Show chosen declaration"
+  [{:keys [:solist
+           :suit
+           :hand?
+           :ouvert?
+           :announced-schneider?
+           :announced-schwarz?
+           :declared-bid]}]
+  (show-t :player/declared
+          (pid solist)
+          (suit-str suit)
+          (bool-str hand?)
+          (bool-str ouvert?)
+          (bool-str announced-schneider?)
+          (bool-str announced-schwarz?)
+          declared-bid))
 (defn show-result-deal "Shows deal results" [pid bid success?]
   (show-t :results/deal pid bid success?))
 (defn show-result-game "Shows game results" [points]
@@ -319,16 +336,29 @@
 (defn start-cli-game "Starts CLI game" []
   (let [driver (reify GameDriver
                       (create-players [this] (select-players))
-                      (do-auction [this bidders deal]
-                        (let [result (auction/do-auction bidders deal)]
-                          (do
-                            (if result
-                              (show-player-won-bid (-> result :winner pid)
-                                                   (-> result :bid))
-                              (show-player-bid-draw))
-                            (identity result))))
-                      (declare-game [this bidding] (select-config bidding))
+                      (auction-result [this result]
+                        (do
+                          (println)
+                          (if result
+                            (show-player-won-bid (-> result :winner pid)
+                                                 (-> result :bid))
+                            (show-player-bid-draw))))
+                      (declare-game [this bidding]
+                        (do
+                          (println)
+                          (select-config bidding)))
+                      (declaration-result [this config]
+                        (do
+                          (println)
+                          (show-result-declaration config)))
                       (deal-results [this { :keys [:solist :success? :bid] }]
-                        (show-result-deal (pid solist) bid (bool-str success?)))
-                      (game-results [this points] (show-result-game points)))]
+                        (do
+                          (println)
+                          (show-result-deal (pid solist)
+                                            bid
+                                            (bool-str success?))))
+                      (game-results [this points]
+                        (do
+                          (println)
+                          (show-result-game points))))]
     (gameplay/start-game driver)))

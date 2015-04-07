@@ -2,6 +2,9 @@
   (:require [taoensso.tower :as tower :refer [with-tscope]]))
 (set! *warn-on-reflection* true)
 
+(defn long-str "Build ling strings" [& strings]
+  (clojure.string/join "\n" strings))
+
 (def skat-i18n-config "I18n configuration for Tower library"
   { :dictionary
     { :en
@@ -26,13 +29,20 @@
                       :answer-bid!      "You have been bid: %d\nDo you accept?"
                       :choose-suit      "Choose suit:"
                       :choose-hand      "Choose hand:"
-                      :choose-schneider "Choose schneider:"
-                      :choose-schwarz   "Choose schwarz:"
+                      :choose-schneider "Announce schneider:"
+                      :choose-schwarz   "Announce schwarz:"
                       :choose-ouvert    "Choose ouvert:"
                       :swap-skat-card   "Choose card to swap for %s:"
                       :played           "%s played: %s"
                       :won-bid          "%s won bid: %d"
-                      :bid-draw         "No one won bid" }
+                      :bid-draw         "No one won bid"
+                      :declared! (long-str "Solist: %s"
+                                           "Suit:   %s"
+                                           "Hand:   %s"
+                                           "Ouvert: %s"
+                                           "Announced schneider: %s"
+                                           "Announced schwarz:   %s"
+                                           "Placed bid: %d") }
             :results { :deal! "Solist: %s\nBid:    %d\nWon:    %s"
                        :game! "Player: %s\nPoints: %d" }
             :select { :nth-item    "Select which one you want:"
@@ -66,13 +76,20 @@
                       :answer-bid!      "Otrzymany zakład: %d\nPrzyjmujesz?"
                       :choose-suit      "Wybierz grę:"
                       :choose-hand      "Czy gra z ręki?:"
-                      :choose-schneider "Czy zapowiedziany schneider?:"
-                      :choose-schwarz   "Czy zapowiedziany schwarz?:"
+                      :choose-schneider "Zapowiadasz schneider?:"
+                      :choose-schwarz   "Zapowiedasz schwarz?:"
                       :choose-ouvert    "Gra otwarta?:"
                       :swap-skat-card   "Wybierz kartę to wymiany za %s:"
                       :played           "%s zagrał: %s"
                       :won-bid          "%s wygrał licytację: %d"
-                      :bid-draw         "Nikt nie wygrał licytacji" }
+                      :bid-draw         "Nikt nie wygrał licytacji"
+                      :declared! (long-str "Solista: %s"
+                                           "Gra:     %s"
+                                           "Z ręki:  %s"
+                                           "Otwarta: %s"
+                                           "Zapowiedziany schneider: %s"
+                                           "Zapowiedziany schwarz:   %s"
+                                           "Wylicytowano: %d") }
             :results { :deal! "Solista: %s\nZakład:  %d\nWygrana: %s"
                        :game! "Gracz:  %s\nPunkty: %d" }
             :select { :nth-item    "Wybierz opcję:"
