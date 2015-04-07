@@ -8,6 +8,8 @@
                  [org.clojure/tools.trace "0.7.8"]
                  [com.taoensso/tower "3.0.2"]]
   :plugins [[no-man-is-an-island/lein-eclipse "2.0.0"]]
+  :javac-options ["-encoding utf8"]
+  :jvm-opts ["-Dfile.encoding=UTF-8"]
   :profiles { :uberjar { :aot :all } }
   :warn-on-reflection false
   :main skat.core
