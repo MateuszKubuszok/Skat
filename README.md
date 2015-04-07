@@ -10,7 +10,7 @@ Compiled program uses CLI interface as to demonstrate library's abilities.
 ## Notes
 
 Game implements official rules without any local additions (no *Ramsch* for
-instance). However it doesn't implement idea of giving deal upearly.
+instance). However it doesn't implement idea of giving deal up early.
 
 Naming in the game is in most part derrived from English Wikipedia. However
 there are some local names used. Cards suites use upper-silesian names:
@@ -25,8 +25,6 @@ using i18n settings.
 
 ### To be done
 
-  * some actual functionality testing (several errors are known),
-  * displaying current player name (for multiple human players case),
   * displaying solist's cards for ouvert game,
   * CPU player implementation.
 
@@ -52,9 +50,14 @@ Alternatively build and run program at once:
 
     $ lein run
 
+On Windows (Cygwin) it might be required to run
+
+   cmd /c chcp 65001
+
+before to make sure that UTF-8 characters will be displayed correctly.
+
 ## License
 
 Copyright © 2014-2015 Mateusz Kubuszok
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License version 1.0.
