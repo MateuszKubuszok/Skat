@@ -23,10 +23,9 @@ there are some local names used. Cards suites use upper-silesian names:
 Similarly *Jack* is denoted with **W** and *Queen* with **D**. It can be changed
 using i18n settings.
 
-### To be done
+### To do and known issues
 
-  * displaying solist's cards for ouvert game,
-  * CPU player implementation.
+[See TODO list](TODO.md).
 
 ## Installation
 
