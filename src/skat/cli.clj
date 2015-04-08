@@ -161,8 +161,20 @@
           (bool-str announced-schneider?)
           (bool-str announced-schwarz?)
           declared-bid))
-(defn show-result-deal "Shows deal results" [pid bid success?]
-  (show-t :results/deal pid bid success?))
+(defn show-result-trick "Show trick results"
+  [{ { p1 :player, p1-card :card } :p1
+     { p2 :player, p2-card :card } :p2
+     { p3 :player, p3-card :card } :p3
+     winner :winner }]
+  (show-t :results/trick (pid p1)
+                         (card-str p1-card)
+                         (pid p2)
+                         (card-str p2-card)
+                         (pid p3)
+                         (card-str p3-card)
+                         (pid winner)))
+(defn show-result-deal "Shows deal results" [pid bid game-value success?]
+  (show-t :results/deal pid bid game-value success?))
 (defn show-result-game "Shows game results" [points]
   (doseq [player (keys points)]
     (show-t :results/game (pid player) (points player))))
@@ -333,32 +345,41 @@
 
 ;;; Gameplay
 
+(defn cli-game-driver "Creates CLI game driver" []
+  (reify GameDriver
+    (create-players [this] (select-players))
+    (auction-result [this result]
+      (do
+        (println)
+        (if result
+          (show-player-won-bid (-> result :winner pid)
+                               (-> result :bid))
+          (show-player-bid-draw))))
+    (declare-game [this bidding]
+      (do
+        (println)
+        (select-config bidding)))
+    (declaration-result [this config]
+      (do
+        (println)
+        (show-result-declaration config)))
+    (trick-results [this results]
+      (do
+        (println)
+        (show-result-trick results)))
+    (deal-results
+      [this { :keys [:solist :success? :bid :game-value] }]
+      (do
+        (println)
+        (show-result-deal (pid solist)
+                          bid
+                          game-value
+                          (bool-str success?))))
+    (game-results [this points]
+      (do
+        (println)
+        (show-result-game points)))))
+
 (defn start-cli-game "Starts CLI game" []
-  (let [driver (reify GameDriver
-                      (create-players [this] (select-players))
-                      (auction-result [this result]
-                        (do
-                          (println)
-                          (if result
-                            (show-player-won-bid (-> result :winner pid)
-                                                 (-> result :bid))
-                            (show-player-bid-draw))))
-                      (declare-game [this bidding]
-                        (do
-                          (println)
-                          (select-config bidding)))
-                      (declaration-result [this config]
-                        (do
-                          (println)
-                          (show-result-declaration config)))
-                      (deal-results [this { :keys [:solist :success? :bid] }]
-                        (do
-                          (println)
-                          (show-result-deal (pid solist)
-                                            bid
-                                            (bool-str success?))))
-                      (game-results [this points]
-                        (do
-                          (println)
-                          (show-result-game points))))]
+  (let [driver (cli-game-driver)]
     (gameplay/start-game driver)))

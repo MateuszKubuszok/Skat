@@ -2,6 +2,7 @@
   (:require [clojure.set :as sets]
             [skat]
             [skat.log :as log]
+            [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.game :as game]
             [skat.auction :as auction])
@@ -65,16 +66,28 @@
         swap-2))))
 
 (defn play-deal "Play whole 10-trick deal and reach conclusion"
-  [config
+  [driver
+   config
    { :keys [:front :middle :rear] :as bidders }
    { f-cards :front, m-cards :middle, r-cards :rear, skat :skat }]
-  { :pre  [config front middle rear
+  { :pre  [driver config front middle rear
            (every? cards/card? f-cards)
            (every? cards/card? m-cards)
            (every? cards/card? r-cards)
            (every? cards/card? skat)]
     :post [%] }
-  (letfn [(initial-knowledge-for [player cards]
+  (letfn [(player-card-pair [player knowledge]
+            {
+              :player player
+              :card (-> knowledge (get-in [player :cards-played player]) last)
+            })
+          (last-trick-cards [{ { order :order } :trick }
+                             { knowledge :knowledge
+                               { { winner :p1 } :order } :trick }]
+            (assoc (helpers/update-all order player-card-pair knowledge)
+                   :winner
+                   winner))
+          (initial-knowledge-for [player cards]
             (PlayerKnowledge. player
                               { front [], middle [], rear [] }
                               { front  (if (= front  player) cards [])
@@ -104,7 +117,11 @@
       (loop [deal initial-deal]
         (if (-> deal :knowledge game-finished?)
           deal
-          (recur (game/play-trick config deal)))))))
+          (let [next-deal    (game/play-trick config deal)
+                trick-result (last-trick-cards deal next-deal)]
+            (do
+              (.trick-results ^skat.GameDriver driver trick-result)
+              (recur next-deal))))))))
 
 (defn final-game-value "Final game value for solist"
   [cards-taken
@@ -130,7 +147,7 @@
         deal-cards      (swap-skat config (:deal auction-result)
                                           solist
                                           solist-position)
-        results         (play-deal config bidders deal-cards)
+        results         (play-deal driver config bidders deal-cards)
         skat            (:skat results)
         cards-taken     (-> results :knowledge :cards-taken (concat skat))
         game-value      (final-game-value cards-taken config)]
@@ -164,6 +181,3 @@
                      (rotate-bidders bidders)
                      (update-points points deal-result))))
           (.game-results ^GameDriver driver points))))))
-
-; (log/for-fun play-deal)
-; (log/for-fun deal-end2end)

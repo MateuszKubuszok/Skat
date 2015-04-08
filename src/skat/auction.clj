@@ -1,6 +1,7 @@
 (ns skat.auction
   (:require [clojure.core.match :refer [match]]
             [skat]
+            [skat.log :as log]
             [skat.helpers :as helpers]
             [skat.cards :as cards]
             [skat.game :as game])
@@ -238,18 +239,18 @@
    cards]
   { :pre [(every? cards/card? cards)] }
   (if (= suit :null)
-    (== 0 (count cards))
-    (let [enough-points? (game/enough-points? cards)
-          schneider? (game/schneider? cards)
-          schwarz?   (game/schwarz? cards)
-          game-value (game-value cards
-                                 suit
-                                 hand?
-                                 ouvert?
-                                 schneider?
-                                 announced-schneider?
-                                 schwarz?
-                                 announced-schwarz?)]
+    (empty? cards)
+    (let [enough-points? (log/pass (game/enough-points? cards) :enough-points)
+          schneider? (log/pass (game/schneider? cards) :schneider)
+          schwarz?   (log/pass (game/schwarz? cards) :schwarz)
+          game-value (log/pass (game-value cards
+                                           suit
+                                           hand?
+                                           ouvert?
+                                           schneider?
+                                           announced-schneider?
+                                           schwarz?
+                                           announced-schwarz?) :game-value)]
       (and enough-points?
            (<= declared-bid game-value)
            (if announced-schneider? schneider? true)

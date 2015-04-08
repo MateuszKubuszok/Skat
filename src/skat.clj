@@ -64,5 +64,6 @@
   (auction-result [this bidding])
   (declare-game [this bidding])
   (declaration-result [this config])
+  (trick-results [this results])
   (deal-results [this results])
   (game-results [this points]))

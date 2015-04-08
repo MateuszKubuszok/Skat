@@ -43,8 +43,16 @@
                                            "Announced schneider: %s"
                                            "Announced schwarz:   %s"
                                            "Placed bid: %d") }
-            :results { :deal! "Solist: %s\nBid:    %d\nWon:    %s"
-                       :game! "Player: %s\nPoints: %d" }
+            :results { :trick! (long-str "%s played %s"
+                                         "%s played %s"
+                                         "%s played %s"
+                                         "%s won trick")
+                       :deal!  (long-str "Solist: %s"
+                                         "Bid:    %d"
+                                         "Points: %d"
+                                         "Won:    %s")
+                       :game!  (long-str "Player: %s"
+                                         "Points: %d") }
             :select { :nth-item    "Select which one you want:"
                       :player-name "Select player's name:" }
             :suit { :grand  "Grand",
@@ -90,8 +98,15 @@
                                            "Zapowiedziany schneider: %s"
                                            "Zapowiedziany schwarz:   %s"
                                            "Wylicytowano: %d") }
-            :results { :deal! "Solista: %s\nZakład:  %d\nWygrana: %s"
-                       :game! "Gracz:  %s\nPunkty: %d" }
+            :results { :trick! (long-str "%s zagrał %s"
+                                         "%s zagrał %s"
+                                         "%s zagrał %s"
+                                         "%s wziął sztych")
+                       :deal!  (long-str "Solista: %s"
+                                         "Zakład:  %d"
+                                         "Wygrana: %s")
+                       :game!  (long-str "Gracz:  %s"
+                                         "Punkty: %d") }
             :select { :nth-item    "Wybierz opcję:"
                       :player-name "Wybierz imię gracza:" }
             :suit { :grand  "Grand",
