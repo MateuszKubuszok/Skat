@@ -13,7 +13,8 @@
           { :answer { :yes "yes"
                       :no  "no" }
             :cards { :allowed! "Allowed cards:\n%s"
-                     :owned!   "Owned cards:\n%s" }
+                     :owned!   "Owned cards:\n%s"
+                     :solist!  "Solists's cards:\n%s" }
             :figure { :r7  " 7"
                       :r8  " 8"
                       :r9  " 9"
@@ -68,7 +69,8 @@
           { :answer { :yes "tak"
                       :no  "nie" }
             :cards { :allowed! "Dozwolone karty:\n%s"
-                     :owned!   "Posiadane karty:\n%s" }
+                     :owned!   "Posiadane karty:\n%s"
+                     :solist!  "Karty rozgrywającego:\n%s" }
             :figure { :r7  " 7"
                       :r8  " 8"
                       :r9  " 9"

@@ -8,6 +8,7 @@
     (is (= (t :en :skat/cli/answer/no)  "no"))
     (is (= (t :en :skat/cli/cards/allowed "test") "Allowed cards:\ntest"))
     (is (= (t :en :skat/cli/cards/owned "test")   "Owned cards:\ntest"))
+    (is (= (t :en :skat/cli/cards/solist "test")  "Solists's cards:\ntest"))
     (is (= (t :en :skat/cli/figure/r7)  " 7"))
     (is (= (t :en :skat/cli/figure/r8)  " 8"))
     (is (= (t :en :skat/cli/figure/r9)  " 9"))

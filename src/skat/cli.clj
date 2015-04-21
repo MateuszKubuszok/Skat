@@ -104,6 +104,11 @@
   (do
     (show-owned-cards config (get cards-owned self))
     (show-t :cards/allowed (cards-no-idx-str config cards-allowed))))
+(defn show-solists-cards "Prints solists cards if ouvert game is played"
+  [{ :keys [:knowledge] { :keys [:solist ouvert?] :as config } :config }]
+  (if ouvert?
+    (let [solists-cards (get-in knowledge [:cards-owned solist])]
+      (show-t :cards/solist (cards-no-idx-str config solists-cards)))))
 (defn show-player-make-bid "Shows new bid question" [last-bid cards]
   (show-t :player/make-bid
           last-bid
@@ -274,6 +279,7 @@
       (do
         (println)
         (show-player-name id)
+        (show-solists-cards situation)
         (show-allowed-cards situation)
         (select-card config cards-allowed)))
     (play-2nd-card [this { :keys [:config :cards-allowed] :as situation } c1]
@@ -281,6 +287,7 @@
         (println)
         (show-player-name id)
         (show-player1-card situation c1)
+        (show-solists-cards situation)
         (show-allowed-cards situation)
         (select-card config cards-allowed)))
     (play-3rd-card [this { :keys [:config :cards-allowed] :as situation } c1 c2]
@@ -289,6 +296,7 @@
         (show-player-name id)
         (show-player1-card situation c1)
         (show-player2-card situation c2)
+        (show-solists-cards situation)
         (show-allowed-cards situation)
         (select-card config cards-allowed)))
     (place-bid [this cards last-bid]
