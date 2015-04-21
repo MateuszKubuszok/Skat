@@ -2,8 +2,6 @@ Known issues
 ===
 
  * `gameplay.clj` module lacks tests,
- * with *Null* game declared player should not be asked about *hand*, *ouvert*
-   and *schneider*/*schwarz* declarations,
  * with *schneider* not declared *schwarz* should not be asked about,
  * trick winner is not always properly recognized,
  * in *ouvert* game cards are not displayed to opponents and `PlayerKnowledge`

@@ -220,11 +220,13 @@
 (defn do-auction "Auction: 1st middle bids front player, then rear bids winner"
   [{ f :front, m :middle, r :rear }
    { f-cards :front, m-cards :middle, r-cards :rear }]
-  (let [m2f (bidding-101 m m-cards f             f-cards      17)
+  (let [m2f (bidding-101 m m-cards f             f-cards      passed-game-value)
         r2w (bidding-101 r r-cards (:winner m2f) (:cards m2f) (:bid m2f))]
-    (if (-> r2w :bids bids?)
+    (if (-> r2w (log/pass :auction "bid result") :bid bids?)
       r2w
-      (let [winner-1st-bid (.place-bid ^Player (:winner r2w) (:cards r2w) 17)]
+      (let [winner-1st-bid (.place-bid ^Player (:winner r2w)
+                                               (:cards r2w)
+                                               passed-game-value)]
         (if (bids? winner-1st-bid)
           (Bidding. (:winner r2w) (:cards r2w) winner-1st-bid))))))
 
