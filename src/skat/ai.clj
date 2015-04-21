@@ -3,6 +3,14 @@
   (:import  [skat Player]))
 (set! *warn-on-reflection* true)
 
+; Implementation (when done) ideally should make use of knowlledge passed as
+; PlayerSituation - PlayerKnowledge contains information on currently owned
+; cards, cards that we used before and cards that each player took during the
+; deal. With this information it should be often possible to deduce what cards
+; other players have or have not. Together with information about played game
+; type it should be possible to point some prefered allowed card to play in the
+; trick.
+
 (defn ai-player "Creates computer player" [id]
   (reify Player
          (id [this] id)
