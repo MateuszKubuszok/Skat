@@ -240,7 +240,7 @@
     (is (every? bids? [18 27 20 30 22 33 24 36 46]))))
 
 (deftest bidding-101-test
-  (letfn [(numeric-bid [bid] (if bid bid 17))
+  (letfn [(numeric-bid [bid] (if (bids? bid) bid 17))
           (mock-player [pid max-bid suit]
             (reify Player
               (id [this] pid)
@@ -278,7 +278,7 @@
           (is (= bid-48 (:winner same-2))))))))
 
 (deftest do-auction-test
-  (letfn [(numeric-bid [bid] (if bid bid 17))
+  (letfn [(numeric-bid [bid] (if (bids? bid) bid 17))
           (mock-player [pid max-bid suit]
             (reify Player
               (id [this] pid)
@@ -292,15 +292,15 @@
           bid-48   (mock-player "c" 48 :grand)
           bid-48-2 (mock-player "d" 48 :kreuz)]
       (testing "for all players passing aucion is undecided"
-        (is (not (do-auction (Bidders. bid-17 bid-17 bid-17)
-                             { :front [], :middle [], :rear [] }))))
+        (is (nil? (do-auction (Bidders. bid-17 bid-17 bid-17)
+                              { :front [], :middle [], :rear [] }))))
       (testing "highest bidder wins"
         (let [no-min  (do-auction (Bidders. bid-17 bid-24 bid-48)
                                   { :front [], :middle [], :rear [] })
               min-bid (do-auction (Bidders. bid-24 bid-48 bid-48-2)
                                   { :front [], :middle [], :rear [] })]
-          (is (== 48 (:bid no-min)))
-          (is (= bid-48 (:winner no-min)))
+          (is (== 48 (:bid min-bid)))
+          (is (= bid-48 (:winner min-bid)))
           (is (== 48 (:bid min-bid)))
           (is (= bid-48 (:winner min-bid))))))))
 

@@ -351,7 +351,7 @@
     (auction-result [this result]
       (do
         (println)
-        (if result
+        (if (-> result :bid auction/bids?)
           (show-player-won-bid (-> result :winner pid)
                                (-> result :bid))
           (show-player-bid-draw))))

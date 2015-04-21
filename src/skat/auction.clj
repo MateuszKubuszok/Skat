@@ -222,10 +222,11 @@
    { f-cards :front, m-cards :middle, r-cards :rear }]
   (let [m2f (bidding-101 m m-cards f             f-cards      17)
         r2w (bidding-101 r r-cards (:winner m2f) (:cards m2f) (:bid m2f))]
-    (if (or (bids? (:bid r2w)) (not= r (:winner r2w)))
+    (if (-> r2w :bids bids?)
       r2w
-      (let [rear-1st-bid (.place-bid ^Player r r-cards 17)]
-        (if (bids? rear-1st-bid) (Bidding. r r-cards rear-1st-bid))))))
+      (let [winner-1st-bid (.place-bid ^Player (:winner r2w) (:cards r2w) 17)]
+        (if (bids? winner-1st-bid)
+          (Bidding. (:winner r2w) (:cards r2w) winner-1st-bid))))))
 
 ;;; Contracts
 

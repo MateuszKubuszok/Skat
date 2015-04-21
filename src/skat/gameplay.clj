@@ -24,7 +24,7 @@
           bidding (auction/do-auction bidders deal)]
       (do
         (.auction-result ^skat.GameDriver driver bidding)
-        (if bidding
+        (if (-> bidding :bid auction/bids?)
           { :deal deal, :bidding bidding }
           (recur))))))
 
@@ -32,7 +32,7 @@
   [driver bidding]
   { :pre  [driver bidding]
     :post [%] }
-  (letfn [(acceptable-game? [config] true)]
+  (letfn [(acceptable-game? [config] true)] ; TODO
     (loop []
       (let [config (.declare-game ^GameDriver driver bidding)]
         (if (acceptable-game? config)
