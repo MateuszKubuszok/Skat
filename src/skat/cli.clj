@@ -232,15 +232,20 @@
   (select-nth player-types player-types-str player-separator))
 
 (defn select-players "User selects all players" []
-  (let [pl-front-name  (select-player-name #{})
-        pl-front-type  (select-player-type)
-        pl-middle-name (select-player-name #{ pl-front-name })
-        pl-middle-type (select-player-type)
-        pl-rear-name   (select-player-name #{ pl-front-name pl-middle-name })
-        pl-rear-type   (select-player-type)]
-    (Bidders. (pl-front-type  pl-front-name)
-              (pl-middle-type pl-middle-name)
-              (pl-rear-type   pl-rear-name))))
+  (letfn [(debuggable-player [factory id]
+            (let [player (factory id)]
+              (defmethod clojure.core/print-method (type player) [player writer]
+                (print-simple (pid player) writer))
+              player))]
+    (let [pl-front-name  (select-player-name #{})
+          pl-front-type  (select-player-type)
+          pl-middle-name (select-player-name #{ pl-front-name })
+          pl-middle-type (select-player-type)
+          pl-rear-name   (select-player-name #{ pl-front-name pl-middle-name })
+          pl-rear-type   (select-player-type)]
+      (Bidders. (debuggable-player pl-front-type  pl-front-name)
+                (debuggable-player pl-middle-type pl-middle-name)
+                (debuggable-player pl-rear-type   pl-rear-name)))))
 
 (defn select-suit "User selects suit" []
   (select-nth [:grand :kreuz :grun :herz :schell :null]

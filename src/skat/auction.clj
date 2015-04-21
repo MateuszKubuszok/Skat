@@ -152,8 +152,9 @@
 ;;; Null game values
 
 (defn null-game-value "Calculate null game value" [hand? ouvert?]
-  { :post [(identity %)] }
-  (null-game-values [hand? ouvert?]))
+  { :post [%] }
+  (null-game-values [(boolean hand?) (boolean ouvert?)]))
+
 
 
 ;;; Game values

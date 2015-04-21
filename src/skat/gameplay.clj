@@ -1,5 +1,6 @@
 (ns skat.gameplay
-  (:require [clojure.set :as sets]
+  (:require [clojure.core.match :refer [match]]
+            [clojure.set :as sets]
             [skat]
             [skat.log :as log]
             [skat.helpers :as helpers]
@@ -67,16 +68,33 @@
 
 (defn play-deal "Play whole 10-trick deal and reach conclusion"
   [driver
-   config
+   { :keys [:solist :ouvert?] :as config }
    { :keys [:front :middle :rear] :as bidders }
-   { f-cards :front, m-cards :middle, r-cards :rear, skat :skat }]
+   { front-cards :front, middle-cards :middle, rear-cards :rear, skat :skat }]
   { :pre  [driver config front middle rear
-           (every? cards/card? f-cards)
-           (every? cards/card? m-cards)
-           (every? cards/card? r-cards)
+           (every? cards/card? front-cards)
+           (every? cards/card? middle-cards)
+           (every? cards/card? rear-cards)
            (every? cards/card? skat)]
     :post [%] }
-  (letfn [(player-card-pair [player knowledge]
+  (letfn [(cards-for [player]
+            (match player
+              front  front-cards
+              middle middle-cards
+              rear   rear-cards))
+          (owned-knowledge-for [checked current]
+            (match checked
+              current (cards-for current)
+              solist  (if ouvert? (cards-for solist) [])
+              :else   []))
+          (initial-knowledge-for [player]
+            (PlayerKnowledge. player
+                              { front [], middle [], rear [] }
+                              { front  (owned-knowledge-for front  player)
+                                middle (owned-knowledge-for middle player)
+                                rear   (owned-knowledge-for rear   player) }
+                              { front #{}, middle #{}, rear #{} }))
+          (player-card-pair [player knowledge]
             {
               :player player
               :card (-> knowledge (get-in [player :cards-played player]) last)
@@ -87,13 +105,6 @@
             (assoc (helpers/update-all order player-card-pair knowledge)
                    :winner
                    winner))
-          (initial-knowledge-for [player cards]
-            (PlayerKnowledge. player
-                              { front [], middle [], rear [] }
-                              { front  (if (= front  player) cards [])
-                                middle (if (= middle player) cards [])
-                                rear   (if (= rear   player) cards []) }
-                              { front #{}, middle #{}, rear #{} }))
           (get-cards-owned [{ :keys [:self :cards-owned] }]
             (log/pass
               (get cards-owned self)
@@ -109,12 +120,12 @@
                     knowledge)
               :deal-finished
               "Some Player's knowledge for finished deal"))]
-    (let [initial-knowledge { front  (initial-knowledge-for front  f-cards)
-                              middle (initial-knowledge-for middle m-cards)
-                              rear   (initial-knowledge-for rear   r-cards) }
+    (let [initial-knowledge { front  (initial-knowledge-for front)
+                              middle (initial-knowledge-for middle)
+                              rear   (initial-knowledge-for rear) }
           initial-trick     (Trick. { :p1 front, :p2 middle, :p3 rear })
           initial-deal      (Deal. initial-knowledge initial-trick skat)]
-      (loop [deal initial-deal]
+      (loop [deal (log/pass initial-deal :deal "Initialize deal")]
         (if (-> deal :knowledge game-finished?)
           deal
           (let [next-deal    (game/play-trick config deal)
