@@ -150,7 +150,7 @@
 
 (defn deal-end2end "Deal cards, auction and play 10 tricks" [driver bidders]
   { :pre [driver bidders] }
-  (let [auction-result (perform-auction driver bidders)
+  (let [auction-result  (perform-auction driver bidders)
         bidding         (:bidding auction-result)
         solist          (:winner bidding)
         solist-position (-> bidders sets/map-invert (find solist) (get 1))
@@ -174,11 +174,11 @@
 (defn start-game "Start game using passed driver" [driver]
   { :pre [driver] }
   (let [rounds-in-tournament 10
-        initial-bidders     (.create-players ^GameDriver driver)
-        player-1            (:front  initial-bidders)
-        player-2            (:middle initial-bidders)
-        player-3            (:rear   initial-bidders)
-        initial-points      { player-1 0, player-2 0, player-3 0 }]
+        initial-bidders      (.create-players ^GameDriver driver)
+        player-1             (:front  initial-bidders)
+        player-2             (:middle initial-bidders)
+        player-3             (:rear   initial-bidders)
+        initial-points       { player-1 0, player-2 0, player-3 0 }]
     (letfn [(rotate-bidders [b]
               (zipmap (map game/player-in-next-deal (keys b)) (vals b)))
             (update-points [points { :keys [:solist :success? :game-value] }]
