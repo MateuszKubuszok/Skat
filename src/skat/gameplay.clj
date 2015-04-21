@@ -160,7 +160,11 @@
                                           solist-position)
         results         (play-deal driver config bidders deal-cards)
         skat            (:skat results)
-        cards-taken     (-> results :knowledge :cards-taken (concat skat))
+        cards-taken     (-> results
+                            (log/pass :deal "deal results")
+                            (get-in [:knowledge solist :cards-taken solist])
+                            (concat skat)
+                            (log/pass :deal "all owned cards"))
         game-value      (final-game-value cards-taken config)]
     (Result. solist
              (auction/contract-fulfilled? config cards-taken)

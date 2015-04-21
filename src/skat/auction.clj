@@ -244,9 +244,10 @@
   { :pre [(every? cards/card? cards)] }
   (if (= suit :null)
     (empty? cards)
-    (let [enough-points? (log/pass (game/enough-points? cards) :enough-points)
-          schneider? (log/pass (game/schneider? cards) :schneider)
-          schwarz?   (log/pass (game/schwarz? cards) :schwarz)
+    (let [enough-points?
+            (log/pass (game/enough-points? cards) :enough-points "enough pts?")
+          schneider? (log/pass (game/schneider? cards) :schneider "schneider?")
+          schwarz?   (log/pass (game/schwarz? cards) :schwarz "schwarz?")
           game-value (log/pass (game-value cards
                                            suit
                                            hand?
@@ -254,7 +255,9 @@
                                            schneider?
                                            announced-schneider?
                                            schwarz?
-                                           announced-schwarz?) :game-value)]
+                                           announced-schwarz?)
+                               :game-value
+                               "game value")]
       (and enough-points?
            (<= declared-bid game-value)
            (if announced-schneider? schneider? true)

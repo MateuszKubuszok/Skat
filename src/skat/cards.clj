@@ -1,6 +1,7 @@
 (ns skat.cards
   (:require [clojure.set :as sets]
             [skat]
+            [skat.log :as log]
             [skat.helpers :as helpers])
   (:import  [skat Card]))
 (set! *warn-on-reflection* true)
@@ -132,4 +133,4 @@
   { :pre  [every? card? cards]
     :post [(<= 0 %  120)] }
   (letfn [(card-to-point [c] (-> c :figure face-values))]
-    (reduce + 0 (map card-to-point cards))))
+    (log/pass (reduce + 0 (map card-to-point cards)) :cards "points in cards")))
