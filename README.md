@@ -1,9 +1,10 @@
 # Skat game engine
 
-[![Build Status](https://travis-ci.org/MateuszKubuszok/skat.png)](https://travis-ci.org/MateuszKubuszok/skat)
+[![Build Status](https://travis-ci.org/MateuszKubuszok/Skat.png)](https://travis-ci.org/MateuszKubuszok/skat)
 
-Engine intented to be able to completely simulate Skat game, as well as act
-in a bot-like manner.
+Engine intented to be able to completely simulate
+[Skat card game](http://en.wikipedia.org/wiki/Skat_(card_game)),
+as well as act in a bot-like manner.
 
 Compiled program uses CLI interface as to demonstrate library's abilities.
 
@@ -29,9 +30,8 @@ using i18n settings.
 
 ## Installation
 
-Download source from [BitBucket](https://bitbucket.org/MateuszKubuszok/skat) or
-[GitHub](https://github.com/MateuszKubuszok/skat) and build using instructions
-below.
+Download source from [GitHub](https://github.com/MateuszKubuszok/Skat)
+and build using instructions below.
 
 ## Usage
 

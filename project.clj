@@ -1,6 +1,6 @@
 (defproject skat "0.1.0-SNAPSHOT"
   :description "Skat game engine"
-  :url "https://bitbucket.org/MateuszKubuszok/skat"
+  :url "https://github.com/MateuszKubuszok/Skat"
   :license { :name "Eclipse Public License"
              :url  "http://www.eclipse.org/legal/epl-v10.html" }
   :dependencies [[org.clojure/clojure "1.6.0"]
