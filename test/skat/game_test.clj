@@ -118,7 +118,14 @@
     (is (= :p2 (trick-winning-grand c2 c3 c4)))
     (is (= :p1 (trick-winning-grand c1 c2 c3))))
   (testing "when no jack highest of first card's color wins"
-    (is (= :p2 (trick-winning-grand c5 c4 c6)))))
+    (is (= :p2 (trick-winning-grand c5 c4 c6))))
+  (testing "when no trump higest of first used color wins"
+    (is (= :p1 (trick-winning-grand (Card. :schell :K)
+                                    (Card. :herz :10)
+                                    (Card. :schell :8))))
+    (is (= :p2 (trick-winning-grand (Card. :herz :D)
+                                    (Card. :herz :K)
+                                    (Card. :schell :K))))))
 
 (deftest trick-winning-kreuz-test
   (testing "trumph always wins"
@@ -127,6 +134,15 @@
     (is (= :p3 (trick-winning-kreuz c6 c5 c4))))
   (testing "when no trumph highest of first card's color wins"
     (is (= :p3 (trick-winning-kreuz c8 c7 c6)))))
+
+(deftest trick-winning-null-test
+  (testing "when no trump higest of first used color wins"
+    (is (= :p1 (trick-winning-null (Card. :schell :K)
+                                   (Card. :herz :10)
+                                   (Card. :schell :8))))
+    (is (= :p2 (trick-winning-null (Card. :herz :D)
+                                   (Card. :herz :K)
+                                   (Card. :schell :K))))))
 
 (deftest next-trick-order-test
   (let [p1-start { :p1 pl1, :p2 pl2, :p3 pl3 }

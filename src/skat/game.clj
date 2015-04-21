@@ -83,7 +83,7 @@
                             (cards/property-matches? :color  suit c)))
             (highest-card [filtered]
               (first (reverse (sort comparator filtered))))
-            (of-color? [c] cards/property-matches? :color (:color c1) c)
+            (of-color? [c] (cards/property-matches? :color (:color c1) c))
             (card-to-player [c] ({ c1 :p1, c2 :p2, c3 :p3 } c))]
       (card-to-player (highest-card (filter (if (some trump? cards)
                                               trump?
@@ -103,8 +103,8 @@
   { :pre  [(cards/card? c1) (cards/card? c2) (cards/card? c3)] }
   (let [cards [c1 c2 c3]]
     (letfn [(highest-card [filtered]
-              (first (reverse (sort cards/compare-by-color-null filtered))))
-            (of-color? [c] cards/property-matches? :color (:color c1) c)
+              (first (reverse (sort cards/compare-by-figure-null filtered))))
+            (of-color? [c] (cards/property-matches? :color (:color c1) c))
             (card-to-player [c] ({ c1 :p1, c2 :p2, c3 :p3 } c))]
       (card-to-player (highest-card (filter of-color? cards))))))
 
