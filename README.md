@@ -43,7 +43,7 @@ To only build standalone jar run:
 
 It can be run with:
 
-    $ java -jar skat-0.1.0-standalone.jar
+    $ java -jar skat-0.2.0-standalone.jar
 
 Alternatively build and run program at once:
 
@@ -51,7 +51,7 @@ Alternatively build and run program at once:
 
 On Windows (Cygwin) it might be required to run
 
-   cmd /c chcp 65001
+    cmd /c chcp 65001
 
 before to make sure that UTF-8 characters will be displayed correctly.
 
