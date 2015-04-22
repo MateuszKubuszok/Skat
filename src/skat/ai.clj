@@ -28,15 +28,15 @@
   (reify Player
          (id [this] id)
          (play-1st-card [this { :keys [cards-allowed] :as situation }]
-            (first cards-allowed))
+           (first cards-allowed))
          (play-2nd-card [this { :keys [cards-allowed] :as situation } c1]
-            (first cards-allowed))
+           (first cards-allowed))
          (play-3rd-card [this { :keys [cards-allowed] :as situation } c1 c2]
             (first cards-allowed))
          (place-bid [this cards last-bid]
-            (if (> max-bid-value last-bid)
-              (next-bid-value last-bid)
-              auction/passed-game-value))
+           (if (> max-bid-value last-bid)
+             (next-bid-value last-bid)
+             auction/passed-game-value))
          (respond-to-bid [this cards bid] (> max-bid-value bid))
          (declare-suit [this cards final-bid] :grand)
          (declare-hand [this cards final-bid] false)
@@ -44,4 +44,4 @@
          (declare-schwarz [this cards final-bid] false)
          (declare-ouvert [this cards final-bid] false)
          (skat-swapping [this config skat-owned cards-owned skat-card]
-            (first cards-owned))))
+           (first cards-owned))))
