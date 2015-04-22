@@ -10,6 +10,10 @@
     (is (= (t :en :skat/cli/cards/owned "test")   "Owned cards:\ntest"))
     (is (= (t :en :skat/cli/cards/skat "test")    "Skat cards:\ntest"))
     (is (= (t :en :skat/cli/cards/solist "test")  "Solists's cards:\ntest"))
+    (is (= (t :en :skat/cli/event/auction-started "test1" "test2" "test3")
+           (long-str "Auction started:"
+                     "Front:  test1\nMiddle: test2\nRear:   test3"
+                     "First Middle bids Front\nthen Rear bids winner")))
     (is (= (t :en :skat/cli/figure/r7)  " 7"))
     (is (= (t :en :skat/cli/figure/r8)  " 8"))
     (is (= (t :en :skat/cli/figure/r9)  " 9"))

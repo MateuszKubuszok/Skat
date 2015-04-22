@@ -20,14 +20,16 @@
 (defn perform-auction "Performs auction" [driver bidders]
   { :pre  [driver bidders]
     :post [(:deal %) (:bidding %)] }
-  (loop []
-    (let [deal    (cards/deal-cards)
-          bidding (auction/do-auction bidders deal)]
-      (do
-        (.auction-result ^skat.GameDriver driver bidding)
-        (if (-> bidding :bid auction/bids?)
-          { :deal deal, :bidding bidding }
-          (recur))))))
+  (do
+    (.auction-started ^GameDriver driver bidders)
+    (loop []
+      (let [deal    (cards/deal-cards)
+            bidding (auction/do-auction bidders deal)]
+        (do
+          (.auction-result ^GameDriver driver bidding)
+          (if (-> bidding :bid auction/bids?)
+            { :deal deal, :bidding bidding }
+            (recur)))))))
 
 (defn declare-game "Declare game suit, hand, schneider, schwarz and ouvert"
   [driver bidding]
@@ -54,15 +56,21 @@
             (swap-cards [old-c-deal replacing]
               { :post [(not= old-c-deal %)] }
               (-> old-c-deal (update-in [solist-position] replacing)
-                           (update-in [:skat] replacing)))
+                             (update-in [:skat] replacing)))
             (swap-for [old-c-deal owned skat]
               { :pre [old-c-deal owned skat] }
-              (swap-cards old-c-deal (replacing (replacements owned skat))))]
+              (swap-cards old-c-deal (replacing (replacements owned skat))))
+            (ask-for-card [deal swapped]
+              (.skat-swapping ^Player solist
+                                      config
+                                      (:skat deal)
+                                      (cards deal)
+                                      swapped))]
       (let [skat-1 (-> c-deal :skat first)
-            card-1 (.skat-swapping ^Player solist config (cards c-deal) skat-1)
+            card-1 (ask-for-card c-deal skat-1)
             swap-1 (swap-for c-deal card-1 skat-1)
             skat-2 (-> c-deal :skat second)
-            card-2 (.skat-swapping ^Player solist config (cards swap-1) skat-2)
+            card-2 (ask-for-card swap-1 skat-2)
             swap-2 (swap-for swap-1 card-2 skat-2)]
         swap-2))))
 

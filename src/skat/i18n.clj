@@ -14,7 +14,14 @@
                       :no  "no" }
             :cards { :allowed! "Allowed cards:\n%s"
                      :owned!   "Owned cards:\n%s"
+                     :skat!    "Skat cards:\n%s"
                      :solist!  "Solists's cards:\n%s" }
+            :event  { :auction-started! (long-str "Auction started:"
+                                                  "Front:  %s"
+                                                  "Middle: %s"
+                                                  "Rear:   %s"
+                                                  "First Middle bids Front"
+                                                  "then Rear bids winner") }
             :figure { :r7  " 7"
                       :r8  " 8"
                       :r9  " 9"
@@ -70,7 +77,15 @@
                       :no  "nie" }
             :cards { :allowed! "Dozwolone karty:\n%s"
                      :owned!   "Posiadane karty:\n%s"
+                     :skat!    "Karty skata:\n%s"
                      :solist!  "Karty rozgrywającego:\n%s" }
+            :event  { :auction-started! (long-str
+                                         "Licytacja rozpoczęta:"
+                                         "Przodek: %s"
+                                         "Środek:  %s"
+                                         "Zadek:   %s"
+                                         "Najpierw Środek pyta Przodka"
+                                         "później Zadek pyta zwycięzcę") }
             :figure { :r7  " 7"
                       :r8  " 8"
                       :r9  " 9"

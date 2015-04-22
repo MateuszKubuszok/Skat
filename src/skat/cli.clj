@@ -110,11 +110,17 @@
   (do
     (show-owned-cards config (get cards-owned self))
     (show-t :cards/allowed (cards-no-idx-str config cards-allowed))))
+(defn show-skat-cards "Prints skat cards"
+  [config skat-owned]
+    (show-t :cards/skat (cards-no-idx-str config skat-owned)))
 (defn show-solists-cards "Prints solists cards if ouvert game is played"
   [{ :keys [:knowledge] { :keys [:solist ouvert?] :as config } :config }]
   (if ouvert?
     (let [solists-cards (get-in knowledge [:cards-owned solist])]
       (show-t :cards/solist (cards-no-idx-str config solists-cards)))))
+(defn show-auction-started "Shows auction start and Bidders' positions"
+  [{ :keys [:front :middle :rear] }]
+  (show-t :event/auction-started (pid front) (pid middle) (pid rear)))
 (defn show-player-make-bid "Shows new bid question" [last-bid cards]
   (show-t :player/make-bid
           last-bid
@@ -348,10 +354,11 @@
         (show-player-name id)
         (show-player-choose-ouvert cards)
         (select-yes-no-answer)))
-    (skat-swapping [this config cards-owned skat-card]
+    (skat-swapping [this config skat-owned cards-owned skat-card]
       (do
         (println)
         (show-player-name id)
+        (show-skat-cards config skat-owned)
         (show-player-swap-skat-card cards-owned skat-card)
         (select-card mock-cards-sort cards-owned)))))
 
@@ -369,6 +376,10 @@
 (defn cli-game-driver "Creates CLI game driver" []
   (reify GameDriver
     (create-players [this] (select-players))
+    (auction-started [this bidders]
+      (do
+        (println)
+        (show-auction-started bidders)))
     (auction-result [this result]
       (do
         (println)

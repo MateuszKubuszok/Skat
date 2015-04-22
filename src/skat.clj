@@ -115,6 +115,7 @@
 (defprotocol GameDriver
   "Abstract entity choosing not-Player-specific options and receiving results"
   (create-players [this] "Creates Players as Bidders")
+  (auction-started [this bidders] "Report current auction Bidders' positions")
   (auction-result [this bidding] "Reports auction result")
   (declare-game [this bidding] "Creates Configuration basing on Bidding")
   (declaration-result [this config] "Reports game declaration's result")
