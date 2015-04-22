@@ -11,9 +11,10 @@ Compiled program uses CLI interface as to demonstrate library's abilities.
 ## Notes
 
 Game implements official rules without any local additions (no *Ramsch* for
-instance). However it doesn't implement idea of giving deal up early.
+instance). It doesn't implement idea of giving deal up early or ability to
+counter bidding as well.
 
-Naming in the game is in most part derrived from English Wikipedia. However
+Naming in the game is in most part derrived from English Wikipedia. However,
 there are some local names used. Cards suites use upper-silesian names:
 
   * **Kreuz** - for *Clubs*/*Acorns*/*Trefl*,
@@ -43,7 +44,7 @@ To only build standalone jar run:
 
 It can be run with:
 
-    $ java -jar skat-0.2.0-standalone.jar
+    $ java -jar skat-0.3.0-standalone.jar
 
 Alternatively build and run program at once:
 
