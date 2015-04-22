@@ -22,17 +22,24 @@
 (defn create-player [pid]
   (reify Player
          (id [_] pid)
+         (play-1st-card [_ { :keys [cards-allowed] }] (first cards-allowed))
+         (play-2nd-card [_ { :keys [cards-allowed] } _] (first cards-allowed))
+         (play-3rd-card [_ { :keys [cards-allowed] } _ _] (first cards-allowed))
          (place-bid [_ _ last-bid] (if (> last-bid 17) 17 18))
          (respond-to-bid [_ _ _] true)
-         (skat-swapping [_ _ _ cards skat-card] (first cards))))
+         (skat-swapping [_ _ _ cards skat-card] (first cards))
+         ))
 (def pl1 (create-player "p1"))
 (def pl2 (create-player "p2"))
 (def pl3 (create-player "p3"))
 
-(def mock-bidders (Bidders. pl1 pl2 pl3))
+(def mock-bidders  (Bidders. pl1 pl2 pl3))
+(def mock-bidders2 (Bidders. pl2 pl3 pl1))
+(def mock-bidders3 (Bidders. pl3 pl1 pl2))
 (def mock-driver
   (reify GameDriver
-    (create-players [this] mock-bidders)
+    (create-players [_] mock-bidders)
+    (trick-results [_ _])
     ))
 (def mock-full-deal
   (letfn [(drop-take [seq d t] (take t (drop d seq)))]
@@ -74,47 +81,67 @@
       (is (= (set [c5 c6]) (set (swapped :rear))))
       (is (= (set [c1 c7]) (set (swapped :skat)))))))
 
-(comment play-deal-test
+(deftest play-deal-test
   (let [config-grand  (Configuration. pl1 :grand true false false false 18)
-        config-kreuz  (Configuration. pl1 :kreuz true false false false 18)
-        config-null   (Configuration. pl1 :null true false false false 18)
-        config-ouvert (Configuration. pl1 :null true true false false 18)
-        grand-result (play-deal mock-driver
-                                config-grand
-                                mock-bidders
-                                mock-full-deal)
-        kreuz-result (play-deal mock-driver
-                                config-kreuz
-                                mock-bidders
-                                mock-full-deal)
-        null-result (play-deal mock-driver
-                               config-null
-                               mock-bidders
-                               mock-full-deal)
+        config-kreuz  (Configuration. pl2 :kreuz true false false false 18)
+        config-null   (Configuration. pl3 :null true false false false 18)
+        config-ouvert (Configuration. pl2 :null true true false false 18)
+        grand-result  (play-deal mock-driver
+                                 config-grand
+                                 mock-bidders3
+                                 mock-full-deal)
+        kreuz-result  (play-deal mock-driver
+                                 config-kreuz
+                                 mock-bidders2
+                                 mock-full-deal)
+        null-result   (play-deal mock-driver
+                                 config-null
+                                 mock-bidders
+                                 mock-full-deal)
         ouvert-result (play-deal mock-driver
                                  config-ouvert
-                                 mock-bidders
+                                 mock-bidders2
                                  mock-full-deal)]
     (testing "grand game result has to be as expected"
-      (is (== 13
-              (-> grand-result
-                  (get-in [:knowledge pl1 :cards-taken pl1])
-                  count)))
-      (is (== 13
-              (-> grand-result
-                  (get-in [:knowledge pl2 :cards-taken pl2])
-                  count)))
-      (is (== 13
-              (-> grand-result
-                  (get-in [:knowledge pl3 :cards-taken pl3])
-                  count)))
-      )
-    (testing "color game has to have solist cards known"
-      )
-    (testing "null game has to have solist cards known"
-      )
-    (testing "ouvert game has to have solist cards known"
-      )))
+      (is (== 6  (-> grand-result
+                     (get-in [:knowledge pl1 :cards-taken pl1])
+                     count)))
+      (is (== 6  (-> grand-result
+                     (get-in [:knowledge pl2 :cards-taken pl2])
+                     count)))
+      (is (== 18 (-> grand-result
+                     (get-in [:knowledge pl3 :cards-taken pl3])
+                     count))))
+    (testing "color game has to be as expected"
+      (is (== 9  (-> kreuz-result
+                     (get-in [:knowledge pl1 :cards-taken pl1])
+                     count)))
+      (is (== 9  (-> kreuz-result
+                     (get-in [:knowledge pl2 :cards-taken pl2])
+                     count)))
+      (is (== 12 (-> kreuz-result
+                     (get-in [:knowledge pl3 :cards-taken pl3])
+                     count))))
+    (testing "null game has to be as expected"
+      (is (== 6  (-> null-result
+                     (get-in [:knowledge pl1 :cards-taken pl1])
+                     count)))
+      (is (== 6  (-> null-result
+                     (get-in [:knowledge pl2 :cards-taken pl2])
+                     count)))
+      (is (== 18 (-> null-result
+                     (get-in [:knowledge pl3 :cards-taken pl3])
+                     count))))
+    (testing "ouvert game has to be as expected"
+      (is (== 18 (-> ouvert-result
+                     (get-in [:knowledge pl1 :cards-taken pl1])
+                     count)))
+      (is (== 6  (-> ouvert-result
+                     (get-in [:knowledge pl2 :cards-taken pl2])
+                     count)))
+      (is (== 6  (-> ouvert-result
+                     (get-in [:knowledge pl3 :cards-taken pl3])
+                     count))))))
 
 (comment deal-end2end-test)
 
