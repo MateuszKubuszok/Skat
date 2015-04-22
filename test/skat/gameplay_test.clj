@@ -176,4 +176,6 @@
           (is (= 18  (:bid        result3)))
           (is (= 96  (:game-value result3))))))))
 
-(comment start-game-test)
+(deftest start-game-test
+  (testing "Whole game finish at some point"
+    (start-game mock-driver)))
