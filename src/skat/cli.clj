@@ -285,7 +285,7 @@
 (def create-cpu-player "Creates computer player" ai/ai-player)
 
 (defn create-human-player "Creates human player using CLI" [id]
-  (reify skat.Player
+  (reify Player
     (id [this] id)
     (play-1st-card [this { :keys [:config :cards-allowed] :as situation }]
       (do

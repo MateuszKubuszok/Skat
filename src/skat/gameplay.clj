@@ -35,7 +35,10 @@
   [driver bidding]
   { :pre  [driver bidding]
     :post [%] }
-  (letfn [(acceptable-game? [config] true)] ; TODO
+  (letfn [(acceptable-game? [{ :keys [solist suit declared-bid] }]
+            (and (instance? Player solist)
+                 (game/suits suit)
+                 (auction/possible-game-values declared-bid)))]
     (loop []
       (let [config (.declare-game ^GameDriver driver bidding)]
         (if (acceptable-game? config)
@@ -139,7 +142,7 @@
           (let [next-deal    (game/play-trick config deal)
                 trick-result (last-trick-cards deal next-deal)]
             (do
-              (.trick-results ^skat.GameDriver driver trick-result)
+              (.trick-results ^GameDriver driver trick-result)
               (recur next-deal))))))))
 
 (defn final-game-value "Final game value for solist"
