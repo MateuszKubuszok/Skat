@@ -1,6 +1,6 @@
 # Skat game engine
 
-[![Build Status](https://travis-ci.org/MateuszKubuszok/Skat.png)](https://travis-ci.org/MateuszKubuszok/skat)
+[![Build Status](https://travis-ci.org/MateuszKubuszok/Skat.png)](https://travis-ci.org/MateuszKubuszok/Skat)
 
 Engine intented to be able to completely simulate
 [Skat card game](http://en.wikipedia.org/wiki/Skat_(card_game)),
@@ -62,7 +62,7 @@ On start you can pass option to configure apps behavior:
       -d, --debug           Debug mode on
       -h, --help            Display help
 
-Currently available translations are: en (English) and pl (Polish).
+Currently available translations are: `en` (English) and `pl` (Polish).
 
 ## License
 
