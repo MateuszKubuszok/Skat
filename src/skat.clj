@@ -93,7 +93,7 @@
     "Choose schneider (yes/no) as a solist")
   (declare-schwarz [this cards final-bid] "Choose schwarz (yes/no) as a solist")
   (declare-ouvert [this cards final-bid] "Choose ouvert (yes/no) as a solist")
-  (skat-swapping [this config cards-owned skat-card]
+  (skat-swapping [this config skat-owned cards-owned skat-card]
     "Choose card for swapping with a skat card"))
 
 ;; Used to descibe Player's situation in current trick.

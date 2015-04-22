@@ -24,4 +24,4 @@
          (declare-schneider [this cards final-bid] nil)
          (declare-schwarz [this cards final-bid] nil)
          (declare-ouvert [this cards final-bid] nil)
-         (skat-swapping [this config cards-owned skat-card] nil)))
+         (skat-swapping [this config skat-owned cards-owned skat-card] nil)))
