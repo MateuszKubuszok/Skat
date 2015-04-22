@@ -40,7 +40,7 @@ To only build standalone jar run:
 
 It can be run with:
 
-    $ java -jar skat-0.3.0-standalone.jar
+    $ java -jar skat-0.4.0-standalone.jar
 
 Alternatively build and run program at once:
 
