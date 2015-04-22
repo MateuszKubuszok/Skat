@@ -197,7 +197,7 @@
             (update-points [points { :keys [:solist :success? :game-value] }]
               (update-in points
                          [solist]
-                         #(+ % (if success? game-value (- game-value)))))]
+                         #(+ % (if success? game-value (- (* 2 game-value))))))]
       (loop [round   1
              bidders initial-bidders
              points  initial-points]
