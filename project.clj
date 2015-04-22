@@ -1,4 +1,4 @@
-(defproject skat "0.3.0"
+(defproject skat "0.4.0"
   :description "Skat game engine"
   :url "https://github.com/MateuszKubuszok/Skat"
   :license { :name "Eclipse Public License"
