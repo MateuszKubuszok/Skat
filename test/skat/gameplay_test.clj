@@ -27,8 +27,12 @@
          (play-3rd-card [_ { :keys [cards-allowed] } _ _] (first cards-allowed))
          (place-bid [_ _ last-bid] (if (> last-bid 17) 17 18))
          (respond-to-bid [_ _ _] true)
-         (skat-swapping [_ _ _ cards skat-card] (first cards))
-         ))
+         (declare-suit [_ _ _] :grand)
+         (declare-hand [_ _ _] false)
+         (declare-schneider [_ _ _] false)
+         (declare-schwarz [_ _ _] false)
+         (declare-ouvert [_ _ _] false)
+         (skat-swapping [_ _ _ cards _] (first cards))))
 (def pl1 (create-player "p1"))
 (def pl2 (create-player "p2"))
 (def pl3 (create-player "p3"))
@@ -39,14 +43,23 @@
 (def mock-driver
   (reify GameDriver
     (create-players [_] mock-bidders)
+    (auction-started [_ _])
+    (auction-result [_ _])
+    (declare-game [_ { :keys [winner bid] }]
+      (Configuration. winner :grand false false false false bid))
+    (declaration-result [_ _])
     (trick-results [_ _])
-    ))
+    (deal-results [this results])
+    (game-results [this points])))
 (def mock-full-deal
   (letfn [(drop-take [seq d t] (take t (drop d seq)))]
-    { :front  (drop-take cards/deck 0  10)
-      :middle (drop-take cards/deck 10 10)
-      :rear   (drop-take cards/deck 20 10)
-      :skat   (drop-take cards/deck 30 2) }))
+    (let [sorted (sort (cards/compare-for-sort cards/compare-by-color-normal
+                                               cards/compare-by-figure-normal)
+                       cards/deck)]
+      { :front  (drop-take sorted 0  10)
+        :middle (drop-take sorted 10 10)
+        :rear   (drop-take sorted 20 10)
+        :skat   (drop-take sorted 30 2) })))
 
 (deftest perform-auction-test
   (testing "auction eventually end with bidding"
@@ -103,46 +116,64 @@
                                  mock-bidders2
                                  mock-full-deal)]
     (testing "grand game result has to be as expected"
-      (is (== 6  (-> grand-result
+      (is (== 3  (-> grand-result
                      (get-in [:knowledge pl1 :cards-taken pl1])
                      count)))
-      (is (== 6  (-> grand-result
+      (is (== 27 (-> grand-result
                      (get-in [:knowledge pl2 :cards-taken pl2])
                      count)))
-      (is (== 18 (-> grand-result
+      (is (== 0  (-> grand-result
                      (get-in [:knowledge pl3 :cards-taken pl3])
                      count))))
     (testing "color game has to be as expected"
-      (is (== 9  (-> kreuz-result
+      (is (== 30 (-> kreuz-result
                      (get-in [:knowledge pl1 :cards-taken pl1])
                      count)))
-      (is (== 9  (-> kreuz-result
+      (is (== 0  (-> kreuz-result
                      (get-in [:knowledge pl2 :cards-taken pl2])
                      count)))
-      (is (== 12 (-> kreuz-result
+      (is (== 0  (-> kreuz-result
                      (get-in [:knowledge pl3 :cards-taken pl3])
                      count))))
     (testing "null game has to be as expected"
-      (is (== 6  (-> null-result
+      (is (== 3  (-> null-result
                      (get-in [:knowledge pl1 :cards-taken pl1])
                      count)))
-      (is (== 6  (-> null-result
+      (is (== 3  (-> null-result
                      (get-in [:knowledge pl2 :cards-taken pl2])
                      count)))
-      (is (== 18 (-> null-result
+      (is (== 24 (-> null-result
                      (get-in [:knowledge pl3 :cards-taken pl3])
                      count))))
     (testing "ouvert game has to be as expected"
-      (is (== 18 (-> ouvert-result
+      (is (== 24 (-> ouvert-result
                      (get-in [:knowledge pl1 :cards-taken pl1])
                      count)))
-      (is (== 6  (-> ouvert-result
+      (is (== 3  (-> ouvert-result
                      (get-in [:knowledge pl2 :cards-taken pl2])
                      count)))
-      (is (== 6  (-> ouvert-result
+      (is (== 3  (-> ouvert-result
                      (get-in [:knowledge pl3 :cards-taken pl3])
                      count))))))
 
-(comment deal-end2end-test)
+(deftest deal-end2end-test
+  (letfn [(predictable-deal [] mock-full-deal)]
+    (binding [shuffle-cards-and-deal predictable-deal]
+      (let [result1 (deal-end2end mock-driver mock-bidders)
+            result2 (deal-end2end mock-driver mock-bidders2)
+            result3 (deal-end2end mock-driver mock-bidders3)]
+        (testing "deal end2end ends as expected"
+          (is (= pl1 (:solist     result1)))
+          (is (not   (:success?   result1)))
+          (is (= 18  (:bid        result1)))
+          (is (= 96  (:game-value result1)))
+          (is (= pl2 (:solist     result2)))
+          (is (not   (:success?   result2)))
+          (is (= 18  (:bid        result2)))
+          (is (= 96  (:game-value result2)))
+          (is (= pl3 (:solist     result3)))
+          (is (not   (:success?   result3)))
+          (is (= 18  (:bid        result3)))
+          (is (= 96  (:game-value result3))))))))
 
 (comment start-game-test)

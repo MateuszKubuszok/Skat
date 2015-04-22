@@ -17,13 +17,15 @@
 
 ;;; Run game
 
+(def ^:dynamic shuffle-cards-and-deal "Mockable cards dealing" cards/deal-cards)
+
 (defn perform-auction "Performs auction" [driver bidders]
   { :pre  [driver bidders]
     :post [(:deal %) (:bidding %)] }
   (do
     (.auction-started ^GameDriver driver bidders)
     (loop []
-      (let [deal    (cards/deal-cards)
+      (let [deal    (shuffle-cards-and-deal)
             bidding (auction/do-auction bidders deal)]
         (do
           (.auction-result ^GameDriver driver bidding)
