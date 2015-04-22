@@ -21,31 +21,37 @@
 (def player-separator " | ")
 (def suit-separator " | ")
 
+(defn lazy-str-map-evaluator "Evaluates map of lazy translations" [str-map]
+  (fn [key] ((get str-map key))))
+
 (def bool-str "Maps booleans to string"
-  { true  (with-tscope :skat/cli (i18n/t *lang* :answer/yes))
-    false (with-tscope :skat/cli (i18n/t *lang* :answer/no))
-    nil   (with-tscope :skat/cli (i18n/t *lang* :answer/no)) })
+  (lazy-str-map-evaluator
+    { true  #(with-tscope :skat/cli (i18n/t *lang* :answer/yes))
+      false #(with-tscope :skat/cli (i18n/t *lang* :answer/no))
+      nil   #(with-tscope :skat/cli (i18n/t *lang* :answer/no)) }))
 
 (def color-str "Maps card colors to strings"
   { :kreuz "♣", :grun "♠", :herz   "♥", :schell "♦" })
 
 (def figure-str "Maps card figure to string"
-  { :7  (with-tscope :skat/cli (i18n/t *lang* :figure/r7))
-    :8  (with-tscope :skat/cli (i18n/t *lang* :figure/r8))
-    :9  (with-tscope :skat/cli (i18n/t *lang* :figure/r9))
-    :10 (with-tscope :skat/cli (i18n/t *lang* :figure/r10))
-    :W  (with-tscope :skat/cli (i18n/t *lang* :figure/W))
-    :D  (with-tscope :skat/cli (i18n/t *lang* :figure/D))
-    :K  (with-tscope :skat/cli (i18n/t *lang* :figure/K))
-    :A  (with-tscope :skat/cli (i18n/t *lang* :figure/A)) })
+  (lazy-str-map-evaluator
+    { :7  #(with-tscope :skat/cli (i18n/t *lang* :figure/r7))
+      :8  #(with-tscope :skat/cli (i18n/t *lang* :figure/r8))
+      :9  #(with-tscope :skat/cli (i18n/t *lang* :figure/r9))
+      :10 #(with-tscope :skat/cli (i18n/t *lang* :figure/r10))
+      :W  #(with-tscope :skat/cli (i18n/t *lang* :figure/W))
+      :D  #(with-tscope :skat/cli (i18n/t *lang* :figure/D))
+      :K  #(with-tscope :skat/cli (i18n/t *lang* :figure/K))
+      :A  #(with-tscope :skat/cli (i18n/t *lang* :figure/A)) }))
 
 (def suit-str "Maps suit to string"
-  { :grand  (with-tscope :skat/cli (i18n/t *lang* :suit/grand)),
-    :kreuz  (with-tscope :skat/cli (i18n/t *lang* :suit/kreuz)),
-    :grun   (with-tscope :skat/cli (i18n/t *lang* :suit/grun)),
-    :herz   (with-tscope :skat/cli (i18n/t *lang* :suit/herz)),
-    :schell (with-tscope :skat/cli (i18n/t *lang* :suit/schell)),
-    :null   (with-tscope :skat/cli (i18n/t *lang* :suit/null)) })
+  (lazy-str-map-evaluator
+    { :grand  #(with-tscope :skat/cli (i18n/t *lang* :suit/grand))
+      :kreuz  #(with-tscope :skat/cli (i18n/t *lang* :suit/kreuz))
+      :grun   #(with-tscope :skat/cli (i18n/t *lang* :suit/grun))
+      :herz   #(with-tscope :skat/cli (i18n/t *lang* :suit/herz))
+      :schell #(with-tscope :skat/cli (i18n/t *lang* :suit/schell))
+      :null   #(with-tscope :skat/cli (i18n/t *lang* :suit/null)) }))
 
 (defn card-str "Maps card to string" [card]
   { :pre [(cards/card? card)] }
@@ -354,8 +360,9 @@
   ; [ create-cpu-player, create-human-player ]) ; Disabled till AI isn't done
 
 (def player-types-str "Maps player types to string"
-  { create-cpu-player   (i18n/t *lang* :skat/cli/player/cpu-type)
-    create-human-player (i18n/t *lang* :skat/cli/player/human-type ) })
+  (lazy-str-map-evaluator
+    { create-cpu-player   #(i18n/t *lang* :skat/cli/player/cpu-type)
+      create-human-player #(i18n/t *lang* :skat/cli/player/human-type ) }))
 
 ;;; Gameplay
 

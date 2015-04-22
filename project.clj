@@ -5,6 +5,7 @@
              :url  "http://www.eclipse.org/legal/epl-v10.html" }
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
+                 [org.clojure/tools.cli "0.3.1"]
                  [org.clojure/tools.trace "0.7.8"]
                  [com.taoensso/tower "3.0.2"]]
   :plugins [[no-man-is-an-island/lein-eclipse "2.0.0"]]
