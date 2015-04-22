@@ -25,10 +25,6 @@ there are some local names used. Cards suites use upper-silesian names:
 Similarly *Jack* is denoted with **W** and *Queen* with **D**. It can be changed
 using i18n settings.
 
-### To do and known issues
-
-[See TODO list](TODO.md).
-
 ## Installation
 
 Download source from [GitHub](https://github.com/MateuszKubuszok/Skat)

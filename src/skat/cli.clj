@@ -363,8 +363,7 @@
         (select-card mock-cards-sort cards-owned)))))
 
 (def player-types "Players types to choose"
-  [ create-human-player ])
-  ; [ create-cpu-player, create-human-player ]) ; Disabled till AI isn't done
+  [ create-cpu-player, create-human-player ])
 
 (def player-types-str "Maps player types to string"
   (lazy-str-map-evaluator
