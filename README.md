@@ -55,9 +55,10 @@ before to make sure that UTF-8 characters will be displayed correctly.
 On start you can pass option to configure apps behavior:
 
     $ lein run -- --help
-      -l, --lang LANG  :en  Interface language
-      -d, --debug           Debug mode on
-      -h, --help            Display help
+      -l, --lang LANG      :en  Interface language
+      -r, --rounds ROUNDS  10   Number of rounds played
+      -d, --debug               Debug mode on
+      -h, --help                Display help
 
 Currently available translations are: `en` (English) and `pl` (Polish).
 
