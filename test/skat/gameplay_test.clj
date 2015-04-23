@@ -163,15 +163,15 @@
             result2 (deal-end2end mock-driver mock-bidders2)
             result3 (deal-end2end mock-driver mock-bidders3)]
         (testing "deal end2end ends as expected"
-          (is (= pl1 (:solist     result1)))
+          (is (= pl1 (:soloist     result1)))
           (is (not   (:success?   result1)))
           (is (= 18  (:bid        result1)))
           (is (= 96  (:game-value result1)))
-          (is (= pl2 (:solist     result2)))
+          (is (= pl2 (:soloist     result2)))
           (is (not   (:success?   result2)))
           (is (= 18  (:bid        result2)))
           (is (= 96  (:game-value result2)))
-          (is (= pl3 (:solist     result3)))
+          (is (= pl3 (:soloist     result3)))
           (is (not   (:success?   result3)))
           (is (= 18  (:bid        result3)))
           (is (= 96  (:game-value result3))))))))

@@ -15,7 +15,7 @@
             :cards { :allowed! "Allowed cards:\n%s"
                      :owned!   "Owned cards:\n%s"
                      :skat!    "Skat cards:\n%s"
-                     :solist!  "Solists's cards:\n%s" }
+                     :soloist!  "soloists's cards:\n%s" }
             :event  { :auction-started! (long-str "Auction started:"
                                                   "Front:  %s"
                                                   "Middle: %s"
@@ -44,7 +44,7 @@
                       :played           "%s played: %s"
                       :won-bid          "%s won bid: %d"
                       :bid-draw         "No one won bid"
-                      :declared! (long-str "Solist: %s"
+                      :declared! (long-str "soloist: %s"
                                            "Suit:   %s"
                                            "Hand:   %s"
                                            "Ouvert: %s"
@@ -55,7 +55,7 @@
                                          "%s played %s"
                                          "%s played %s"
                                          "%s won trick")
-                       :deal!  (long-str "Solist: %s"
+                       :deal!  (long-str "soloist: %s"
                                          "Bid:    %d"
                                          "Points: %d"
                                          "Won:    %s")
@@ -78,7 +78,7 @@
             :cards { :allowed! "Dozwolone karty:\n%s"
                      :owned!   "Posiadane karty:\n%s"
                      :skat!    "Karty skata:\n%s"
-                     :solist!  "Karty rozgrywającego:\n%s" }
+                     :soloist!  "Karty rozgrywającego:\n%s" }
             :event  { :auction-started! (long-str
                                          "Licytacja rozpoczęta:"
                                          "Przodek: %s"

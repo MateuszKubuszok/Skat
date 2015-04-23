@@ -113,11 +113,11 @@
 (defn show-skat-cards "Prints skat cards"
   [config skat-owned]
     (show-t :cards/skat (cards-no-idx-str config skat-owned)))
-(defn show-solists-cards "Prints solists cards if ouvert game is played"
-  [{ :keys [:knowledge] { :keys [:solist ouvert?] :as config } :config }]
+(defn show-soloists-cards "Prints soloists cards if ouvert game is played"
+  [{ :keys [:knowledge] { :keys [:soloist ouvert?] :as config } :config }]
   (if ouvert?
-    (let [solists-cards (get-in knowledge [:cards-owned solist])]
-      (show-t :cards/solist (cards-no-idx-str config solists-cards)))))
+    (let [soloists-cards (get-in knowledge [:cards-owned soloist])]
+      (show-t :cards/soloist (cards-no-idx-str config soloists-cards)))))
 (defn show-auction-started "Shows auction start and Bidders' positions"
   [{ :keys [:front :middle :rear] }]
   (show-t :event/auction-started (pid front) (pid middle) (pid rear)))
@@ -163,7 +163,7 @@
 (defn show-player-bid-draw "Prints bid draw result" []
   (show-t :player/bid-draw))
 (defn show-result-declaration "Show chosen declaration"
-  [{:keys [:solist
+  [{:keys [:soloist
            :suit
            :hand?
            :ouvert?
@@ -171,7 +171,7 @@
            :announced-schwarz?
            :declared-bid]}]
   (show-t :player/declared
-          (pid solist)
+          (pid soloist)
           (suit-str suit)
           (bool-str hand?)
           (bool-str ouvert?)
@@ -270,15 +270,15 @@
               suit-separator))
 
 (defn select-config "User selects used config"
-  [{ :keys [:cards :bid] solist :winner }]
-  (let [suit       (.declare-suit ^Player solist cards bid)
+  [{ :keys [:cards :bid] soloist :winner }]
+  (let [suit       (.declare-suit ^Player soloist cards bid)
         non-null?  (not= :null suit)
-        hand?      (.declare-hand ^Player solist cards bid)
-        ouvert?    (if hand? (.declare-ouvert ^Player solist cards bid))
-        schneider? (if non-null? (.declare-schneider ^Player solist cards bid))
+        hand?      (.declare-hand ^Player soloist cards bid)
+        ouvert?    (if hand? (.declare-ouvert ^Player soloist cards bid))
+        schneider? (if non-null? (.declare-schneider ^Player soloist cards bid))
         schwarz?   (if (and non-null? hand?)
-                     (.declare-schwarz ^Player solist cards bid))]
-    (Configuration. solist suit hand? ouvert? schneider? schwarz? bid)))
+                     (.declare-schwarz ^Player soloist cards bid))]
+    (Configuration. soloist suit hand? ouvert? schneider? schwarz? bid)))
 
 ;;; Players
 
@@ -291,7 +291,7 @@
       (do
         (println)
         (show-player-name id)
-        (show-solists-cards situation)
+        (show-soloists-cards situation)
         (show-allowed-cards situation)
         (select-card config cards-allowed)))
     (play-2nd-card [this { :keys [:config :cards-allowed] :as situation } c1]
@@ -299,7 +299,7 @@
         (println)
         (show-player-name id)
         (show-player1-card situation c1)
-        (show-solists-cards situation)
+        (show-soloists-cards situation)
         (show-allowed-cards situation)
         (select-card config cards-allowed)))
     (play-3rd-card [this { :keys [:config :cards-allowed] :as situation } c1 c2]
@@ -308,7 +308,7 @@
         (show-player-name id)
         (show-player1-card situation c1)
         (show-player2-card situation c2)
-        (show-solists-cards situation)
+        (show-soloists-cards situation)
         (show-allowed-cards situation)
         (select-card config cards-allowed)))
     (place-bid [this cards last-bid]
@@ -399,10 +399,10 @@
         (println)
         (show-result-trick results)))
     (deal-results
-      [this { :keys [:solist :success? :bid :game-value] }]
+      [this { :keys [:soloist :success? :bid :game-value] }]
       (do
         (println)
-        (show-result-deal (pid solist)
+        (show-result-deal (pid soloist)
                           bid
                           game-value
                           (bool-str success?))))

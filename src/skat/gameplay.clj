@@ -37,8 +37,8 @@
   [driver bidding]
   { :pre  [driver bidding]
     :post [%] }
-  (letfn [(acceptable-game? [{ :keys [solist suit declared-bid] }]
-            (and (instance? Player solist)
+  (letfn [(acceptable-game? [{ :keys [soloist suit declared-bid] }]
+            (and (instance? Player soloist)
                  (game/suits suit)
                  (auction/possible-game-values declared-bid)))]
     (loop []
@@ -50,23 +50,23 @@
           (recur))))))
 
 (defn swap-skat "Swap skat with owned cards if game without hand declared"
-  [config c-deal solist solist-position]
-  { :pre  [config c-deal solist]
+  [config c-deal soloist soloist-position]
+  { :pre  [config c-deal soloist]
     :post [%] }
   (if (:hand? config)
     c-deal
-    (letfn [(cards [old-c-deal] (-> old-c-deal solist-position))
+    (letfn [(cards [old-c-deal] (-> old-c-deal soloist-position))
             (replacements [owned skat] { skat owned, owned skat })
             (replacing [replacements] (fn [coll] (replace replacements coll)))
             (swap-cards [old-c-deal replacing]
               { :post [(not= old-c-deal %)] }
-              (-> old-c-deal (update-in [solist-position] replacing)
+              (-> old-c-deal (update-in [soloist-position] replacing)
                              (update-in [:skat] replacing)))
             (swap-for [old-c-deal owned skat]
               { :pre [old-c-deal owned skat] }
               (swap-cards old-c-deal (replacing (replacements owned skat))))
             (ask-for-card [deal swapped]
-              (.skat-swapping ^Player solist
+              (.skat-swapping ^Player soloist
                                       config
                                       (:skat deal)
                                       (cards deal)
@@ -81,7 +81,7 @@
 
 (defn play-deal "Play whole 10-trick deal and reach conclusion"
   [driver
-   { :keys [:solist :ouvert?] :as config }
+   { :keys [:soloist :ouvert?] :as config }
    { :keys [:front :middle :rear] :as bidders }
    { front-cards :front, middle-cards :middle, rear-cards :rear, skat :skat }]
   { :pre  [driver config front middle rear
@@ -98,7 +98,7 @@
           (owned-knowledge-for [checked current]
             (match checked
               current (cards-for current)
-              solist  (if ouvert? (cards-for solist) [])
+              soloist  (if ouvert? (cards-for soloist) [])
               :else   []))
           (initial-knowledge-for [player]
             (PlayerKnowledge. player
@@ -147,7 +147,7 @@
               (.trick-results ^GameDriver driver trick-result)
               (recur next-deal))))))))
 
-(defn final-game-value "Final game value for solist"
+(defn final-game-value "Final game value for soloist"
   [cards-taken
    { :keys [:suit :hand? :ouvert? :announced-schneider? :announced-schwarz?] }]
   (let [schneider? (game/schneider? cards-taken)
@@ -165,21 +165,21 @@
   { :pre [driver bidders] }
   (let [auction-result  (perform-auction driver bidders)
         bidding         (:bidding auction-result)
-        solist          (:winner bidding)
-        solist-position (-> bidders sets/map-invert (find solist) (get 1))
+        soloist          (:winner bidding)
+        soloist-position (-> bidders sets/map-invert (find soloist) (get 1))
         config          (declare-game driver bidding)
         deal-cards      (swap-skat config (:deal auction-result)
-                                          solist
-                                          solist-position)
+                                          soloist
+                                          soloist-position)
         results         (play-deal driver config bidders deal-cards)
         skat            (:skat results)
         cards-taken     (-> results
                             (log/pass :deal "deal results")
-                            (get-in [:knowledge solist :cards-taken solist])
+                            (get-in [:knowledge soloist :cards-taken soloist])
                             (concat skat)
                             (log/pass :deal "all owned cards"))
         game-value      (final-game-value cards-taken config)]
-    (Result. solist
+    (Result. soloist
              (auction/contract-fulfilled? config cards-taken)
              (:bid bidding)
              game-value)))
@@ -194,9 +194,9 @@
         initial-points       { player-1 0, player-2 0, player-3 0 }]
     (letfn [(rotate-bidders [b]
               (zipmap (map game/player-in-next-deal (keys b)) (vals b)))
-            (update-points [points { :keys [:solist :success? :game-value] }]
+            (update-points [points { :keys [:soloist :success? :game-value] }]
               (update-in points
-                         [solist]
+                         [soloist]
                          #(+ % (if success? game-value (- (* 2 game-value))))))]
       (loop [round   1
              bidders initial-bidders

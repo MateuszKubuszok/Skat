@@ -28,24 +28,24 @@
 
 ;; Used to store auction results (and sub results).
 ;;
-;; :winner is the (sub)bid's winner (during the game he'll be called solist),
+;; :winner is the (sub)bid's winner (during the game he'll be called soloist),
 ;; :cards are winner's cards,
-;; :bid is the value of bid placed by solist.
+;; :bid is the value of bid placed by soloist.
 (defrecord Bidding [winner cards bid])
 
 ;; Used to store details about declared game.
 ;;
-;; :solist is the bid winner and declarer of a current game,
+;; :soloist is the bid winner and declarer of a current game,
 ;; :suit describes currently played game:
 ;;   #{ :grand, :kreuz, :grun, :herz, :schell, :null },
-;; :hand tells whether solists decided not to pick skat cards,
-;; :ouvert tells whether solists decided to show his cards to his opponents
+;; :hand tells whether soloists decided not to pick skat cards,
+;; :ouvert tells whether soloists decided to show his cards to his opponents
 ;;   (requires :hand),
-;; :announced-schneider? tells whether solist declares that opponenets will get
+;; :announced-schneider? tells whether soloist declares that opponenets will get
 ;;    less that 30 points worth of cards,
-;; :announced-schwarz? tells that solist declare to take all cards,
-;; :declared-bid tells minimal game value solist must achieve.
-(defrecord Configuration [solist
+;; :announced-schwarz? tells that soloist declare to take all cards,
+;; :declared-bid tells minimal game value soloist must achieve.
+(defrecord Configuration [soloist
                           suit
                           hand?
                           ouvert?
@@ -57,16 +57,16 @@
 ;;
 ;; :knowledge is a map of [Player, PlayerKnowledge] pairs,
 ;; :trick is a current Trick,
-;; :skat is a pair of 2 cards owned by solist but not used during the game.
+;; :skat is a pair of 2 cards owned by soloist but not used during the game.
 (defrecord Deal [knowledge trick skat])
 
 ;; Used to describe deal result.
 ;;
-;; :solist is a bid winner and game declarer,
-;; :success? tells whether solist won game,
+;; :soloist is a bid winner and game declarer,
+;; :success? tells whether soloist won game,
 ;; :bid tells how much player bid,
 ;; :game-value tells how much game was worth.
-(defrecord Result [solist success? bid game-value])
+(defrecord Result [soloist success? bid game-value])
 
 ;; Used to describe Player's knowledge about the ongoing deal.
 ;;
@@ -87,12 +87,13 @@
   (play-3rd-card [this situation c1 c2] "Play card as 3rd Player")
   (place-bid [this cards last-bid] "Place bid considering prevous bid's value")
   (respond-to-bid [this cards bid] "Respond to placed bid (accept/decline)")
-  (declare-suit [this cards final-bid] "Choose suit as a solist")
-  (declare-hand [this cards final-bid] "Choose hand (yes/no) as a solist")
+  (declare-suit [this cards final-bid] "Choose suit as a soloist")
+  (declare-hand [this cards final-bid] "Choose hand (yes/no) as a soloist")
   (declare-schneider [this cards final-bid]
-    "Choose schneider (yes/no) as a solist")
-  (declare-schwarz [this cards final-bid] "Choose schwarz (yes/no) as a solist")
-  (declare-ouvert [this cards final-bid] "Choose ouvert (yes/no) as a solist")
+    "Choose schneider (yes/no) as a soloist")
+  (declare-schwarz [this cards final-bid]
+    "Choose schwarz (yes/no) as a soloist")
+  (declare-ouvert [this cards final-bid] "Choose ouvert (yes/no) as a soloist")
   (skat-swapping [this config skat-owned cards-owned skat-card]
     "Choose card for swapping with a skat card"))
 
