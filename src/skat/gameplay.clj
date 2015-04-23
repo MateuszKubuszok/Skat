@@ -15,9 +15,12 @@
                   GameDriver]))
 (set! *warn-on-reflection* true)
 
-;;; Run game
+;;; Perform auction
 
 (def ^:dynamic shuffle-cards-and-deal "Mockable cards dealing" cards/deal-cards)
+
+(defn auction-successful? "Whether auction ended up with successfully" [bidding]
+  (-> bidding :bid auction/bids?))
 
 (defn perform-auction "Performs auction" [driver bidders]
   { :pre  [driver bidders]
@@ -29,9 +32,11 @@
             bidding (auction/do-auction bidders deal)]
         (do
           (.auction-result ^GameDriver driver bidding)
-          (if (-> bidding :bid auction/bids?)
+          (if (auction-successful? bidding)
             { :deal deal, :bidding bidding }
             (recur)))))))
+
+;;; Declare game
 
 (defn declare-game "Declare game suit, hand, schneider, schwarz and ouvert"
   [driver bidding]
@@ -49,35 +54,41 @@
             config)
           (recur))))))
 
+;;; Skat swapping
+
+(defn swap-for "Swap cards in deal (map of position -> cards pairs)"
+  [card-deal hand-card skat-card soloist-position]
+  { :pre  [card-deal hand-card skat-card]
+    :post [(not= card-deal %)]  }
+  (letfn [(replacement-map [owned skat] { skat owned, owned skat })
+          (replace-pairs [r-map] #(replace r-map %))
+          (swap-cards [old-card-deal r-fn]
+            (-> old-card-deal (update-in [soloist-position] r-fn)
+                              (update-in [:skat] r-fn)))]
+    (swap-cards card-deal
+                (replace-pairs (replacement-map hand-card skat-card)))))
+
 (defn swap-skat "Swap skat with owned cards if game without hand declared"
-  [config c-deal soloist soloist-position]
-  { :pre  [config c-deal soloist]
+  [config card-deal soloist soloist-position]
+  { :pre  [config card-deal soloist]
     :post [%] }
   (if (:hand? config)
-    c-deal
-    (letfn [(cards [old-c-deal] (-> old-c-deal soloist-position))
-            (replacements [owned skat] { skat owned, owned skat })
-            (replacing [replacements] (fn [coll] (replace replacements coll)))
-            (swap-cards [old-c-deal replacing]
-              { :post [(not= old-c-deal %)] }
-              (-> old-c-deal (update-in [soloist-position] replacing)
-                             (update-in [:skat] replacing)))
-            (swap-for [old-c-deal owned skat]
-              { :pre [old-c-deal owned skat] }
-              (swap-cards old-c-deal (replacing (replacements owned skat))))
-            (ask-for-card [deal swapped]
+    card-deal
+    (letfn [(ask-for-card [old-card-deal swapped]
               (.skat-swapping ^Player soloist
                                       config
-                                      (:skat deal)
-                                      (cards deal)
+                                      (:skat old-card-deal)
+                                      (soloist-position old-card-deal)
                                       swapped))]
-      (let [skat-1 (-> c-deal :skat first)
-            card-1 (ask-for-card c-deal skat-1)
-            swap-1 (swap-for c-deal card-1 skat-1)
-            skat-2 (-> c-deal :skat second)
+      (let [skat-1 (-> card-deal :skat first)
+            card-1 (ask-for-card card-deal skat-1)
+            swap-1 (swap-for card-deal card-1 skat-1 soloist-position)
+            skat-2 (-> card-deal :skat second)
             card-2 (ask-for-card swap-1 skat-2)
-            swap-2 (swap-for swap-1 card-2 skat-2)]
+            swap-2 (swap-for swap-1 card-2 skat-2 soloist-position)]
         swap-2))))
+
+;;; Play single deal with bidding done
 
 (defn play-deal "Play whole 10-trick deal and reach conclusion"
   [driver

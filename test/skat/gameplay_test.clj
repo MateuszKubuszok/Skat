@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [skat]
             [skat.cards :as cards]
+            [skat.auction :as auction]
             [skat.gameplay :refer :all])
   (:import  [skat Card
                   Bidders
@@ -61,6 +62,14 @@
         :rear   (drop-take sorted 20 10)
         :skat   (drop-take sorted 30 2) })))
 
+(deftest auction-successful?-test
+  (testing "if at least one of Players bid auction is successful"
+    (is (auction-successful? (Bidding. nil nil 18))))
+  (testing "if all Players passed auction is not successful"
+    (is (not (auction-successful?
+              (Bidding. nil nil auction/passed-game-value))))
+    (is (not (auction-successful? (Bidding. nil nil nil))))))
+
 (deftest perform-auction-test
   (testing "auction eventually end with bidding"
     (let [driver  (reify GameDriver
@@ -81,6 +90,12 @@
     (testing "declaration eventually ends"
       (is (= config-true (declare-game driver-true {})))
       (is (= config-false (declare-game driver-false {}))))))
+
+(deftest swap-for-test
+  (testing "cards are swapped correctly"
+    (let [swapped (swap-for deal c1 c7 :front)]
+      (is (= (set [c2 c7]) (set (swapped :front))))
+      (is (= (set [c1 c8]) (set (swapped :skat)))))))
 
 (deftest swap-skat-test
   (testing "hand leaves deal intact"
