@@ -181,11 +181,11 @@
 
 ;;; Perform whole game from beginning to end
 
-(def ^:dynamic *rounds-in-tournament* "Numer of rounds in tournament" 10)
+(def ^:dynamic *rounds* "Numer of rounds in tournament" 10)
 
 (defn start-game "Start game using passed driver" [driver]
   { :pre [driver] }
-  (let [rounds-in-tournament *rounds-in-tournament*
+  (let [rounds-in-tournament *rounds*
         initial-bidders      (.create-players ^GameDriver driver)
         player-1             (:front  initial-bidders)
         player-2             (:middle initial-bidders)
