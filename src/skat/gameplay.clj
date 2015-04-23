@@ -56,18 +56,6 @@
 
 ;;; Skat swapping
 
-(defn swap-for "Swap cards in deal (map of position -> cards pairs)"
-  [card-deal hand-card skat-card soloist-position]
-  { :pre  [card-deal hand-card skat-card]
-    :post [(not= card-deal %)]  }
-  (letfn [(replacement-map [owned skat] { skat owned, owned skat })
-          (replace-pairs [r-map] #(replace r-map %))
-          (swap-cards [old-card-deal r-fn]
-            (-> old-card-deal (update-in [soloist-position] r-fn)
-                              (update-in [:skat] r-fn)))]
-    (swap-cards card-deal
-                (replace-pairs (replacement-map hand-card skat-card)))))
-
 (defn swap-skat "Swap skat with owned cards if game without hand declared"
   [config card-deal soloist soloist-position]
   { :pre  [config card-deal soloist]
@@ -82,10 +70,10 @@
                                       swapped))]
       (let [skat-1 (-> card-deal :skat first)
             card-1 (ask-for-card card-deal skat-1)
-            swap-1 (swap-for card-deal card-1 skat-1 soloist-position)
+            swap-1 (game/swap-for card-deal card-1 skat-1 soloist-position)
             skat-2 (-> card-deal :skat second)
             card-2 (ask-for-card swap-1 skat-2)
-            swap-2 (swap-for swap-1 card-2 skat-2 soloist-position)]
+            swap-2 (game/swap-for swap-1 card-2 skat-2 soloist-position)]
         swap-2))))
 
 ;;; Play single deal with bidding done
@@ -174,49 +162,47 @@
 
 (defn deal-end2end "Deal cards, auction and play 10 tricks" [driver bidders]
   { :pre [driver bidders] }
-  (let [auction-result  (perform-auction driver bidders)
-        bidding         (:bidding auction-result)
+  (let [auction-result   (perform-auction driver bidders)
+        bidding          (:bidding auction-result)
         soloist          (:winner bidding)
         soloist-position (-> bidders sets/map-invert (find soloist) (get 1))
-        config          (declare-game driver bidding)
-        deal-cards      (swap-skat config (:deal auction-result)
+        config           (declare-game driver bidding)
+        deal-cards       (swap-skat config (:deal auction-result)
                                           soloist
                                           soloist-position)
-        results         (play-deal driver config bidders deal-cards)
-        skat            (:skat results)
-        cards-taken     (-> results
-                            (log/pass :deal "deal results")
-                            (get-in [:knowledge soloist :cards-taken soloist])
-                            (concat skat)
-                            (log/pass :deal "all owned cards"))
-        game-value      (final-game-value cards-taken config)]
+        results          (play-deal driver config bidders deal-cards)
+        skat             (:skat results)
+        cards-taken      (-> results
+                             (log/pass :deal "deal results")
+                             (get-in [:knowledge soloist :cards-taken soloist])
+                             (concat skat)
+                             (log/pass :deal "all owned cards"))
+        game-value       (final-game-value cards-taken config)]
     (Result. soloist
              (auction/contract-fulfilled? config cards-taken)
              (:bid bidding)
              game-value)))
 
+;;; Perform whole game from beginning to end
+
+(def ^:dynamic *rounds-in-tournament* "Numer of rounds in tournament" 10)
+
 (defn start-game "Start game using passed driver" [driver]
   { :pre [driver] }
-  (let [rounds-in-tournament 10
+  (let [rounds-in-tournament *rounds-in-tournament*
         initial-bidders      (.create-players ^GameDriver driver)
         player-1             (:front  initial-bidders)
         player-2             (:middle initial-bidders)
         player-3             (:rear   initial-bidders)
         initial-points       { player-1 0, player-2 0, player-3 0 }]
-    (letfn [(rotate-bidders [b]
-              (zipmap (map game/player-in-next-deal (keys b)) (vals b)))
-            (update-points [points { :keys [:soloist :success? :game-value] }]
-              (update-in points
-                         [soloist]
-                         #(+ % (if success? game-value (- (* 2 game-value))))))]
-      (loop [round   1
-             bidders initial-bidders
-             points  initial-points]
-        (if (<= round rounds-in-tournament)
-          (let [deal-result (deal-end2end driver bidders)]
-            (do
-              (.deal-results ^GameDriver driver deal-result)
-              (recur (inc round)
-                     (rotate-bidders bidders)
-                     (update-points points deal-result))))
-          (.game-results ^GameDriver driver points))))))
+    (loop [round   1
+           bidders initial-bidders
+           points  initial-points]
+      (if (<= round rounds-in-tournament)
+        (let [deal-result (deal-end2end driver bidders)]
+          (do
+            (.deal-results ^GameDriver driver deal-result)
+            (recur (inc round)
+                   (game/rotate-bidders bidders)
+                   (game/update-points points deal-result))))
+        (.game-results ^GameDriver driver points)))))

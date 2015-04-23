@@ -91,12 +91,6 @@
       (is (= config-true (declare-game driver-true {})))
       (is (= config-false (declare-game driver-false {}))))))
 
-(deftest swap-for-test
-  (testing "cards are swapped correctly"
-    (let [swapped (swap-for deal c1 c7 :front)]
-      (is (= (set [c2 c7]) (set (swapped :front))))
-      (is (= (set [c1 c8]) (set (swapped :skat)))))))
-
 (deftest swap-skat-test
   (testing "hand leaves deal intact"
     (let [config (Configuration. pl1 :grand true false false false 18)]

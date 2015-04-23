@@ -5,9 +5,11 @@
             [skat.cards :refer :all]
             [skat.game :refer :all])
   (:import  [skat Card
+                  Bidders
                   Bidding
                   Configuration
                   Deal
+                  Result
                   PlayerKnowledge
                   Player
                   Trick]))
@@ -112,6 +114,13 @@
         (is (= (:cards-allowed
                 (figure-situation conf-null p3-knowledge order c1))
                #{c5}))))))
+
+(deftest swap-for-test
+  (testing "cards are swapped correctly"
+    (let [deal { :front [c1 c2], :middle [c3 c4], :rear [c5 c6], :skat [c7 c8] }
+          swapped (swap-for deal c1 c7 :front)]
+      (is (= (set [c2 c7]) (set (swapped :front))))
+      (is (= (set [c1 c8]) (set (swapped :skat)))))))
 
 (deftest trick-winning-grand-test
   (testing "jack always wins"
@@ -233,3 +242,28 @@
     (is (requires-hand true true))
     (is (not (requires-hand false true)))
     (is (requires-hand true false))))
+
+(deftest rotate-bidders-test
+  (testing "bidders rorate correctly"
+    (let [rotated (rotate-bidders (Bidders. 1 2 3))]
+      (is (== 2 (:front  rotated)))
+      (is (== 3 (:middle rotated)))
+      (is (== 1 (:rear   rotated))))))
+
+(deftest new-points-value-test
+  (testing "add game value for win game"
+    (is (== 20 (new-points-value true 20 0))))
+  (testing "subtract doubel the game value for lost game"
+    (is (== -40 (new-points-value false 20 0)))))
+
+(deftest update-points-test
+  (testing "add game value for win game"
+    (let [result (update-points { 1 0, 2 0, 3 0 } (Result. 1 true nil 20))]
+      (is (== 20 (get result 1)))
+      (is (== 0  (get result 2)))
+      (is (== 0  (get result 3)))))
+  (testing "subtract double the game value for lost game"
+    (let [result (update-points { 1 0, 2 0, 3 0 } (Result. 1 false nil 20))]
+      (is (== -40 (get result 1)))
+      (is (== 0   (get result 2)))
+      (is (== 0   (get result 3))))))

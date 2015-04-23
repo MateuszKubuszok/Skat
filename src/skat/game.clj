@@ -71,6 +71,20 @@
                              players-cards))]
     (PlayerSituation. self config knowledge order cards-allowed)))
 
+;;; Swap skat
+
+(defn swap-for "Swap cards in deal (map of position -> cards pairs)"
+  [card-deal hand-card skat-card soloist-position]
+  { :pre  [card-deal hand-card skat-card]
+    :post [(not= card-deal %)]  }
+  (letfn [(replacement-map [owned skat] { skat owned, owned skat })
+          (replace-pairs [r-map] #(replace r-map %))
+          (swap-cards [old-card-deal r-fn]
+            (-> old-card-deal (update-in [soloist-position] r-fn)
+                              (update-in [:skat] r-fn)))]
+    (swap-cards card-deal
+                (replace-pairs (replacement-map hand-card skat-card)))))
+
 ;;; Trick winner
 
 (defn highest-trump-wins "Determines winner for normal game" [suit c1 c2 c3]
@@ -157,3 +171,16 @@
 
 (defn requires-hand [hand? modifier?]
   (if modifier? hand? true))
+
+;;; After deal ended
+
+(defn rotate-bidders "Rotate bidders for next round" [bidders]
+  (zipmap (map player-in-next-deal (keys bidders)) (vals bidders)))
+
+(defn new-points-value "Calulates new points value for a soloist"
+  [success? game-value current-value]
+  (+ current-value (if success? game-value (- (* 2 game-value)))))
+
+(defn update-points "Update points value for a solist"
+  [points { :keys [:soloist :success? :game-value] }]
+  (update-in points [soloist] (partial new-points-value success? game-value)))
