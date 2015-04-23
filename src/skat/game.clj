@@ -75,15 +75,16 @@
 
 (defn swap-for "Swap cards in deal (map of position -> cards pairs)"
   [card-deal hand-card skat-card soloist-position]
-  { :pre  [card-deal hand-card skat-card]
-    :post [(not= card-deal %)]  }
+  { :pre  [card-deal skat-card] }
   (letfn [(replacement-map [owned skat] { skat owned, owned skat })
           (replace-pairs [r-map] #(replace r-map %))
           (swap-cards [old-card-deal r-fn]
             (-> old-card-deal (update-in [soloist-position] r-fn)
                               (update-in [:skat] r-fn)))]
-    (swap-cards card-deal
-                (replace-pairs (replacement-map hand-card skat-card)))))
+    (if hand-card
+      (swap-cards card-deal
+                  (replace-pairs (replacement-map hand-card skat-card)))
+      card-deal)))
 
 ;;; Trick winner
 

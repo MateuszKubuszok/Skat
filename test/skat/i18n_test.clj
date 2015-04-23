@@ -34,6 +34,8 @@
     (is (= (t :en :skat/cli/player/choose-schneider) "Announce schneider:"))
     (is (= (t :en :skat/cli/player/choose-schwarz)   "Announce schwarz:"))
     (is (= (t :en :skat/cli/player/choose-ouvert)    "Choose ouvert:"))
+    (is (= (t :en :skat/cli/player/choose-swap-skat "test")
+            "Choose whether you want to swap test:"))
     (is (= (t :en :skat/cli/player/swap-skat-card "test")
            "Choose card to swap for test:"))
     (is (= (t :en :skat/cli/player/played "x" "y") "x played: y"))

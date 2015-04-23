@@ -149,6 +149,8 @@
   (do
     (show-t :player/choose-ouvert)
     (show-owned-cards mock-cards-sort cards)))
+(defn show-player-choose-swap-skat "Shows skat swap choice question" [skat-card]
+  (show-t :player/choose-swap-skat (card-str skat-card)))
 (defn show-player-swap-skat-card "Shows skat card swap choice question"
   [cards skat-card]
   (do
@@ -359,8 +361,11 @@
         (println)
         (show-player-name id)
         (show-skat-cards config skat-owned)
-        (show-player-swap-skat-card cards-owned skat-card)
-        (select-card mock-cards-sort cards-owned)))))
+        (show-player-choose-swap-skat skat-card)
+        (if (select-yes-no-answer)
+          (do
+            (show-player-swap-skat-card cards-owned skat-card)
+            (select-card mock-cards-sort cards-owned)))))))
 
 (def player-types "Players types to choose"
   [ create-cpu-player, create-human-player ])
