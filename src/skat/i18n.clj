@@ -45,9 +45,9 @@
                       :won-bid          "%s won bid: %d"
                       :bid-draw         "No one won bid"
                       :declared! (long-str "soloist: %s"
-                                           "Suit:   %s"
-                                           "Hand:   %s"
-                                           "Ouvert: %s"
+                                           "Suit:    %s"
+                                           "Hand:    %s"
+                                           "Ouvert:  %s"
                                            "Announced schneider: %s"
                                            "Announced schwarz:   %s"
                                            "Placed bid: %d") }
@@ -56,9 +56,9 @@
                                          "%s played %s"
                                          "%s won trick")
                        :deal!  (long-str "soloist: %s"
-                                         "Bid:    %d"
-                                         "Points: %d"
-                                         "Won:    %s")
+                                         "Bid:     %d"
+                                         "Points:  %d"
+                                         "Won:     %s")
                        :game!  (long-str "Player: %s"
                                          "Points: %d") }
             :select { :nth-item    "Select which one you want:"
