@@ -3,7 +3,7 @@
             [skat]
             [skat.cards :refer :all]
             [skat.auction :refer :all])
-  (:import  [skat Card Bidders Configuration Player]))
+  (:import  [skat Card Bidders Bidding Configuration Player]))
 
 (def c1 (Card. :kreuz :W))
 (def c2 (Card. :grun :W))
@@ -222,6 +222,127 @@
       (is (== (*  9 3) (game-value cards-wout-1 :schell t f f f)))
       (is (== (*  9 4) (game-value cards-wout-1 :schell t t f f))))))
 
+(deftest final-game-value-test
+  (let [t            true
+        f            false
+        cards        pattern
+        cards-wout-1 (drop 1 cards)]
+    (testing "all games should have positive values always"
+      (is (== 23       (final-game-value
+                        cards
+                        (Configuration. nil :null   f f f f 18))))
+      (is (== 35       (final-game-value
+                        cards
+                        (Configuration. nil :null   t f f f 18))))
+      (is (== 46       (final-game-value
+                        cards
+                        (Configuration. nil :null   f t f f 18))))
+      (is (== 59       (final-game-value
+                        cards
+                        (Configuration. nil :null   t t f f 18))))
+      (is (== 23       (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :null   f f f f 18))))
+      (is (== 35       (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :null   t f f f 18))))
+      (is (== 46       (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :null   f t f f 18))))
+      (is (== 59       (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :null   t t f f 18))))
+      (is (== (* 24 5) (final-game-value
+                        cards
+                        (Configuration. nil :grand  f f f f 18))))
+      (is (== (* 24 6) (final-game-value
+                        cards
+                        (Configuration. nil :grand  t f f f 18))))
+      (is (== (* 24 7) (final-game-value
+                        cards
+                        (Configuration. nil :grand  t t f f 18))))
+      (is (== (* 24 2) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :grand  f f f f 18))))
+      (is (== (* 24 3) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :grand  t f f f 18))))
+      (is (== (* 24 4) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :grand  t t f f 18))))
+      (is (== (* 12 6) (final-game-value
+                        cards
+                        (Configuration. nil :kreuz  f f f f 18))))
+      (is (== (* 12 7) (final-game-value
+                        cards
+                        (Configuration. nil :kreuz  t f f f 18))))
+      (is (== (* 12 8) (final-game-value
+                        cards
+                        (Configuration. nil :kreuz  t t f f 18))))
+      (is (== (* 12 2) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :kreuz  f f f f 18))))
+      (is (== (* 12 3) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :kreuz  t f f f 18))))
+      (is (== (* 12 4) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :kreuz  t t f f 18))))
+      (is (== (* 11 6) (final-game-value
+                        cards
+                        (Configuration. nil :grun   f f f f 18))))
+      (is (== (* 11 7) (final-game-value
+                        cards
+                        (Configuration. nil :grun   t f f f 18))))
+      (is (== (* 11 8) (final-game-value
+                        cards
+                        (Configuration. nil :grun   t t f f 18))))
+      (is (== (* 11 2) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :grun   f f f f 18))))
+      (is (== (* 11 3) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :grun   t f f f 18))))
+      (is (== (* 11 4) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :grun   t t f f 18))))
+      (is (== (* 10 6) (final-game-value
+                        cards
+                        (Configuration. nil :herz   f f f f 18))))
+      (is (== (* 10 7) (final-game-value
+                        cards
+                        (Configuration. nil :herz   t f f f 18))))
+      (is (== (* 10 8) (final-game-value
+                        cards
+                        (Configuration. nil :herz   t t f f 18))))
+      (is (== (* 10 2) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :herz   f f f f 18))))
+      (is (== (* 10 3) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :herz   t f f f 18))))
+      (is (== (* 10 4) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :herz   t t f f 18))))
+      (is (== (*  9 6) (final-game-value
+                        cards
+                        (Configuration. nil :schell f f f f 18))))
+      (is (== (*  9 7) (final-game-value
+                        cards
+                        (Configuration. nil :schell t f f f 18))))
+      (is (== (*  9 8) (final-game-value
+                        cards
+                        (Configuration. nil :schell t t f f 18))))
+      (is (== (*  9 2) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :schell f f f f 18))))
+      (is (== (*  9 3) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :schell t f f f 18))))
+      (is (== (*  9 4) (final-game-value
+                        cards-wout-1
+                        (Configuration. nil :schell t t f f 18)))))))
+
 (deftest game-value?-test
   (testing "nil is valid game value"
     (is (game-value? nil)))
@@ -303,6 +424,14 @@
           (is (= bid-48 (:winner min-bid)))
           (is (== 48 (:bid min-bid)))
           (is (= bid-48 (:winner min-bid))))))))
+
+(deftest auction-successful?-test
+  (testing "if at least one of Players bid auction is successful"
+    (is (auction-successful? (Bidding. nil nil 18))))
+  (testing "if all Players passed auction is not successful"
+    (is (not (auction-successful?
+              (Bidding. nil nil passed-game-value))))
+    (is (not (auction-successful? (Bidding. nil nil nil))))))
 
 (deftest contract-fulfilled?-test
   (let [t true

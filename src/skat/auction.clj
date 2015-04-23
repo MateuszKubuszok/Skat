@@ -195,6 +195,20 @@
                                 schwarz?
                                 announced-schwarz?))))
 
+(defn final-game-value "Final game value for soloist"
+  [cards-taken
+   { :keys [:suit :hand? :ouvert? :announced-schneider? :announced-schwarz?] }]
+  (let [schneider? (game/schneider? cards-taken)
+        schwarz?   (game/schwarz? cards-taken)]
+    (game-value cards-taken
+                suit
+                hand?
+                ouvert?
+                schneider?
+                announced-schneider?
+                schwarz?
+                announced-schwarz?)))
+
 ;;; Bidding
 
 (defn game-value? "Whether input is valid game value (nil act like 17)" [value]
@@ -230,6 +244,9 @@
                                                passed-game-value)]
         (if (bids? winner-1st-bid)
           (Bidding. (:winner r2w) (:cards r2w) winner-1st-bid))))))
+
+(defn auction-successful? "Whether auction ended up with successfully" [bidding]
+  (-> bidding :bid bids?))
 
 ;;; Contracts
 

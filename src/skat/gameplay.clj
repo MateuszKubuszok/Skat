@@ -19,9 +19,6 @@
 
 (def ^:dynamic shuffle-cards-and-deal "Mockable cards dealing" cards/deal-cards)
 
-(defn auction-successful? "Whether auction ended up with successfully" [bidding]
-  (-> bidding :bid auction/bids?))
-
 (defn perform-auction "Performs auction" [driver bidders]
   { :pre  [driver bidders]
     :post [(:deal %) (:bidding %)] }
@@ -32,7 +29,7 @@
             bidding (auction/do-auction bidders deal)]
         (do
           (.auction-result ^GameDriver driver bidding)
-          (if (auction-successful? bidding)
+          (if (auction/auction-successful? bidding)
             { :deal deal, :bidding bidding }
             (recur)))))))
 
@@ -146,20 +143,6 @@
               (.trick-results ^GameDriver driver trick-result)
               (recur next-deal))))))))
 
-(defn final-game-value "Final game value for soloist"
-  [cards-taken
-   { :keys [:suit :hand? :ouvert? :announced-schneider? :announced-schwarz?] }]
-  (let [schneider? (game/schneider? cards-taken)
-        schwarz?   (game/schwarz? cards-taken)]
-    (auction/game-value cards-taken
-                        suit
-                        hand?
-                        ouvert?
-                        schneider?
-                        announced-schneider?
-                        schwarz?
-                        announced-schwarz?)))
-
 (defn deal-end2end "Deal cards, auction and play 10 tricks" [driver bidders]
   { :pre [driver bidders] }
   (let [auction-result   (perform-auction driver bidders)
@@ -177,7 +160,7 @@
                              (get-in [:knowledge soloist :cards-taken soloist])
                              (concat skat)
                              (log/pass :deal "all owned cards"))
-        game-value       (final-game-value cards-taken config)]
+        game-value       (auction/final-game-value cards-taken config)]
     (Result. soloist
              (auction/contract-fulfilled? config cards-taken)
              (:bid bidding)

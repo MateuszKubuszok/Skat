@@ -6,7 +6,6 @@
             [skat.gameplay :refer :all])
   (:import  [skat Card
                   Bidders
-                  Bidding
                   Player
                   Configuration
                   GameDriver]))
@@ -61,14 +60,6 @@
         :middle (drop-take sorted 10 10)
         :rear   (drop-take sorted 20 10)
         :skat   (drop-take sorted 30 2) })))
-
-(deftest auction-successful?-test
-  (testing "if at least one of Players bid auction is successful"
-    (is (auction-successful? (Bidding. nil nil 18))))
-  (testing "if all Players passed auction is not successful"
-    (is (not (auction-successful?
-              (Bidding. nil nil auction/passed-game-value))))
-    (is (not (auction-successful? (Bidding. nil nil nil))))))
 
 (deftest perform-auction-test
   (testing "auction eventually end with bidding"
