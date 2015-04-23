@@ -9,6 +9,7 @@
                   PlayerKnowledge
                   Player
                   Configuration
+                  Trick
                   GameDriver]))
 
 (def c1 (Card. :kreuz :W))
@@ -95,6 +96,38 @@
       (is (= (set [c5 c6]) (set (swapped :rear))))
       (is (= (set [c1 c7]) (set (swapped :skat)))))))
 
+(deftest initialize-knowledge-test
+  (testing "in non-ouvert game Players knows only their own cards"
+    (let [knowledge (initialize-knowledge { :soloist pl1, :ouvert? false }
+                                          mock-bidders
+                                          deal)]
+      (is (= (:front deal)   (get-in knowledge [pl1 :cards-owned pl1])))
+      (is (= []              (get-in knowledge [pl1 :cards-owned pl2])))
+      (is (= []              (get-in knowledge [pl1 :cards-owned pl3])))
+      (is (= []              (get-in knowledge [pl2 :cards-owned pl1])))
+      (is (= (:middle deal)  (get-in knowledge [pl2 :cards-owned pl2])))
+      (is (= []              (get-in knowledge [pl2 :cards-owned pl3])))
+      (is (= []              (get-in knowledge [pl3 :cards-owned pl1])))
+      (is (= []              (get-in knowledge [pl3 :cards-owned pl2])))
+      (is (= (:rear deal)    (get-in knowledge [pl3 :cards-owned pl3])))
+      (is (every? #(= [] %)  (-> knowledge vals :cards-played)))
+      (is (every? #(= #{} %) (-> knowledge vals :cards-taken)))))
+  (testing "in ouvert game Players knows their own cards and soloist's"
+    (let [knowledge (initialize-knowledge { :soloist pl1, :ouvert? true }
+                                          mock-bidders
+                                          deal)]
+      (is (= (:front deal)   (get-in knowledge [pl1 :cards-owned pl1])))
+      (is (= []              (get-in knowledge [pl1 :cards-owned pl2])))
+      (is (= []              (get-in knowledge [pl1 :cards-owned pl3])))
+      (is (= (:front deal)   (get-in knowledge [pl2 :cards-owned pl1])))
+      (is (= (:middle deal)  (get-in knowledge [pl2 :cards-owned pl2])))
+      (is (= []              (get-in knowledge [pl2 :cards-owned pl3])))
+      (is (= (:front deal)   (get-in knowledge [pl3 :cards-owned pl1])))
+      (is (= []              (get-in knowledge [pl3 :cards-owned pl2])))
+      (is (= (:rear deal)    (get-in knowledge [pl3 :cards-owned pl3])))
+      (is (every? #(= [] %)  (-> knowledge vals :cards-played)))
+      (is (every? #(= #{} %) (-> knowledge vals :cards-taken))))))
+
 (deftest get-cards-owned-test
   (testing "obtain cards ofned for each player"
     (let [cards-owned { 1 2, 3 4, 5 6 }
@@ -112,6 +145,26 @@
   (testing "game is not finished if all Player have any cards"
     (let [knowledge { 1 (PlayerKnowledge. 1 nil { 1 [1] } nil) }]
       (is (not (game-finished? knowledge))))))
+
+(deftest player-last-played-card-pair-test
+  (testing "should obtain last used card for a player"
+    (is (= { :player 1, :card 2 }
+           (player-last-played-card-pair
+            1
+            { 1 (PlayerKnowledge. 1 { 1 [4 3 2] } nil nil) })))))
+
+(deftest last-trick-cards-test
+  (testing "should obtains last played cards for each player"
+    (let [deal      { :trick { :order { :p1 1, :p2 2, :p3 3 } } }
+          next-deal { :knowledge { 1 (PlayerKnowledge. 1 { 1 [5 4] } nil nil)
+                                   2 (PlayerKnowledge. 2 { 2 [7 6] } nil nil)
+                                   3 (PlayerKnowledge. 3 { 3 [9 8] } nil nil) }
+                      :trick { :order { :p1 1 } }  }
+          result    (last-trick-cards deal next-deal)]
+      (is (= { :player 1, :card 4 } (:p1 result)))
+      (is (= { :player 2, :card 6 } (:p2 result)))
+      (is (= { :player 3, :card 8 } (:p3 result)))
+      (is (= 1                      (:winner result))))))
 
 (deftest play-deal-test
   (let [config-grand  (Configuration. pl1 :grand true false false false 18)

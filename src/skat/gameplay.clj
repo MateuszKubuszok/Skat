@@ -92,7 +92,7 @@
           (owned-knowledge-for [checked current]
             (match checked
               current (cards-for current)
-              soloist  (if ouvert? (cards-for soloist) [])
+              soloist (if ouvert? (cards-for soloist) [])
               :else   []))
           (initial-knowledge-for [player]
             (PlayerKnowledge. player
