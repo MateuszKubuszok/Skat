@@ -6,6 +6,7 @@
             [skat.gameplay :refer :all])
   (:import  [skat Card
                   Bidders
+                  PlayerKnowledge
                   Player
                   Configuration
                   GameDriver]))
@@ -93,6 +94,24 @@
       (is (= (set [c3 c4]) (set (swapped :middle))))
       (is (= (set [c5 c6]) (set (swapped :rear))))
       (is (= (set [c1 c7]) (set (swapped :skat)))))))
+
+(deftest get-cards-owned-test
+  (testing "obtain cards ofned for each player"
+    (let [cards-owned { 1 2, 3 4, 5 6 }
+          knowledge-1 (PlayerKnowledge. 1 nil cards-owned nil)
+          knowledge-2 (PlayerKnowledge. 3 nil cards-owned nil)
+          knowledge-3 (PlayerKnowledge. 5 nil cards-owned nil)]
+      (is (== 2 (get-cards-owned knowledge-1)))
+      (is (== 4 (get-cards-owned knowledge-2)))
+      (is (== 6 (get-cards-owned knowledge-3))))))
+
+(deftest game-finished?-test
+  (testing "game is finished if some Player run out of cards"
+    (let [knowledge { 1 (PlayerKnowledge. 1 nil { 1 [] } nil) }]
+      (is (game-finished? knowledge))))
+  (testing "game is not finished if all Player have any cards"
+    (let [knowledge { 1 (PlayerKnowledge. 1 nil { 1 [1] } nil) }]
+      (is (not (game-finished? knowledge))))))
 
 (deftest play-deal-test
   (let [config-grand  (Configuration. pl1 :grand true false false false 18)
