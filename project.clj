@@ -8,7 +8,8 @@
                  [org.clojure/tools.cli "0.3.1"]
                  [org.clojure/tools.trace "0.7.8"]
                  [com.taoensso/tower "3.0.2"]]
-  :plugins [[no-man-is-an-island/lein-eclipse "2.0.0"]]
+  :plugins [[no-man-is-an-island/lein-eclipse "2.0.0"]
+            [lein-cloverage "1.0.2"]]
   :javac-options ["-encoding utf8"]
   :jvm-opts ["-Dfile.encoding=UTF-8"]
   :profiles { :uberjar { :aot :all } }

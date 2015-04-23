@@ -8,4 +8,4 @@
 
 (deftest ai-player-test
   (testing ".id works as expected"
-    (is (= "ai-player" (.id player)))))
+    (is (= "ai-player" (.id ^Player player)))))

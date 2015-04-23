@@ -416,10 +416,14 @@
         (is (nil? (do-auction (Bidders. bid-17 bid-17 bid-17)
                               { :front [], :middle [], :rear [] }))))
       (testing "highest bidder wins"
-        (let [no-min  (do-auction (Bidders. bid-17 bid-24 bid-48)
-                                  { :front [], :middle [], :rear [] })
-              min-bid (do-auction (Bidders. bid-24 bid-48 bid-48-2)
-                                  { :front [], :middle [], :rear [] })]
+        (let [only-bid (do-auction (Bidders. bid-17 bid-17 bid-24)
+                                   { :front [], :middle [], :rear [] })
+              no-min   (do-auction (Bidders. bid-17 bid-24 bid-48)
+                                   { :front [], :middle [], :rear [] })
+              min-bid  (do-auction (Bidders. bid-24 bid-48 bid-48-2)
+                                   { :front [], :middle [], :rear [] })]
+          (is (== 24 (:bid only-bid)))
+          (is (= bid-24 (:winner only-bid)))
           (is (== 48 (:bid min-bid)))
           (is (= bid-48 (:winner min-bid)))
           (is (== 48 (:bid min-bid)))

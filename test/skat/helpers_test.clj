@@ -2,6 +2,12 @@
   (:require [clojure.test :refer :all]
             [skat.helpers :refer :all]))
 
+(deftest coll-contains?-test
+  (testing "should return true if collection contains element"
+    (is (coll-contains? [1 2 3] 2)))
+  (testing "should return false if collection doesn't contains element"
+    (is (not (coll-contains? [1 2 3] 4)))))
+
 (deftest list-from-test
   (testing "creates list of mapped values"
     (is (= (list-from identity '(1 2 3))
