@@ -123,6 +123,7 @@
                                          "%s wziął sztych")
                        :deal!  (long-str "Solista: %s"
                                          "Zakład:  %d"
+                                         "Gra:     %d"
                                          "Wygrana: %s")
                        :game!  (long-str "Gracz:  %s"
                                          "Punkty: %d") }
